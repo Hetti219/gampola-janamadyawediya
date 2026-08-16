@@ -1,0 +1,107 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: news_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Production vhost (nginx/prod/wordpress.conf). The local-dev override
+      # swaps this mount for nginx/local/.
+      - ./nginx/prod:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - wordpress_data:/var/www/html:ro
+      # Nginx serves the theme's static files (CSS, images) directly, so it
+      # needs the same theme bind mount the WordPress container has.
+      - ./theme/gampola-janamadyawediya:/var/www/html/wp-content/themes/gampola-janamadyawediya:ro
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost/ -o /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - news_net
+
+  wordpress:
+    image: wordpress:php8.3-fpm-alpine
+    container_name: news_wordpress
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_NAME: ${DB_NAME}
+      WORDPRESS_DB_USER: ${DB_USER}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: wp_
+      # WP_REDIS_HOST lets a Redis object-cache plugin (e.g. "Redis Object Cache")
+      # find Redis automatically once you activate it from the plugin screen.
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_REDIS_HOST', 'redis');
+        define('WP_MEMORY_LIMIT', '256M');
+        define('FS_METHOD', 'direct');
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+      - ./theme/gampola-janamadyawediya:/var/www/html/wp-content/themes/gampola-janamadyawediya:ro
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || kill -0 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - news_net
+
+  mariadb:
+    image: mariadb:11.4
+    container_name: news_mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - news_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: news_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - news_net
+
+volumes:
+  wordpress_data:
+  db_data:
+  redis_data:
+
+networks:
+  news_net:
+    driver: bridge

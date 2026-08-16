@@ -1,0 +1,813 @@
+/*
+ Theme Name:   Gampola Janamadyawediya
+ Theme URI:    https://example.com/gampola-janamadyawediya
+ Description:  Bold black & red news theme for a Sinhala-language local journalism site.
+ Author:       Antigravity
+ Author URI:   https://example.com
+ Template:     generatepress
+ Version:      2.0.0
+ License:      GNU General Public License v2 or later
+ License URI:  http://www.gnu.org/licenses/gpl-2.0.html
+ Text Domain:  gampola-janamadyawediya
+*/
+
+/* ───────────────────────────────────────────────────────────
+   1. DESIGN TOKENS (VARIABLES)
+   ─────────────────────────────────────────────────────────── */
+:root {
+	/* Brand: black & red */
+	--gjn-red: #E02A2A;
+	--gjn-red-hover: #B71C1C;
+	--gjn-red-soft: #FDEBEA;
+
+	/* Dark surfaces */
+	--gjn-ink: #101014;
+	--gjn-ink-soft: #1A1A20;
+	--gjn-ink-deep: #0A0A0D;
+
+	/* Light surfaces */
+	--gjn-bg-body: #F1F2F4;
+	--gjn-bg-surface: #FFFFFF;
+
+	/* Text on light */
+	--gjn-text-main: #17181C;
+	--gjn-text-muted: #3C3F45;
+	--gjn-text-light: #666A72;
+
+	/* Text on dark */
+	--gjn-text-on-dark: #F5F6F7;
+	--gjn-text-on-dark-muted: rgba(245, 246, 247, 0.72);
+	--gjn-text-on-dark-light: rgba(245, 246, 247, 0.55);
+
+	/* Borders & depth */
+	--gjn-border: rgba(16, 16, 20, 0.10);
+	--gjn-border-strong: rgba(16, 16, 20, 0.18);
+	--gjn-border-on-dark: rgba(245, 246, 247, 0.12);
+	--gjn-shadow-sm: 0 1px 3px rgba(16, 16, 20, 0.07);
+	--gjn-shadow-md: 0 4px 14px rgba(16, 16, 20, 0.09);
+	--gjn-shadow-hover: 0 12px 28px rgba(224, 42, 42, 0.14);
+
+	/* Typography */
+	--gjn-font-heading: 'Plus Jakarta Sans', 'Noto Sans Sinhala', system-ui, -apple-system, sans-serif;
+	--gjn-font-content: 'Noto Sans Sinhala', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+	/* Layout */
+	--gjn-container: 1200px;
+	--gjn-content-width: 720px;
+	--gjn-header-height: 60px;
+	--gjn-spacing-md: 1rem;
+	--gjn-spacing-lg: 2rem;
+	--gjn-spacing-xl: 4rem;
+	--gjn-radius: 12px;
+	--gjn-radius-sm: 8px;
+
+	/* Motion */
+	--gjn-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ───────────────────────────────────────────────────────────
+   2. BASE STYLES
+   ─────────────────────────────────────────────────────────── */
+body {
+	/* !important: GeneratePress prints its Customizer colors as inline
+	   CSS, so brand surfaces are pinned here to keep the black & red
+	   identity regardless of panel settings. */
+	background-color: var(--gjn-bg-body) !important;
+	color: var(--gjn-text-muted);
+	font-family: var(--gjn-font-content);
+	font-size: 1.05rem;
+	line-height: 1.7;
+	-webkit-font-smoothing: antialiased;
+}
+
+::selection {
+	background-color: var(--gjn-red);
+	color: #ffffff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--gjn-font-heading);
+	color: var(--gjn-text-main);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	line-height: 1.25;
+}
+
+a {
+	color: var(--gjn-red);
+	text-decoration: none;
+	transition: var(--gjn-transition);
+}
+
+a:hover, a:focus {
+	color: var(--gjn-red-hover);
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* ───────────────────────────────────────────────────────────
+   3. BUTTONS & FORMS
+   ─────────────────────────────────────────────────────────── */
+button,
+.button,
+input[type="submit"],
+input[type="button"] {
+	background-color: var(--gjn-red);
+	color: #ffffff;
+	border: none;
+	border-radius: var(--gjn-radius-sm);
+	padding: 12px 22px;
+	font-family: var(--gjn-font-heading);
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.4;
+	cursor: pointer;
+	transition: var(--gjn-transition);
+}
+
+button:hover,
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+	background-color: var(--gjn-red-hover);
+	color: #ffffff;
+}
+
+a:focus, button:focus, input:focus, textarea:focus {
+	outline: 2px solid var(--gjn-red);
+	outline-offset: 2px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="password"],
+textarea {
+	background-color: var(--gjn-bg-surface);
+	border: 1px solid var(--gjn-border-strong);
+	border-radius: var(--gjn-radius-sm);
+	padding: 10px 14px;
+	font-family: var(--gjn-font-content);
+	font-size: 1rem;
+	transition: var(--gjn-transition);
+}
+
+input:focus, textarea:focus {
+	border-color: var(--gjn-red);
+	outline: none;
+	box-shadow: 0 0 0 3px var(--gjn-red-soft);
+}
+
+/* "Read more" links as red outline pills */
+.read-more-container a,
+.read-more a {
+	display: inline-block;
+	border: 1px solid var(--gjn-red);
+	color: var(--gjn-red);
+	border-radius: 999px;
+	padding: 8px 18px;
+	font-family: var(--gjn-font-heading);
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+
+.read-more-container a:hover,
+.read-more a:hover {
+	background-color: var(--gjn-red);
+	color: #ffffff;
+}
+
+/* ───────────────────────────────────────────────────────────
+   4. HEADER (COMPACT, DARK)
+   ─────────────────────────────────────────────────────────── */
+/* Top red accent stripe */
+.gjn-accent-bar {
+	height: 4px;
+	background: var(--gjn-red);
+	width: 100%;
+}
+
+.site-header {
+	background-color: var(--gjn-ink) !important;
+	border-bottom: 1px solid var(--gjn-border-on-dark);
+	box-shadow: 0 2px 10px rgba(16, 16, 20, 0.28);
+	position: relative;
+	z-index: 10;
+}
+
+/* Standard-height bar: GP defaults to 40px padding around the header. */
+.inside-header {
+	padding: 0 24px !important;
+	min-height: var(--gjn-header-height);
+}
+
+/* GP's title element uses .main-title; .site-title kept for variants. */
+.main-title a,
+.site-title a {
+	font-family: var(--gjn-font-heading);
+	font-size: 1.25rem;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	color: #ffffff !important;
+	transition: var(--gjn-transition);
+}
+
+.main-title a:hover,
+.site-title a:hover {
+	color: var(--gjn-red) !important;
+}
+
+.site-description {
+	font-family: var(--gjn-font-heading);
+	color: var(--gjn-text-on-dark-muted) !important;
+	font-size: 0.78rem;
+	font-weight: 500;
+	margin-top: 2px;
+}
+
+/* Keep a future logo compact on the dark bar. */
+.site-logo img {
+	max-height: 40px;
+	width: auto;
+}
+
+/* ───────────────────────────────────────────────────────────
+   5. NAVIGATION (DARK BAR)
+   ─────────────────────────────────────────────────────────── */
+.main-navigation {
+	background-color: transparent !important;
+	font-family: var(--gjn-font-heading);
+	font-weight: 600;
+}
+
+.main-navigation .main-nav ul li a {
+	padding: 19px 16px;
+	color: var(--gjn-text-on-dark) !important;
+	font-size: 0.95rem;
+	position: relative;
+	transition: var(--gjn-transition);
+}
+
+/* Red underline on hover/current, mirroring the top accent bar. */
+.main-navigation .main-nav ul li a::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 16px;
+	right: 16px;
+	height: 2px;
+	background-color: var(--gjn-red);
+	transform: scaleX(0);
+	transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+	transform-origin: center;
+}
+
+.main-navigation .main-nav ul li:hover > a,
+.main-navigation .main-nav ul li.sfHover > a {
+	background-color: rgba(255, 255, 255, 0.08);
+	color: #ffffff !important;
+}
+
+.main-navigation .main-nav ul li:hover > a::after,
+.main-navigation .main-nav ul li[class*="current-menu-"] > a::after {
+	transform: scaleX(1);
+}
+
+.main-navigation .main-nav ul li[class*="current-menu-"] > a,
+.main-navigation .main-nav ul li[class*="current-menu-"]:hover > a {
+	color: var(--gjn-red) !important;
+}
+
+/* Dropdowns */
+.main-navigation ul ul {
+	background-color: var(--gjn-ink-soft) !important;
+	border: 1px solid var(--gjn-border-on-dark);
+	border-radius: 0 0 var(--gjn-radius-sm) var(--gjn-radius-sm);
+	box-shadow: var(--gjn-shadow-md);
+}
+
+.main-navigation .main-nav ul ul li a {
+	padding: 12px 16px;
+	color: var(--gjn-text-on-dark-muted) !important;
+	font-size: 0.9rem;
+}
+
+.main-navigation .main-nav ul ul li:hover > a,
+.main-navigation .main-nav ul ul li.sfHover > a {
+	background-color: rgba(255, 255, 255, 0.06);
+	color: #ffffff !important;
+}
+
+/* Mobile menu toggle */
+.menu-toggle {
+	background-color: transparent !important;
+	color: #ffffff !important;
+	padding: 12px 16px;
+	transition: var(--gjn-transition);
+}
+
+.menu-toggle:hover {
+	color: var(--gjn-red) !important;
+}
+
+/* Sticky nav (GeneratePress built-in support styling) */
+.is_stuck .main-navigation {
+	box-shadow: var(--gjn-shadow-sm);
+}
+
+/* ───────────────────────────────────────────────────────────
+   6. CONTENT & CARDS
+   ─────────────────────────────────────────────────────────── */
+.site-content {
+	padding: 28px 24px;
+}
+
+/* Clear, distinct article cards in the default blog list. */
+.separate-containers .post {
+	margin-bottom: 24px;
+	transition: var(--gjn-transition);
+}
+
+.separate-containers .post:hover {
+	transform: translateY(-3px);
+}
+
+.separate-containers .inside-article,
+.separate-containers .comments-area,
+.separate-containers .page-header {
+	background-color: var(--gjn-bg-surface);
+	border: 1px solid var(--gjn-border);
+	border-radius: var(--gjn-radius);
+	box-shadow: var(--gjn-shadow-sm);
+	padding: 28px;
+	transition: var(--gjn-transition);
+}
+
+.separate-containers .post:hover .inside-article {
+	border-color: var(--gjn-border-strong);
+	box-shadow: var(--gjn-shadow-hover);
+}
+
+/* One-container mode: white content sheet over the gray page. */
+.one-container .site-content {
+	background-color: var(--gjn-bg-surface);
+}
+
+.post-image {
+	margin: 0 0 20px !important;
+}
+
+.post-image img {
+	width: 100%;
+	height: auto;
+	border-radius: var(--gjn-radius-sm);
+}
+
+.entry-title {
+	font-size: 1.4rem;
+	line-height: 1.3;
+}
+
+.entry-title a {
+	color: var(--gjn-text-main);
+	font-family: var(--gjn-font-heading);
+}
+
+.inside-article:hover .entry-title a {
+	color: var(--gjn-red);
+}
+
+.entry-summary {
+	margin-top: 12px;
+	font-size: 0.95rem;
+}
+
+.entry-meta {
+	font-family: var(--gjn-font-heading);
+	font-size: 0.82rem;
+	color: var(--gjn-text-light);
+}
+
+.entry-meta a {
+	color: var(--gjn-red);
+}
+
+/* Archive page header (category titles etc.) */
+.page-header .page-title {
+	font-family: var(--gjn-font-heading);
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--gjn-text-main);
+	margin: 0;
+}
+
+.page-header .page-description {
+	color: var(--gjn-text-muted);
+}
+
+/* Blog-columns mode (GP Layout → Blog → Columns) */
+.generate-columns-container .generate-columns {
+	padding-bottom: 0;
+}
+
+.generate-columns .inside-article {
+	background: var(--gjn-bg-surface);
+	border: 1px solid var(--gjn-border);
+	border-radius: var(--gjn-radius);
+	overflow: hidden;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	transition: var(--gjn-transition);
+}
+
+.generate-columns .inside-article:hover {
+	transform: translateY(-4px);
+	box-shadow: var(--gjn-shadow-hover);
+	border-color: var(--gjn-border-strong);
+}
+
+.generate-columns .post-image {
+	margin: 0 !important;
+}
+
+.generate-columns .post-image img {
+	border-radius: 0;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+}
+
+.generate-columns .entry-header,
+.generate-columns .entry-summary,
+.generate-columns .entry-meta {
+	padding-left: var(--gjn-spacing-lg);
+	padding-right: var(--gjn-spacing-lg);
+}
+
+.generate-columns .entry-header {
+	padding-top: var(--gjn-spacing-lg);
+}
+
+.generate-columns .entry-summary {
+	flex-grow: 1;
+}
+
+.generate-columns .entry-meta {
+	padding-bottom: var(--gjn-spacing-lg);
+}
+
+/* ───────────────────────────────────────────────────────────
+   7. SINGLE POST
+   ─────────────────────────────────────────────────────────── */
+/* Readable centered column */
+.single .site-main {
+	max-width: var(--gjn-content-width);
+	margin: 0 auto;
+	padding: var(--gjn-spacing-lg) 0;
+}
+
+.single .inside-article {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+}
+
+.single .entry-header {
+	text-align: center;
+	margin-bottom: var(--gjn-spacing-lg);
+}
+
+.single .entry-title {
+	font-size: 2.5rem;
+	font-weight: 800;
+	margin-bottom: var(--gjn-spacing-md);
+}
+
+.single .entry-meta {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	font-size: 0.9rem;
+}
+
+.single .post-image {
+	margin-bottom: var(--gjn-spacing-lg) !important;
+	border-radius: var(--gjn-radius);
+	overflow: hidden;
+}
+
+.single .post-image img {
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: 0;
+}
+
+.single .entry-content {
+	font-size: 1.15rem;
+}
+
+.single .entry-content p {
+	margin-bottom: 1.75rem;
+}
+
+.single .entry-content h2 {
+	font-size: 1.8rem;
+	margin: 2.5rem 0 1.25rem;
+}
+
+.single .entry-content h3 {
+	font-size: 1.4rem;
+	margin: 2rem 0 1rem;
+}
+
+.single .entry-content blockquote {
+	border-left: 4px solid var(--gjn-red);
+	padding: 1.25rem 1.75rem;
+	background: var(--gjn-bg-surface);
+	border: 1px solid var(--gjn-border);
+	border-left: 4px solid var(--gjn-red);
+	border-radius: 0 var(--gjn-radius) var(--gjn-radius) 0;
+	box-shadow: var(--gjn-shadow-sm);
+	font-size: 1.2rem;
+	color: var(--gjn-text-main);
+	margin: 2rem 0;
+}
+
+/* ───────────────────────────────────────────────────────────
+   8. CUSTOM ELEMENTS (Category Pill, Reading Time)
+   ─────────────────────────────────────────────────────────── */
+.gjn-category-pill {
+	display: inline-block;
+	background: var(--gjn-red);
+	color: #ffffff;
+	font-family: var(--gjn-font-heading);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	padding: 4px 14px;
+	border-radius: 999px;
+	margin-bottom: 10px;
+	transition: var(--gjn-transition);
+}
+
+.gjn-category-pill:hover {
+	background: var(--gjn-red-hover);
+	color: #ffffff;
+}
+
+.single .gjn-category-pill {
+	margin-bottom: 1.25rem;
+}
+
+.gjn-reading-time {
+	display: inline-flex;
+	align-items: center;
+	color: var(--gjn-text-light);
+	font-family: var(--gjn-font-heading);
+	font-size: 0.85rem;
+}
+
+/* ───────────────────────────────────────────────────────────
+   9. SIDEBAR
+   ─────────────────────────────────────────────────────────── */
+.sidebar .widget {
+	background: var(--gjn-bg-surface);
+	border: 1px solid var(--gjn-border);
+	border-radius: var(--gjn-radius);
+	box-shadow: var(--gjn-shadow-sm);
+	padding: 20px 24px;
+	margin-bottom: 24px;
+}
+
+.sidebar .widget-title {
+	font-family: var(--gjn-font-heading);
+	font-size: 1rem;
+	color: var(--gjn-text-main);
+	margin-bottom: 16px;
+	display: flex;
+	align-items: center;
+}
+
+/* Red block marker before widget titles. */
+.sidebar .widget-title::before {
+	content: '';
+	display: block;
+	width: 12px;
+	height: 12px;
+	background: var(--gjn-red);
+	margin-right: 10px;
+	border-radius: 2px;
+}
+
+.sidebar .widget ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sidebar .widget ul li {
+	border-bottom: 1px dashed var(--gjn-border);
+	padding: 8px 0;
+}
+
+.sidebar .widget ul li:last-child {
+	border-bottom: none;
+}
+
+.sidebar .widget a {
+	color: var(--gjn-text-muted);
+}
+
+.sidebar .widget a:hover {
+	color: var(--gjn-red);
+}
+
+/* ───────────────────────────────────────────────────────────
+   10. FOOTER (COMPACT, DARK)
+   ─────────────────────────────────────────────────────────── */
+.gjn-footer {
+	background: var(--gjn-ink);
+	color: var(--gjn-text-on-dark);
+	padding: 32px 0;
+	margin-top: var(--gjn-spacing-lg);
+}
+
+.gjn-footer-inner {
+	max-width: var(--gjn-container);
+	margin: 0 auto;
+	padding: 0 24px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 32px;
+}
+
+.gjn-footer-title {
+	font-family: var(--gjn-font-heading);
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #ffffff;
+	display: inline-block;
+	padding-bottom: 6px;
+	border-bottom: 2px solid var(--gjn-red);
+	margin: 0 0 12px;
+}
+
+.gjn-footer-tagline {
+	color: var(--gjn-text-on-dark-muted);
+	font-size: 0.9rem;
+	margin: 0;
+	max-width: 300px;
+}
+
+.gjn-footer-heading,
+.gjn-footer-widget-title {
+	font-family: var(--gjn-font-heading);
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: #ffffff;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	margin: 0 0 12px;
+}
+
+.gjn-footer-menu {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.gjn-footer-menu li {
+	margin: 0 0 6px;
+}
+
+.gjn-footer-menu a,
+.gjn-footer-widget a {
+	color: var(--gjn-text-on-dark-muted);
+	font-size: 0.92rem;
+	transition: var(--gjn-transition);
+}
+
+.gjn-footer-menu a:hover,
+.gjn-footer-widget a:hover {
+	color: var(--gjn-red);
+}
+
+.gjn-footer-widgets {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 32px;
+}
+
+.gjn-footer-widget {
+	color: var(--gjn-text-on-dark-muted);
+	font-size: 0.92rem;
+}
+
+/* GP footer widgets region (separate from the custom block above). */
+.footer-widgets {
+	background-color: var(--gjn-ink-soft) !important;
+	padding: 28px 0 6px;
+}
+
+.footer-widgets .widget {
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0;
+	margin-bottom: 22px;
+	color: var(--gjn-text-on-dark-muted);
+	font-size: 0.92rem;
+}
+
+.footer-widgets .widget .widget-title {
+	color: #ffffff;
+	border-left: 4px solid var(--gjn-red);
+	padding-left: 12px;
+}
+
+.footer-widgets .widget a {
+	color: var(--gjn-text-on-dark-muted);
+}
+
+.footer-widgets .widget a:hover {
+	color: var(--gjn-red);
+}
+
+/* Copyright bar (GP default class) */
+.site-info {
+	background-color: var(--gjn-ink-deep) !important;
+	color: var(--gjn-text-on-dark-light) !important;
+	font-family: var(--gjn-font-heading);
+	font-size: 0.8rem;
+	padding: 14px 24px;
+	border-top: 1px solid var(--gjn-border-on-dark);
+}
+
+.site-info a {
+	color: var(--gjn-red);
+}
+
+/* ───────────────────────────────────────────────────────────
+   11. RESPONSIVE MEDIA QUERIES
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+	.gjn-footer-widgets {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 768px) {
+	.inside-header {
+		padding: 0 16px !important;
+	}
+
+	.site-content {
+		padding: 20px 16px;
+	}
+
+	.main-title a,
+	.site-title a {
+		font-size: 1.1rem;
+	}
+
+	.separate-containers .inside-article,
+	.separate-containers .comments-area,
+	.separate-containers .page-header {
+		padding: 20px;
+		border-radius: 10px;
+	}
+
+	.single .entry-title {
+		font-size: 1.9rem;
+	}
+
+	.single .site-main {
+		padding: var(--gjn-spacing-md) 0;
+	}
+
+	.gjn-footer-inner {
+		grid-template-columns: 1fr;
+		gap: 24px;
+		padding: 0 20px;
+	}
+
+	/* Reset grid for posts in columns mode. */
+	.generate-columns-container .generate-columns {
+		width: 100% !important;
+		padding-left: 0;
+		padding-right: 0;
+	}
+}
+
+@media (max-width: 600px) {
+	.site-description {
+		display: none;
+	}
+}

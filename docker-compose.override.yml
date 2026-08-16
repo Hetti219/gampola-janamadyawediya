@@ -1,0 +1,31 @@
+# Local development overrides — never deploy this file to the server.
+# This file is automatically merged with docker-compose.yml by Docker Compose
+# when present in the same directory. What it changes:
+#   - Nginx: serves HTTP on localhost:8080 (no SSL certs needed), using
+#     nginx/local/local.conf instead of nginx/prod/wordpress.conf
+#   - WordPress: URL constants point to localhost:8080
+#
+# On the server this file must not exist (the README's deployment steps
+# delete it) — otherwise the site would serve the local config on port 8080.
+
+services:
+  nginx:
+    ports: !override
+      # !override replaces the production port list entirely, so the dev
+      # stack binds only 8080 — not 80/443 too.
+      - "8080:80"
+    volumes:
+      # Swap the production vhost for the local one. Docker Compose merges
+      # volumes by container path, so this replaces the nginx/prod/ mount.
+      - ./nginx/local:/etc/nginx/conf.d:ro
+      # Tailwind UI prototype — served as the homepage by local.conf.
+      - ./ui:/var/www/ui:ro
+
+  wordpress:
+    environment:
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_REDIS_HOST', 'redis');
+        define('WP_MEMORY_LIMIT', '256M');
+        define('FS_METHOD', 'direct');
+        define('WP_SITEURL', 'http://localhost:8080');
+        define('WP_HOME',    'http://localhost:8080');

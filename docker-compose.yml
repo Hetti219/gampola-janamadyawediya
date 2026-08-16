@@ -43,6 +43,7 @@ services:
         define('WP_REDIS_HOST', 'redis');
         define('WP_MEMORY_LIMIT', '256M');
         define('FS_METHOD', 'direct');
+        define('DISALLOW_FILE_EDIT', true);
     volumes:
       - wordpress_data:/var/www/html
       - ./php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro

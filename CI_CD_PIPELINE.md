@@ -159,7 +159,7 @@ the new steps below.
 6. **First-run config on the server** (only these, everything else comes via git):
    ```bash
    cd /home/deployer/news-site-deploy
-   cp env.example .env        # generate real passwords: openssl rand -base64 24
+   cp .env.example .env        # generate real passwords: openssl rand -base64 24
    nano .env
    # put cert files in nginx/certs/ (from step 1)
    # edit nginx/prod/wordpress.conf → real domain  ← commit this change!
@@ -195,6 +195,10 @@ tracked files on the server, dirty the working tree, and the next `reset --hard`
 would silently wipe the edit (or block a plain `pull`). Disabling the editor
 closes that hole entirely — it also removes an attack surface.
 
+The same define goes into `docker-compose.override.yml`'s
+`WORDPRESS_CONFIG_EXTRA` (its value replaces the base one during merge), so
+local dev behaves identically. Done in both files.
+
 ---
 
 ## 7. GitHub Actions workflow — `.github/workflows/deploy.yml`
@@ -229,7 +233,7 @@ jobs:
 
       - name: Validate compose files
         run: |
-          cp env.example .env      # CI has no .env; placeholders are enough for -q
+          cp .env.example .env     # CI has no .env; placeholders are enough for -q
           docker compose config -q
 
   deploy:
@@ -245,13 +249,23 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_KEY" ]; then
+            echo "::warning::Deploy secrets not configured yet — skipping deploy."
+            exit 0
+          fi
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh -i ~/.ssh/deploy_key \
               -o StrictHostKeyChecking=accept-new \
+              -o ConnectTimeout=15 \
               "$SSH_USER@$SSH_HOST" 'bash -s' < scripts/deploy-site.sh
 ```
+
+The deploy job **skips with a warning** (exit 0, no failure email) until the
+`SSH_HOST`/`SSH_KEY` secrets exist — so pushing code before the server is
+provisioned doesn't spam failure notifications. Once the secrets are set, the
+skip guard never triggers again.
 
 Hardening option (recommended once it's working): replace `accept-new` with
 `-o StrictHostKeyChecking=yes` and store the server's host key in a
@@ -390,14 +404,14 @@ never in the repo). Marked optional — everything else works without it.
 
 ## 13. Implementation checklist (in order)
 
-- [ ] 1. `git init`, `.gitignore`, first commit (§4)
-- [ ] 2. Private GitHub repo, push `main`
-- [ ] 3. Add `DISALLOW_FILE_EDIT` to compose (§6) — commit it
+- [x] 1. `git init`, `.gitignore`, first commit (§4)
+- [x] 2. Private GitHub repo, push `main`
+- [x] 3. Add `DISALLOW_FILE_EDIT` to compose (§6) — commit it
 - [ ] 4. Buy domain + VPS; run `deploy.sh` (§5.1–5.3)
 - [ ] 5. Create `deployer` user, keys, clone repo on server (§5.4–5.5)
 - [ ] 6. Server `.env`, certs, domain edit in nginx conf (commit the conf change), first `compose up` (§5.6)
 - [ ] 7. WP install wizard + theme/plugins/categories (README §3.8, §4)
-- [ ] 8. Add `scripts/deploy-site.sh` + `.github/workflows/deploy.yml`; push
+- [x] 8. Add `scripts/deploy-site.sh` + `.github/workflows/deploy.yml`; push
 - [ ] 9. Add Actions secrets (`SSH_HOST`, `SSH_USER`, `SSH_KEY`) (§7)
 - [ ] 10. Enable failure emails + Watch the repo (§10)
 - [ ] 11. Backup cron + UptimeRobot (README §6–7)

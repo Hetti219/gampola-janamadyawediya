@@ -89,7 +89,7 @@ Let's Encrypt/Certbot renewal automation (Origin certs last 15 years).
 
 ### 3.6 Configure the project
 ```bash
-cp env.example .env
+cp .env.example .env
 nano .env   # set real DB_PASSWORD and DB_ROOT_PASSWORD
 ```
 Generate strong passwords with `openssl rand -base64 24`.
@@ -127,6 +127,15 @@ Then install **GeneratePress** once (Appearance → Themes → Add New, search
 cannot activate without its parent theme installed — until then WordPress
 falls back to its default theme and the site looks like a plain unstyled
 page.
+
+### 3.10 Deploying code changes (CI/CD)
+
+Once the site is live, code changes (theme, mu-plugins, nginx configs,
+PHP config, compose files) deploy automatically: `git push` to `main`
+triggers a GitHub Actions workflow that lints the change, SSHes into the
+server, applies it, health-checks the stack, and rolls back automatically
+if anything is unhealthy. Content (posts, uploads, plugin settings) is
+never touched by deploys. Full setup and runbook: `CI_CD_PIPELINE.md`.
 
 ---
 
@@ -300,16 +309,26 @@ angry reader.
 
 ```
 .
+├── .github/workflows/
+│   └── deploy.yml               # CI/CD: push to main → lint → deploy to server
+├── .gitignore                   # .env and nginx/certs/ are never committed
+├── CI_CD_PIPELINE.md            # CI/CD plan and runbook
 ├── deploy.sh                    # One-time VPS hardening + Docker install
 ├── backup.sh                    # Nightly DB dump + wp-content archive
+├── scripts/
+│   └── deploy-site.sh           # Deploy script GitHub Actions runs on the server
 ├── docker-compose.yml           # WordPress + MariaDB + Redis + Nginx stack
 ├── docker-compose.override.yml  # Local-dev overrides (localhost:8080) — never deploy
-├── env.example                  # Template for .env (never commit .env itself)
+├── .env.example                 # Template for .env (never commit .env itself)
 ├── php/
 │   └── uploads.ini              # PHP upload limits (200 MB)
 ├── mu-plugins/                  # WordPress Must-Use plugins (auto-loaded)
 │   ├── graphic-content-gate.php # Click-through warning gate for graphic posts
 │   └── graphic-content-auto-blur.php  # Auto-generates blurred social share images
+├── theme/
+│   └── gampola-janamadyawediya/ # Child theme (GeneratePress parent required)
+├── ui/
+│   └── index.html               # Tailwind UI prototype — local dev only
 └── nginx/
     ├── local/
     │   └── local.conf           # Local-dev vhost (used via the override file)

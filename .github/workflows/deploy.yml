@@ -1,0 +1,48 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # manual re-deploy button in the Actions tab
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP syntax check (theme + mu-plugins)
+        run: |
+          find theme mu-plugins -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate compose files
+        run: |
+          cp .env.example .env   # CI has no .env; placeholders are enough for -q
+          docker compose config -q
+
+  deploy:
+    name: Deploy
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_KEY" ]; then
+            echo "::warning::Deploy secrets not configured yet — skipping deploy."
+            echo "::warning::Add SSH_HOST/SSH_USER/SSH_KEY secrets (CI_CD_PIPELINE.md §7)."
+            exit 0
+          fi
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -i ~/.ssh/deploy_key \
+              -o StrictHostKeyChecking=accept-new \
+              -o ConnectTimeout=15 \
+              "$SSH_USER@$SSH_HOST" 'bash -s' < scripts/deploy-site.sh

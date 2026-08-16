@@ -28,18 +28,17 @@ Start here, scale up only if traffic demands it:
 
 | Tier | Specs | Approx. cost | When |
 |---|---|---|---|
-| Starter | 2 vCPU / 4 GB RAM / 80 GB NVMe | ~$8–12/mo (Hetzner CPX21, DigitalOcean equivalent) | Launch, low-to-moderate traffic |
-| Scale-up | 4 vCPU / 8 GB RAM | ~$20–25/mo | If a story goes viral and the starter tier chokes |
+| Starter | 2 vCPU / 4 GB RAM / 80 GB SSD | ~$24/mo (Linode 4 GB Shared) | Launch, low-to-moderate traffic |
+| Scale-up | 4 vCPU / 8 GB RAM | ~$48/mo (Linode 8 GB Shared) | If a story goes viral and the starter tier chokes |
 
 Don't go below 4 GB RAM. WordPress + MariaDB + Redis + Nginx + occasional
 video handling in Docker needs the headroom — a 1-2 GB box will swap and
 slow the site down under any real load.
 
-**Provider recommendation:** Hetzner (best price-to-bandwidth ratio, 20 TB
-transfer included — matters since you're self-hosting video) or DigitalOcean
-(more tutorials/community support if you get stuck, similar pricing).
-Choose a data center in Singapore or Mumbai for the lowest latency to Sri
-Lanka.
+**Provider:** Linode (Akamai). The 4 GB Shared plan includes 4 TB transfer —
+enough headroom for self-hosted video early on, with per-GB overage if a
+story spikes. Choose a data center in Singapore (`ap-south`) or Mumbai
+(`in-ma`) for the lowest latency to Sri Lanka.
 
 **Host OS:** Ubuntu Server 24.04 LTS. Since everything runs inside Docker
 containers, the host OS barely matters functionally — Rocky Linux would
@@ -55,7 +54,9 @@ Buy the `.com` through Cloudflare Registrar (sold at wholesale cost, ~$9-10/yr,
 no markup) or Namecheap (~$10-15/yr). Either is fine.
 
 ### 3.2 Provision the VPS
-Create the droplet/server (Ubuntu 24.04, specs above). Note its public IP.
+In the Linode Cloud Manager, create a new Linode (Ubuntu 24.04, specs
+above). SSH access defaults to root — fine for now, `deploy.sh` runs with
+`sudo`. Note its public IP.
 
 ### 3.3 Harden the server
 SSH in as your sudo user, copy this project to the server, then run:
@@ -66,6 +67,10 @@ chmod +x deploy.sh
 This sets up the firewall (only SSH/HTTP/HTTPS open), fail2ban, automatic
 security patches, and installs Docker. Log out and back in afterward so
 your user picks up Docker group permissions.
+
+Optional but cheap: Linode's free Cloud Firewall is a second layer in front
+of ufw — create one attached to this Linode allowing only TCP 22, 80, 443
+inbound. The host-level ufw stays as the primary defense.
 
 ### 3.4 Point the domain at Cloudflare
 1. Create a free Cloudflare account, add your domain.
@@ -346,13 +351,13 @@ angry reader.
 | Item | Cost |
 |---|---|
 | Domain (.com) | ~$10-15/year |
-| VPS (starter tier) | ~$8-12/month |
+| VPS (starter tier) | ~$24/month (Linode 4 GB Shared) |
 | Theme | Free (GeneratePress) |
 | Plugins | Free (all listed above have functional free tiers) |
 | SSL | Free (Cloudflare Origin cert) |
 | CDN/WAF | Free (Cloudflare free plan) |
 | Off-site backup storage | ~$1-3/month (Backblaze B2, pay-per-GB) |
-| **Total to launch** | **~$25-40 one-time + $10-16/month ongoing** |
+| **Total to launch** | **~$25-40 one-time + $26-28/month ongoing** |
 
 ---
 

@@ -137,8 +137,9 @@ the new steps below.
 
 1. **Domain + Cloudflare** — README §3.1, 3.4, 3.5 (register, A records proxied,
    origin cert created and saved to `nginx/certs/` on the server).
-2. **VPS** — Hetzner CPX21 or DigitalOcean equivalent, Ubuntu 24.04, Singapore
-   or Mumbai region. ≥4 GB RAM (README §2).
+2. **VPS** — Linode (Akamai) 4 GB Shared, Ubuntu 24.04, Singapore (`ap-south`)
+   or Mumbai (`in-ma`) region. ≥4 GB RAM (README §2). Optional: attach Linode's
+   free Cloud Firewall (TCP 22/80/443) as a second layer over ufw.
 3. **Harden + Docker** — copy the project up, run `./deploy.sh` (README §3.3).
 4. **Deploy user** — dedicated, low-privilege account the pipeline uses:
    ```bash
@@ -437,6 +438,6 @@ never in the repo). Marked optional — everything else works without it.
 ## 15. Open items for you
 
 1. **Domain name** — not registered yet; pick one before §5.1.
-2. **VPS provider** — README recommends Hetzner; confirm.
+2. ~~VPS provider~~ — **decided: Linode** (README updated to match).
 3. **Success emails** — want them? Then which SMTP account to send from?
 4. **Cloudflare purge step** — enable now or add later?

@@ -18,8 +18,6 @@ services:
       # Swap the production vhost for the local one. Docker Compose merges
       # volumes by container path, so this replaces the nginx/prod/ mount.
       - ./nginx/local:/etc/nginx/conf.d:ro
-      # Tailwind UI prototype — served as the homepage by local.conf.
-      - ./ui:/var/www/ui:ro
 
   wordpress:
     environment:

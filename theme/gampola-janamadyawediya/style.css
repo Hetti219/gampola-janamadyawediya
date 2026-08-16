@@ -5,7 +5,7 @@
  Author:       Antigravity
  Author URI:   https://example.com
  Template:     generatepress
- Version:      2.0.0
+ Version:      3.0.0
  License:      GNU General Public License v2 or later
  License URI:  http://www.gnu.org/licenses/gpl-2.0.html
  Text Domain:  gampola-janamadyawediya
@@ -15,24 +15,25 @@
    1. DESIGN TOKENS (VARIABLES)
    ─────────────────────────────────────────────────────────── */
 :root {
-	/* Brand: black & red */
-	--gjn-red: #E02A2A;
-	--gjn-red-hover: #B71C1C;
-	--gjn-red-soft: #FDEBEA;
+	/* Brand: black & red — aligned with the Tailwind red/neutral ramp
+	   used by the compiled UI stylesheet (assets/dist/ui.css). */
+	--gjn-red: #B91C1C;
+	--gjn-red-hover: #991B1B;
+	--gjn-red-soft: #FEE2E2;
 
 	/* Dark surfaces */
-	--gjn-ink: #101014;
-	--gjn-ink-soft: #1A1A20;
-	--gjn-ink-deep: #0A0A0D;
+	--gjn-ink: #0A0A0A;
+	--gjn-ink-soft: #171717;
+	--gjn-ink-deep: #060606;
 
 	/* Light surfaces */
-	--gjn-bg-body: #F1F2F4;
+	--gjn-bg-body: #F5F5F5;
 	--gjn-bg-surface: #FFFFFF;
 
 	/* Text on light */
-	--gjn-text-main: #17181C;
-	--gjn-text-muted: #3C3F45;
-	--gjn-text-light: #666A72;
+	--gjn-text-main: #171717;
+	--gjn-text-muted: #404040;
+	--gjn-text-light: #737373;
 
 	/* Text on dark */
 	--gjn-text-on-dark: #F5F6F7;
@@ -78,11 +79,6 @@ body {
 	font-size: 1.05rem;
 	line-height: 1.7;
 	-webkit-font-smoothing: antialiased;
-}
-
-::selection {
-	background-color: var(--gjn-red);
-	color: #ffffff;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -182,145 +178,14 @@ input:focus, textarea:focus {
 }
 
 /* ───────────────────────────────────────────────────────────
-   4. HEADER (COMPACT, DARK)
+   4. HEADER & NAVIGATION — REMOVED
    ─────────────────────────────────────────────────────────── */
-/* Top red accent stripe */
-.gjn-accent-bar {
-	height: 4px;
-	background: var(--gjn-red);
-	width: 100%;
-}
-
-.site-header {
-	background-color: var(--gjn-ink) !important;
-	border-bottom: 1px solid var(--gjn-border-on-dark);
-	box-shadow: 0 2px 10px rgba(16, 16, 20, 0.28);
-	position: relative;
-	z-index: 10;
-}
-
-/* Standard-height bar: GP defaults to 40px padding around the header. */
-.inside-header {
-	padding: 0 24px !important;
-	min-height: var(--gjn-header-height);
-}
-
-/* GP's title element uses .main-title; .site-title kept for variants. */
-.main-title a,
-.site-title a {
-	font-family: var(--gjn-font-heading);
-	font-size: 1.25rem;
-	font-weight: 700;
-	letter-spacing: -0.01em;
-	color: #ffffff !important;
-	transition: var(--gjn-transition);
-}
-
-.main-title a:hover,
-.site-title a:hover {
-	color: var(--gjn-red) !important;
-}
-
-.site-description {
-	font-family: var(--gjn-font-heading);
-	color: var(--gjn-text-on-dark-muted) !important;
-	font-size: 0.78rem;
-	font-weight: 500;
-	margin-top: 2px;
-}
-
-/* Keep a future logo compact on the dark bar. */
-.site-logo img {
-	max-height: 40px;
-	width: auto;
-}
+/* The old GeneratePress header/nav styling lived here. It was replaced
+   by the compiled Tailwind stylesheet (assets/dist/ui.css) and the
+   header suite in inc/header-ui.php. */
 
 /* ───────────────────────────────────────────────────────────
-   5. NAVIGATION (DARK BAR)
-   ─────────────────────────────────────────────────────────── */
-.main-navigation {
-	background-color: transparent !important;
-	font-family: var(--gjn-font-heading);
-	font-weight: 600;
-}
-
-.main-navigation .main-nav ul li a {
-	padding: 19px 16px;
-	color: var(--gjn-text-on-dark) !important;
-	font-size: 0.95rem;
-	position: relative;
-	transition: var(--gjn-transition);
-}
-
-/* Red underline on hover/current, mirroring the top accent bar. */
-.main-navigation .main-nav ul li a::after {
-	content: '';
-	position: absolute;
-	bottom: 0;
-	left: 16px;
-	right: 16px;
-	height: 2px;
-	background-color: var(--gjn-red);
-	transform: scaleX(0);
-	transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-	transform-origin: center;
-}
-
-.main-navigation .main-nav ul li:hover > a,
-.main-navigation .main-nav ul li.sfHover > a {
-	background-color: rgba(255, 255, 255, 0.08);
-	color: #ffffff !important;
-}
-
-.main-navigation .main-nav ul li:hover > a::after,
-.main-navigation .main-nav ul li[class*="current-menu-"] > a::after {
-	transform: scaleX(1);
-}
-
-.main-navigation .main-nav ul li[class*="current-menu-"] > a,
-.main-navigation .main-nav ul li[class*="current-menu-"]:hover > a {
-	color: var(--gjn-red) !important;
-}
-
-/* Dropdowns */
-.main-navigation ul ul {
-	background-color: var(--gjn-ink-soft) !important;
-	border: 1px solid var(--gjn-border-on-dark);
-	border-radius: 0 0 var(--gjn-radius-sm) var(--gjn-radius-sm);
-	box-shadow: var(--gjn-shadow-md);
-}
-
-.main-navigation .main-nav ul ul li a {
-	padding: 12px 16px;
-	color: var(--gjn-text-on-dark-muted) !important;
-	font-size: 0.9rem;
-}
-
-.main-navigation .main-nav ul ul li:hover > a,
-.main-navigation .main-nav ul ul li.sfHover > a {
-	background-color: rgba(255, 255, 255, 0.06);
-	color: #ffffff !important;
-}
-
-/* Mobile menu toggle */
-.menu-toggle {
-	background-color: transparent !important;
-	color: #ffffff !important;
-	padding: 12px 16px;
-	transition: var(--gjn-transition);
-}
-
-.menu-toggle:hover {
-	color: var(--gjn-red) !important;
-}
-
-/* Sticky nav (GeneratePress built-in support styling) */
-.is_stuck .main-navigation {
-	box-shadow: var(--gjn-shadow-sm);
-}
-
-/* ───────────────────────────────────────────────────────────
-   6. CONTENT & CARDS
+   5. CONTENT & CARDS
    ─────────────────────────────────────────────────────────── */
 .site-content {
 	padding: 28px 24px;
@@ -764,17 +629,8 @@ input:focus, textarea:focus {
 }
 
 @media (max-width: 768px) {
-	.inside-header {
-		padding: 0 16px !important;
-	}
-
 	.site-content {
 		padding: 20px 16px;
-	}
-
-	.main-title a,
-	.site-title a {
-		font-size: 1.1rem;
 	}
 
 	.separate-containers .inside-article,
@@ -803,11 +659,5 @@ input:focus, textarea:focus {
 		width: 100% !important;
 		padding-left: 0;
 		padding-right: 0;
-	}
-}
-
-@media (max-width: 600px) {
-	.site-description {
-		display: none;
 	}
 }

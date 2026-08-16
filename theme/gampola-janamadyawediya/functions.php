@@ -13,6 +13,17 @@
 defined( 'ABSPATH' ) || exit;
 
 /* ───────────────────────────────────────────────────────────
+   0. INCLUDES
+   ─────────────────────────────────────────────────────────── */
+
+// Sinhala date/time helpers (no intl dependency).
+require get_stylesheet_directory() . '/inc/sinhala.php';
+
+// Site-wide header suite: top bar, site header, nav, news ticker.
+// Replaces GeneratePress's default header + navigation.
+require get_stylesheet_directory() . '/inc/header-ui.php';
+
+/* ───────────────────────────────────────────────────────────
    1. STYLES & FONTS
    ─────────────────────────────────────────────────────────── */
 
@@ -33,11 +44,12 @@ function gjn_enqueue_assets() {
 	}
 
 	// Google Fonts: Plus Jakarta Sans (Latin UI) + Noto Sans Sinhala.
+	// Noto loads 400-900 so the UI's font-black headlines render properly.
 	wp_enqueue_style(
 		'gjn-google-fonts',
 		'https://fonts.googleapis.com/css2?' .
 			'family=Plus+Jakarta+Sans:wght@400;500;600;700' .
-			'&family=Noto+Sans+Sinhala:wght@400;500;700' .
+			'&family=Noto+Sans+Sinhala:wght@400;500;700;800;900' .
 			'&display=swap',
 		array(),
 		null  // null prevents ?ver= being appended, which breaks Google Fonts.
@@ -49,6 +61,15 @@ function gjn_enqueue_assets() {
 		get_stylesheet_uri(),
 		array( $parent, 'gjn-google-fonts' ),
 		wp_get_theme()->get( 'Version' )
+	);
+
+	// Compiled Tailwind stylesheet for the header suite + front-page hero.
+	// Rebuild with scripts/build-ui-css.sh after changing any UI classes.
+	wp_enqueue_style(
+		'gjn-ui',
+		get_stylesheet_directory_uri() . '/assets/dist/ui.css',
+		array( 'gampola-janamadyawediya' ),
+		(string) filemtime( get_stylesheet_directory() . '/assets/dist/ui.css' )
 	);
 }
 
@@ -121,12 +142,10 @@ function gjn_register_widgets() {
    4. HEADER
    ─────────────────────────────────────────────────────────── */
 
-// Thin accent stripe at the very top of the page.
-add_action( 'generate_before_header', 'gjn_accent_bar', 5 );
-
-function gjn_accent_bar() {
-	echo '<div class="gjn-accent-bar" aria-hidden="true"></div>';
-}
+// The site-wide header suite (top bar, site header, nav, ticker) replaces
+// GeneratePress's default header + navigation. It lives in inc/header-ui.php,
+// which hooks into 'generate_header' after removing 'generate_construct_header'.
+// The old accent stripe (gjn_accent_bar) was superseded by the new top bar.
 
 /* ───────────────────────────────────────────────────────────
    5. FOOTER

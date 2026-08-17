@@ -18,8 +18,9 @@ docker exec news_mariadb sh -c "exec mysqldump -u root -p\"${DB_ROOT_PASSWORD}\"
   > "$BACKUP_DIR/db_$TIMESTAMP.sql"
 
 # 2. Archive wp-content (uploads, themes, plugins, mu-plugins) from the named volume.
+VOLUME_NAME="${COMPOSE_PROJECT_NAME}_wordpress_data"
 docker run --rm \
-  -v news-site-deploy_wordpress_data:/data \
+  -v "${VOLUME_NAME}:/data" \
   -v "$BACKUP_DIR":/backup \
   alpine tar czf "/backup/wpcontent_$TIMESTAMP.tar.gz" -C /data wp-content
 

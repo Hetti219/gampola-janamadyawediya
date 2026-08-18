@@ -51,15 +51,47 @@ function gjn_contact_url() {
 }
 
 /**
- * Social profile links. Hardcoded until real profiles exist.
+ * URL of the site logo image shown in the header. Filterable so the file
+ * can be swapped without touching markup.
+ */
+function gjn_logo_url() {
+	return apply_filters( 'gjn_logo_url', get_stylesheet_directory_uri() . '/assets/img/logo.jpeg' );
+}
+
+/**
+ * Social profile links shown in the top bar.
+ *
+ * Only Facebook exists today; extra networks appear automatically when
+ * added via the `gjn_social_links` filter. Return '' or remove a key to
+ * hide that icon.
+ *
+ * Example — add YouTube later from a plugin or child theme:
+ *   add_filter( 'gjn_social_links', function ( $links ) {
+ *       $links['youtube'] = 'https://www.youtube.com/@your-channel';
+ *       return $links;
+ *   });
  */
 function gjn_social_links() {
-	return array(
+	$links = array(
 		'facebook' => 'https://facebook.com/',
-		'x'        => 'https://x.com/',
-		'youtube'  => 'https://youtube.com/',
-		'instagram'=> 'https://instagram.com/',
-		'whatsapp' => 'https://whatsapp.com/',
+	);
+
+	/**
+	 * Filter the social links. Keys must match an entry in the icon map
+	 * inside gjn_top_bar() (facebook, x, youtube, instagram, whatsapp).
+	 */
+	$links = apply_filters( 'gjn_social_links', $links );
+
+	// Show only networks that have a real, non-empty URL.
+	return array_filter(
+		$links,
+		static function ( $url ) {
+			if ( ! is_string( $url ) ) {
+				return false;
+			}
+			$trimmed = trim( $url );
+			return '' !== $trimmed && '#' !== $trimmed;
+		}
 	);
 }
 
@@ -124,13 +156,17 @@ function gjn_top_bar() {
 				<span class="h-1 w-1 rounded-full bg-red-600"></span>
 			</p>
 
+			<?php $gjn_links = gjn_social_links(); ?>
+			<?php if ( ! empty( $gjn_links ) ) : ?>
 			<div class="flex shrink-0 items-center gap-2.5 sm:gap-3.5">
-				<?php foreach ( gjn_social_links() as $network => $url ) : ?>
+				<?php foreach ( $gjn_links as $network => $url ) : ?>
+					<?php if ( ! isset( $social_icons[ $network ] ) ) { continue; } ?>
 					<a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener" aria-label="<?php echo esc_attr( ucfirst( $network ) ); ?>" class="text-neutral-400 transition hover:text-white">
 						<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><?php echo $social_icons[ $network ]; // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG markup. ?></svg>
 					</a>
 				<?php endforeach; ?>
 			</div>
+			<?php endif; ?>
 		</div>
 	</div>
 	<?php
@@ -146,10 +182,8 @@ function gjn_site_header() {
 	<header class="border-b border-neutral-200 bg-white">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="flex min-w-0 items-center gap-3">
-				<span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-red-700 text-white shadow-lg shadow-red-700/30">
-					<svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
-					</svg>
+				<span class="h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-lg shadow-black/20 ring-1 ring-black/10">
+					<img src="<?php echo esc_url( gjn_logo_url() ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" class="h-full w-full object-cover">
 				</span>
 				<span class="min-w-0">
 					<span class="block truncate text-xl font-black leading-tight text-neutral-900 sm:text-2xl"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></span>

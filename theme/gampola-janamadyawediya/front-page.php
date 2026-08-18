@@ -110,6 +110,8 @@ $hero_posts = gjn_hero_posts();
 ?>
 <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
 
+	<?php gjn_render_banner(); ?>
+
 	<?php if ( empty( $hero_posts ) ) : ?>
 		<?php gjn_render_hero_fallback(); ?>
 	<?php else : ?>
@@ -187,6 +189,18 @@ $hero_posts = gjn_hero_posts();
 </main>
 
 <?php
+/**
+ * Masthead banner strip shown above the hero grid (front page only).
+ */
+function gjn_render_banner() {
+	?>
+	<img
+		src="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/img/banner.jpeg' ); ?>"
+		alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
+		class="mb-6 h-auto w-full sm:mb-8">
+	<?php
+}
+
 /**
  * Static fallback hero when the site has no published posts yet —
  * same markup as the finalized design, placeholder content.

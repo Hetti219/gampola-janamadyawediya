@@ -142,18 +142,18 @@ function gjn_top_bar() {
 	);
 	?>
 	<div class="bg-neutral-950 text-neutral-300">
-		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 text-xs sm:px-6 sm:text-sm">
-			<div class="flex shrink-0 items-center gap-2">
-				<svg class="hidden h-4 w-4 text-red-600 sm:block" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 text-xs sm:px-6 sm:text-sm">
+			<div class="flex shrink-0 items-center self-center gap-2 leading-none">
+				<svg class="hidden h-4 w-4 shrink-0 text-red-600 sm:block" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
 				</svg>
-				<span class="whitespace-nowrap font-medium text-neutral-200"><?php echo esc_html( gjn_sinhala_date( current_time( 'timestamp' ) ) ); ?></span>
+				<span class="whitespace-nowrap font-medium leading-none text-neutral-200"><?php echo esc_html( gjn_sinhala_date( current_time( 'timestamp' ) ) ); ?></span>
 			</div>
 
-			<p class="hidden items-center gap-2.5 text-center font-medium text-neutral-400 md:flex">
-				<span class="h-1 w-1 rounded-full bg-red-600"></span>
+			<p class="hidden items-center justify-center gap-2.5 self-center text-center font-medium leading-none text-neutral-400 md:flex">
+				<span class="h-1 w-1 shrink-0 rounded-full bg-red-600"></span>
 				<?php echo esc_html( get_bloginfo( 'description' ) ); ?>
-				<span class="h-1 w-1 rounded-full bg-red-600"></span>
+				<span class="h-1 w-1 shrink-0 rounded-full bg-red-600"></span>
 			</p>
 
 			<?php $gjn_links = gjn_social_links(); ?>

@@ -81,6 +81,18 @@ function gjn_preconnect_fonts() {
 	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
 }
 
+// Favicon — use the same logo image as the browser tab icon.
+add_action( 'wp_head', 'gjn_site_icon', 5 );
+
+function gjn_site_icon() {
+	if ( has_site_icon() ) {
+		return;
+	}
+	$url = gjn_logo_url();
+	echo '<link rel="icon" href="' . esc_url( $url ) . '">' . "\n";
+	echo '<link rel="apple-touch-icon" href="' . esc_url( $url ) . '">' . "\n";
+}
+
 /* ───────────────────────────────────────────────────────────
    2. THEME SETUP
    ─────────────────────────────────────────────────────────── */

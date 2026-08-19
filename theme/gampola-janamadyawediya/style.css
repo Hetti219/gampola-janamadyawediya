@@ -328,18 +328,41 @@ input:focus, textarea:focus {
 /* ───────────────────────────────────────────────────────────
    7. SINGLE POST
    ─────────────────────────────────────────────────────────── */
-/* Readable centered column */
+/* Readable centered column — full-width, truly centered (overrides GP sidebar layout) */
+.single .site-content {
+	display: block !important;
+}
+
+.single #primary,
+.single .content-area,
 .single .site-main {
-	max-width: var(--gjn-content-width);
-	margin: 0 auto;
-	padding: var(--gjn-spacing-lg) 0;
+	width: 100% !important;
+	max-width: var(--gjn-content-width) !important;
+	margin-left: auto !important;
+	margin-right: auto !important;
+	float: none !important;
+}
+
+.single #secondary,
+.single .widget-area,
+.single .sidebar,
+.single #right-sidebar,
+.single .is-right-sidebar,
+.single .is-left-sidebar {
+	display: none !important;
+}
+
+.single .site-main {
+	padding: var(--gjn-spacing-lg) 24px;
+	box-sizing: border-box;
 }
 
 .single .inside-article {
-	background: transparent;
-	border: none;
-	box-shadow: none;
-	padding: 0;
+	background: #ffffff;
+	border: 1px solid var(--gjn-border);
+	border-radius: var(--gjn-radius);
+	box-shadow: var(--gjn-shadow-sm);
+	padding: 40px 36px;
 }
 
 .single .entry-header {
@@ -370,25 +393,40 @@ input:focus, textarea:focus {
 .single .post-image img {
 	aspect-ratio: 16 / 9;
 	object-fit: cover;
-	border-radius: 0;
+	border-radius: var(--gjn-radius);
 }
 
 .single .entry-content {
 	font-size: 1.15rem;
+	line-height: 1.85;
+	color: var(--gjn-text-main);
 }
 
 .single .entry-content p {
 	margin-bottom: 1.75rem;
+	color: var(--gjn-text-main);
 }
 
 .single .entry-content h2 {
 	font-size: 1.8rem;
 	margin: 2.5rem 0 1.25rem;
+	color: var(--gjn-text-main);
 }
 
 .single .entry-content h3 {
 	font-size: 1.4rem;
 	margin: 2rem 0 1rem;
+	color: var(--gjn-text-main);
+}
+
+.single .entry-content a {
+	color: var(--gjn-red);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.single .entry-content a:hover {
+	color: var(--gjn-red-hover);
 }
 
 .single .entry-content blockquote {
@@ -645,7 +683,11 @@ input:focus, textarea:focus {
 	}
 
 	.single .site-main {
-		padding: var(--gjn-spacing-md) 0;
+		padding: var(--gjn-spacing-md) 16px;
+	}
+
+	.single .inside-article {
+		padding: 24px 20px;
 	}
 
 	.gjn-footer-inner {

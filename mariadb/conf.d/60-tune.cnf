@@ -1,0 +1,8 @@
+[mysqld]
+# Tuned for a 2 GB Linode running a single WordPress site.
+# See CACHING_PLAN.md §4 for the full RAM budget breakdown.
+
+innodb_buffer_pool_size = 256M   # bump to 384M if you resize to 4GB
+performance_schema      = OFF    # saves ~150–200 MB on MariaDB 11+
+max_connections         = 50
+table_open_cache        = 400

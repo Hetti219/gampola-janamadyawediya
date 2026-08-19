@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.30.4-alpine
     container_name: news_nginx
     restart: unless-stopped
     ports:
@@ -19,7 +19,7 @@ services:
       wordpress:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost/ -o /dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost/healthz -o /dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -28,7 +28,7 @@ services:
       - news_net
 
   wordpress:
-    image: wordpress:php8.3-fpm-alpine
+    image: wordpress:php8.5-fpm-alpine
     container_name: news_wordpress
     restart: unless-stopped
     environment:
@@ -37,6 +37,10 @@ services:
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
       WORDPRESS_TABLE_PREFIX: wp_
+      # Cloudflare cache-purge credentials (used by mu-plugins/cloudflare-purge.php).
+      # No-ops gracefully when unset (local dev, initial setup).
+      CF_ZONE_ID: ${CF_ZONE_ID:-}
+      CF_API_TOKEN: ${CF_API_TOKEN:-}
       # WP_REDIS_HOST lets a Redis object-cache plugin (e.g. "Redis Object Cache")
       # find Redis automatically once you activate it from the plugin screen.
       WORDPRESS_CONFIG_EXTRA: |
@@ -44,9 +48,11 @@ services:
         define('WP_MEMORY_LIMIT', '256M');
         define('FS_METHOD', 'direct');
         define('DISALLOW_FILE_EDIT', true);
+        define('DISABLE_WP_CRON', true);
     volumes:
       - wordpress_data:/var/www/html
       - ./php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+      - ./php/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
       - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
       - ./theme/gampola-janamadyawediya:/var/www/html/wp-content/themes/gampola-janamadyawediya:ro
     depends_on:
@@ -64,16 +70,20 @@ services:
       - news_net
 
   mariadb:
-    image: mariadb:11.4
+    image: mariadb:12.3
     container_name: news_mariadb
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      # Automatically run mariadb-upgrade on first start after major version bump.
+      # Safe to leave permanently — it no-ops when already up to date.
+      MARIADB_AUTO_UPGRADE: "1"
     volumes:
       - db_data:/var/lib/mysql
+      - ./mariadb/conf.d:/etc/mysql/conf.d:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 15s
@@ -84,9 +94,10 @@ services:
       - news_net
 
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     container_name: news_redis
     restart: unless-stopped
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     healthcheck:

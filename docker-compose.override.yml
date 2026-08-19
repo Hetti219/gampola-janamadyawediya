@@ -26,5 +26,7 @@ services:
         define('WP_MEMORY_LIMIT', '256M');
         define('FS_METHOD', 'direct');
         define('DISALLOW_FILE_EDIT', true);
+        define('DISABLE_WP_CRON', true);
         define('WP_SITEURL', 'http://localhost:8080');
         define('WP_HOME',    'http://localhost:8080');
+

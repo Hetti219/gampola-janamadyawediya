@@ -14,7 +14,8 @@ mkdir -p "$BACKUP_DIR"
 echo "[$TIMESTAMP] Starting backup"
 
 # 1. Dump the database from inside the running mariadb container.
-docker exec news_mariadb sh -c "exec mysqldump -u root -p\"${DB_ROOT_PASSWORD}\" --all-databases" \
+#    (MariaDB 12+ renamed mysqldump → mariadb-dump.)
+docker exec news_mariadb sh -c "exec mariadb-dump -u root -p\"${DB_ROOT_PASSWORD}\" --all-databases" \
   > "$BACKUP_DIR/db_$TIMESTAMP.sql"
 
 # 2. Archive wp-content (uploads, themes, plugins, mu-plugins) from the named volume.

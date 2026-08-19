@@ -16,7 +16,7 @@
  *              filters — duplicates are always the same blurred URL, so a
  *              crawler picking any tag still gets the censored image.
  *
- * Requires: PHP GD extension (included in the wordpress:php8.3-fpm-alpine
+ * Requires: PHP GD extension (included in the wordpress:php8.5-fpm-alpine
  * Docker image by default).
  */
 

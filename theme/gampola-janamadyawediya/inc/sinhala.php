@@ -3,7 +3,7 @@
  * Sinhala date & time helpers.
  *
  * Plain-PHP implementations — no intl extension dependency
- * (intl is not bundled in the wordpress:php8.3-fpm-alpine image).
+ * (intl is not bundled in the wordpress:php8.5-fpm-alpine image).
  * All timestamps use wp_date(), so the site timezone setting is respected.
  *
  * @package Gampola_Janamadyawediya

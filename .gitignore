@@ -6,3 +6,5 @@ nginx/certs/
 .vscode/
 .DS_Store
 *.log
+
+/docs

@@ -11,14 +11,14 @@
  * to සිංහල (locale si_LK), English otherwise. Override via the
  * `ncg_gate_texts` filter.
  *
- * To use: when publishing a post with graphic images/video, add it to
- * the "Graphic Content" category (create it once in Posts > Categories,
- * slug must be exactly "graphic-content"). Every other category is
- * unaffected.
+ * To use: when publishing a post with graphic images/video, tick the
+ * "Graphic Content" flag in the Content Flags panel (the content_flag
+ * custom taxonomy, registered by content-flag-taxonomy.php). Posts
+ * without this flag are unaffected.
  */
 
 function ncg_is_graphic_post() {
-	return is_single() && has_category( 'graphic-content' );
+	return is_single() && has_term( 'graphic-content', 'content_flag' );
 }
 
 /**

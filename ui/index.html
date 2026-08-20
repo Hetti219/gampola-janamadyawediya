@@ -48,6 +48,25 @@
       .backdrop-blur { -webkit-backdrop-filter: blur(8px); }
       nav { -webkit-backdrop-filter: blur(8px); }
     }
+
+    /* Modern slanted separators for nav items */
+    .nav-primary {
+      list-style-type: none;
+    }
+    .nav-primary li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-primary li:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 14px;
+      background-color: #d4d4d8; /* text-neutral-300 */
+      flex-shrink: 0;
+      transform: skewX(-24deg);
+    }
   </style>
 </head>
 
@@ -120,15 +139,18 @@
   <!-- ======================= Navigation ======================= -->
   <nav class="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur">
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-      <ul class="no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700">
+      <ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700">
         <li><a href="#" class="whitespace-nowrap rounded-full bg-red-700 px-4 py-2 text-white shadow-md shadow-red-700/30">මුල් පිටුව</a></li>
-        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">පුවත්</a></li>
+        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">දේශීය පුවත්</a></li>
         <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">දේශපාලනය</a></li>
-        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">ආර්ථිකය</a></li>
         <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">ක්‍රීඩා</a></li>
-        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">විනෝදය</a></li>
-        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">තාක්ෂණය</a></li>
-        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">ලෝකය</a></li>
+        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">වෙළඳ/ව්‍යාපාරික</a></li>
+        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">විශේෂාංග</a></li>
+        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">විදේශ</a></li>
+        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">අධිකරණ/පොලිස්</a></li>
+        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">ප්‍රාදේශීය</a></li>
+        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">කතුවැකිය</a></li>
+        <li><a href="#" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">වීඩියෝ</a></li>
       </ul>
 
       <!-- Search -->
@@ -254,5 +276,50 @@
     </div>
   </main>
 
+  <script>
+    // Enable drag-to-scroll on desktop for the primary navigation
+    document.addEventListener('DOMContentLoaded', () => {
+      const slider = document.querySelector('.no-scrollbar');
+      if (!slider) return;
+
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.classList.add('cursor-grabbing');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+      });
+      
+      slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.remove('cursor-grabbing');
+      });
+      
+      slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.remove('cursor-grabbing');
+      });
+      
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll speed multiplier
+        slider.scrollLeft = scrollLeft - walk;
+      });
+
+      // Prevent link clicks if the user was dragging
+      slider.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          if (slider.classList.contains('cursor-grabbing')) {
+            e.preventDefault();
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>

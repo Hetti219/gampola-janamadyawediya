@@ -78,6 +78,7 @@ function gjn_social_links()
 {
 	$links = array(
 		'facebook' => 'https://www.facebook.com/share/1CUjL7b6Fu/',
+		'whatsapp' => 'https://wa.me/94713861588?text=Hello%20There',
 	);
 
 	/**
@@ -198,8 +199,8 @@ function gjn_site_header()
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
 			<a href="<?php echo esc_url(home_url('/')); ?>" class="flex min-w-0 items-center gap-3">
 				<span class="h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-lg shadow-black/20 ring-1 ring-black/10">
-					<img src="<?php echo esc_url(gjn_logo_url()); ?>"
-						alt="<?php echo esc_attr(get_bloginfo('name')); ?>" class="h-full w-full object-cover">
+					<img src="<?php echo esc_url(gjn_logo_url()); ?>" alt="<?php echo esc_attr(get_bloginfo('name')); ?>"
+						class="h-full w-full object-cover">
 				</span>
 				<span class="min-w-0">
 					<span
@@ -266,17 +267,17 @@ add_filter(
 function gjn_nav_fallback()
 {
 	$links = array(
-		'මුල් පිටුව'        => home_url('/'),
-		'දේශීය පුවත්'      => '#',
-		'දේශපාලනය'         => '#',
-		'ක්‍රීඩා'             => '#',
-		'වෙළඳ/ව්‍යාපාරික'    => '#',
-		'විශේෂාංග'          => '#',
-		'විදේශ'             => '#',
-		'අධිකරණ/පොලිස්'    => '#',
-		'ප්‍රාදේශීය'          => '#',
-		'කතුවැකිය'         => '#',
-		'වීඩියෝ'            => '#',
+		'මුල් පිටුව' => home_url('/'),
+		'දේශීය පුවත්' => '#',
+		'දේශපාලනය' => '#',
+		'ක්‍රීඩා' => '#',
+		'වෙළඳ/ව්‍යාපාරික' => '#',
+		'විශේෂාංග' => '#',
+		'විදේශ' => '#',
+		'අධිකරණ/පොලිස්' => '#',
+		'ප්‍රාදේශීය' => '#',
+		'කතුවැකිය' => '#',
+		'වීඩියෝ' => '#',
 	);
 
 	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700">';

@@ -160,11 +160,14 @@ function gjn_top_bar()
 					class="whitespace-nowrap font-medium text-neutral-200"><?php echo esc_html(gjn_sinhala_date(current_time('timestamp'))); ?></span>
 			</div>
 
+			<?php $gjn_description = get_bloginfo('description'); ?>
+			<?php if ($gjn_description) : ?>
 			<p class="hidden items-center gap-2.5 text-center font-medium text-neutral-400 md:flex">
 				<span class="h-1 w-1 shrink-0 rounded-full bg-red-600"></span>
-				<?php echo esc_html(get_bloginfo('description')); ?>
+				<?php echo esc_html($gjn_description); ?>
 				<span class="h-1 w-1 shrink-0 rounded-full bg-red-600"></span>
 			</p>
+			<?php endif; ?>
 
 			<?php $gjn_links = gjn_social_links(); ?>
 			<?php if (!empty($gjn_links)): ?>

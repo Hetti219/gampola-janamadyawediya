@@ -5,7 +5,7 @@
 # (database, uploads, wp-content volume) is never touched.
 set -euo pipefail
 
-REPO_DIR="/home/deployer/news-site-deploy"
+REPO_DIR="/home/deployer/gmp-jm-prod"
 cd "$REPO_DIR"
 
 PREV_SHA=$(git rev-parse HEAD)

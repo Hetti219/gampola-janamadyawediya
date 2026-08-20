@@ -1,0 +1,44 @@
+name: PR Quality and Security Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP syntax check (theme + mu-plugins)
+        run: |
+          find theme mu-plugins -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate compose files
+        run: |
+          cp .env.example .env   # CI has no .env; placeholders are enough for -q
+          docker compose config -q
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # TruffleHog needs full history to scan the commits in the PR
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified

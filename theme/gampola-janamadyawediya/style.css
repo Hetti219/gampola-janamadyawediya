@@ -1,9 +1,9 @@
 /*
  Theme Name:   Gampola Janamadyawediya
- Theme URI:    https://example.com/gampola-janamadyawediya
+ Theme URI:    https://gampolajanamadyawediya.com
  Description:  Bold black & red news theme for a Sinhala-language local journalism site.
- Author:       Antigravity
- Author URI:   https://example.com
+ Author:       Sathikashervinhettiarachchi
+ Author URI:   https://hetti219.github.io
  Template:     generatepress
  Version:      3.0.0
  License:      GNU General Public License v2 or later
@@ -81,7 +81,12 @@ body {
 	-webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: var(--gjn-font-heading);
 	color: var(--gjn-text-main);
 	font-weight: 700;
@@ -95,7 +100,8 @@ a {
 	transition: var(--gjn-transition);
 }
 
-a:hover, a:focus {
+a:hover,
+a:focus {
 	color: var(--gjn-red-hover);
 }
 
@@ -132,7 +138,10 @@ input[type="button"]:hover {
 	color: #ffffff;
 }
 
-a:focus, button:focus, input:focus, textarea:focus {
+a:focus,
+button:focus,
+input:focus,
+textarea:focus {
 	outline: 2px solid var(--gjn-red);
 	outline-offset: 2px;
 }
@@ -152,7 +161,8 @@ textarea {
 	transition: var(--gjn-transition);
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
 	border-color: var(--gjn-red);
 	outline: none;
 	box-shadow: 0 0 0 3px var(--gjn-red-soft);

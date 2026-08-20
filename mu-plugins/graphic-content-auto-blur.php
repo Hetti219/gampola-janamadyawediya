@@ -42,7 +42,7 @@ function ncg_autoblur_on_save( $post_id, $post ) {
 
 	// If the post left the category, or the author set a manual social
 	// image, the blurred copy is no longer used — clean it up.
-	$in_category = has_category( 'graphic-content', $post_id );
+	$in_category = has_term( 'graphic-content', 'content_flag', $post_id );
 	$has_manual  = get_post_meta( $post_id, 'rank_math_facebook_image', true )
 		|| get_post_meta( $post_id, '_yoast_wpseo_opengraph-image', true );
 	if ( ! $in_category || $has_manual ) {
@@ -92,7 +92,7 @@ function ncg_autoblur_on_save( $post_id, $post ) {
 add_action( 'set_object_terms', 'ncg_autoblur_on_terms_set', 20, 4 );
 
 function ncg_autoblur_on_terms_set( $object_id, $terms, $tt_ids, $taxonomy ) {
-	if ( 'category' !== $taxonomy || 'post' !== get_post_type( $object_id ) ) {
+	if ( 'content_flag' !== $taxonomy || 'post' !== get_post_type( $object_id ) ) {
 		return;
 	}
 	ncg_autoblur_on_save( $object_id, get_post( $object_id ) );
@@ -194,7 +194,7 @@ function ncg_should_use_blurred_og() {
 	}
 
 	$post_id = get_the_ID();
-	if ( ! has_category( 'graphic-content', $post_id ) ) {
+	if ( ! has_term( 'graphic-content', 'content_flag', $post_id ) ) {
 		return false;
 	}
 

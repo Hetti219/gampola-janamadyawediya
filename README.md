@@ -187,13 +187,52 @@ Create these as regular Pages: **About**, **Contact**, **Privacy Policy**,
 privacy-policy generator plugin (built into WP core under Settings →
 Privacy) covers the baseline.
 
-### 4.4 Category structure
-Set up these categories under Posts → Categories:
-- **General News**
-- **Knowledge Sharing**
-- **Graphic Content** — slug must be exactly `graphic-content` (this is
-  what the warning-gate mu-plugin checks for; it's already installed and
-  active, no setup needed beyond using this exact category on the right posts)
+### 4.4 Taxonomy: categories, tags, and content flags
+
+The site uses a three-layer taxonomy. Each layer serves a different
+purpose — don't mix them.
+
+**Layer 1 — Categories (editorial sections, powers the header menu):**
+Every post gets one primary category. Set these up under Posts →
+Categories:
+- **දේශීය පුවත් / Local News** — slug `local-news`
+- **දේශපාලනය / Politics** — slug `politics`
+- **අධිකරණ/පොලිස් / Crime & Courts** — slug `crime-courts`
+- **ක්‍රීඩා / Sports** — slug `sports`
+- **වෙළඳ/ව්‍යාපාරික / Business** — slug `business`
+- **විදේශ / World** — slug `world`
+- **ප්‍රාදේශීය / Regional** — slug `regional`
+- **විශේෂාංග / Features** — slug `features`
+- **කතුවැකිය / Editorial** — slug `editorial`
+- **වීඩියෝ / Video** — slug `video`
+
+Then go to Appearance → Menus, create a menu with these categories
+(plus a Home link), and assign it to the "Primary Menu" location.
+Rename the built-in "Uncategorized" to "General" under Settings →
+Writing.
+
+**Layer 2 — Tags (cross-referencing, powers "related articles"):**
+Use tags for specific entities, locations, and recurring topics that
+cut across categories. Examples: `gampola`, `kandy`, `police`,
+`elections`, `floods`. Aim for 2-5 tags per post. Never create a tag
+that will only be used once.
+
+**Layer 3 — Content flags (content warnings, separate taxonomy):**
+The `content_flag` taxonomy is registered automatically by the
+`content-flag-taxonomy` mu-plugin. It appears in the post editor
+sidebar as a "Content Flags" checkbox panel — separate from
+categories. Two flags exist:
+
+- **Graphic Content** (slug `graphic-content`) — triggers the
+  full-screen warning gate + auto-blurred social-share image.
+- **Sensitive Topic** (slug `sensitive-topic`) — triggers a softer
+  dismissible notice banner above the article. No blur.
+
+Content flags are **not** shown in the navigation menu. They are
+metadata attributes, not editorial sections. A fatal accident post
+belongs in the **Crime & Courts** category and has the **Graphic
+Content** flag ticked — the journalist doesn't have to choose between
+them.
 
 ### 4.5 The censored-teaser-to-full-article workflow
 For a post that needs the "blurred on Facebook, full version on the
@@ -203,8 +242,8 @@ website behind a warning" treatment:
    the post body.
 2. **Set a featured image** — this is required for the auto-blur fallback
    (see below).
-3. Assign it to the **Graphic Content** category — the warning gate
-   applies automatically.
+3. In the **Content Flags** panel, tick **Graphic Content** — the
+   warning gate applies automatically.
 4. **Social share image (choose one):**
    - **Manual (best quality):** In Rank Math/Yoast's **Social** tab for
      that post, upload a separate *blurred/censored* version of the image.
@@ -228,6 +267,10 @@ website behind a warning" treatment:
 > when WordPress is set to සිංහල, English otherwise. Developers can
 > override individual strings via the `ncg_gate_texts` filter.
 
+For sensitive-topic posts (no graphic imagery but difficult subject
+matter): tick **Sensitive Topic** instead. The reader sees a dismissible
+notice banner, not a full gate, and no social-image blurring occurs.
+
 For routine small posts with no sensitive content: publish only to
 Facebook as before. Nothing changes, no extra work. The website is for the
 subset of posts that actually need it — not a mirror of everything.
@@ -236,7 +279,7 @@ subset of posts that actually need it — not a mirror of everything.
 - **Routine posts (safe content):** the WordPress mobile app (Android/iOS)
   — write, add a photo, publish. Same effort as posting to Facebook.
 - **Graphic-content posts:** use the laptop with the full WP dashboard.
-  The extra steps (category, custom social image, reviewing the gate)
+  The extra steps (content flag, custom social image, reviewing the gate)
   are fiddly on a phone screen — doing this occasionally on a laptop is
   far less friction than fighting the mobile interface every time.
 
@@ -254,7 +297,7 @@ subset of posts that actually need it — not a mirror of everything.
    on the first attempt — if rejected, Google states the reason; fix it and
    reapply.
 
-Remember: articles in the Graphic Content category will likely show fewer
+Remember: articles with the Graphic Content flag will likely show fewer
 or no ads due to Google's Shocking Content policy. That's expected, not a
 bug — don't spend time trying to "fix" it.
 
@@ -304,7 +347,7 @@ angry reader.
 - [x] Automatic security patches (`unattended-upgrades`, set up by `deploy.sh`)
 - [x] Security headers: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`
 - [x] Container healthchecks: all 4 services have Docker healthchecks; WordPress waits for DB/cache readiness
-- [ ] Strong, unique WordPress admin password + a password manager
+- [X] Strong, unique WordPress admin password + a password manager
 - [ ] Off-site backups actually configured and tested (restore-test it once)
 - [ ] Two-factor authentication on the WordPress admin account (WP core supports this in recent versions, or use a lightweight 2FA plugin)
 
@@ -328,8 +371,10 @@ angry reader.
 ├── php/
 │   └── uploads.ini              # PHP upload limits (200 MB)
 ├── mu-plugins/                  # WordPress Must-Use plugins (auto-loaded)
-│   ├── graphic-content-gate.php # Click-through warning gate for graphic posts
-│   └── graphic-content-auto-blur.php  # Auto-generates blurred social share images
+│   ├── content-flag-taxonomy.php     # Registers content_flag taxonomy (Graphic Content, Sensitive Topic)
+│   ├── graphic-content-gate.php      # Click-through warning gate for graphic-flagged posts
+│   ├── graphic-content-auto-blur.php # Auto-generates blurred social share images
+│   └── sensitive-topic-notice.php    # Softer dismissible notice for sensitive-topic-flagged posts
 ├── theme/
 │   └── gampola-janamadyawediya/ # Child theme (GeneratePress parent required)
 ├── ui/

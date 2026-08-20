@@ -242,17 +242,17 @@ add_filter(
 function gjn_nav_fallback()
 {
 	$links = array(
-		'මුල් පිටුව' => home_url('/'),
-		'දේශීය පුවත්' => '#',
-		'දේශපාලනය' => '#',
-		'ක්‍රීඩා' => '#',
-		'වෙළඳ/ව්‍යාපාරික' => '#',
-		'විශේෂාංග' => '#',
-		'විදේශ' => '#',
-		'අධිකරණ/පොලිස්' => '#',
-		'ප්‍රාදේශීය' => '#',
-		'කතුවැකිය' => '#',
-		'වීඩියෝ' => '#',
+		'මුල් පිටුව'       => home_url('/'),
+		'දේශීය පුවත්'      => '#',   // Local News — most-read section, listed first.
+		'දේශපාලනය'         => '#',   // Politics.
+		'අධිකරණ/පොලිස්'    => '#',   // Crime & Courts.
+		'ක්‍රීඩා'            => '#',   // Sports.
+		'වෙළඳ/ව්‍යාපාරික'   => '#',   // Business.
+		'විදේශ'             => '#',   // World.
+		'ප්‍රාදේශීය'         => '#',   // Regional.
+		'විශේෂාංග'          => '#',   // Features.
+		'කතුවැකිය'          => '#',   // Editorial.
+		'වීඩියෝ'            => '#',   // Video.
 	);
 
 	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700">';
@@ -295,6 +295,51 @@ function gjn_navigation()
 				</form>
 			</div>
 		</div>
+		<script>
+			// Enable drag-to-scroll on desktop for the primary navigation
+			document.addEventListener('DOMContentLoaded', () => {
+				const slider = document.querySelector('.nav-primary');
+				if (!slider) return;
+
+				let isDown = false;
+				let startX;
+				let scrollLeft;
+
+				slider.addEventListener('mousedown', (e) => {
+					isDown = true;
+					slider.classList.add('cursor-grabbing');
+					startX = e.pageX - slider.offsetLeft;
+					scrollLeft = slider.scrollLeft;
+				});
+				
+				slider.addEventListener('mouseleave', () => {
+					isDown = false;
+					slider.classList.remove('cursor-grabbing');
+				});
+				
+				slider.addEventListener('mouseup', () => {
+					isDown = false;
+					slider.classList.remove('cursor-grabbing');
+				});
+				
+				slider.addEventListener('mousemove', (e) => {
+					if (!isDown) return;
+					e.preventDefault();
+					const x = e.pageX - slider.offsetLeft;
+					const walk = (x - startX) * 2; // Scroll speed multiplier
+					slider.scrollLeft = scrollLeft - walk;
+				});
+
+				// Prevent link clicks if the user was dragging
+				slider.querySelectorAll('a').forEach(link => {
+					link.addEventListener('click', (e) => {
+						if (slider.classList.contains('cursor-grabbing')) {
+							e.preventDefault();
+						}
+					});
+				});
+			});
+		</script>
 	</nav>
 	<?php
 }

@@ -257,5 +257,50 @@
     </div>
   </main>
 
+  <script>
+    // Enable drag-to-scroll on desktop for the primary navigation
+    document.addEventListener('DOMContentLoaded', () => {
+      const slider = document.querySelector('.no-scrollbar');
+      if (!slider) return;
+
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.classList.add('cursor-grabbing');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+      });
+      
+      slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.remove('cursor-grabbing');
+      });
+      
+      slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.remove('cursor-grabbing');
+      });
+      
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll speed multiplier
+        slider.scrollLeft = scrollLeft - walk;
+      });
+
+      // Prevent link clicks if the user was dragging
+      slider.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          if (slider.classList.contains('cursor-grabbing')) {
+            e.preventDefault();
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>

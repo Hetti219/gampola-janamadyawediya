@@ -30,6 +30,19 @@
 	@apply bg-red-700 text-white;
 }
 
+/* Modern slanted separators for nav items */
+.nav-primary {
+	@apply list-none; /* Ensure default bullets never show */
+}
+.nav-primary li {
+	@apply flex items-center gap-2;
+}
+.nav-primary li:not(:last-child)::after {
+	content: '';
+	@apply block w-px h-3.5 bg-neutral-300 shrink-0;
+	transform: skewX(-24deg);
+}
+
 /* ───────────────────────────────────────────────────────────
    News ticker marquee (seamless -50% translate loop)
    ─────────────────────────────────────────────────────────── */

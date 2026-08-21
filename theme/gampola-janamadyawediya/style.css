@@ -529,6 +529,16 @@ textarea:focus {
 /* ───────────────────────────────────────────────────────────
    9. SIDEBAR
    ─────────────────────────────────────────────────────────── */
+/* Hide redundant or unwanted default widgets */
+.sidebar .widget_search,
+.sidebar .widget_recent_comments,
+.sidebar .widget_recent_entries,
+.sidebar .wp-block-search,
+.sidebar .wp-block-latest-comments,
+.sidebar .wp-block-latest-posts {
+	display: none !important;
+}
+
 .sidebar .widget {
 	background: var(--gjn-bg-surface);
 	border: 1px solid var(--gjn-border);
@@ -579,6 +589,81 @@ textarea:focus {
 
 .sidebar .widget a:hover {
 	color: var(--gjn-red);
+}
+
+/* Custom Latest News Widget */
+.gjn-latest-news-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.gjn-latest-news-item {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	padding: 14px 0;
+	border-bottom: 1px solid var(--gjn-border);
+	transition: var(--gjn-transition);
+}
+
+.gjn-latest-news-item:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.gjn-latest-news-item:first-child {
+	padding-top: 0;
+}
+
+.gjn-latest-news-item:hover {
+	transform: translateX(4px);
+}
+
+.gjn-latest-news-img {
+	flex: 0 0 70px;
+	height: 52px;
+	border-radius: var(--gjn-radius-sm);
+	overflow: hidden;
+	background-color: var(--gjn-bg-body);
+}
+
+.gjn-latest-news-img img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.gjn-latest-news-text {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+}
+
+.gjn-latest-news-title {
+	font-family: var(--gjn-font-content);
+	font-size: 0.92rem;
+	font-weight: 600;
+	line-height: 1.35;
+	color: var(--gjn-text-main);
+	margin: 0;
+	transition: var(--gjn-transition);
+	/* Truncate at 2 lines */
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.gjn-latest-news-item:hover .gjn-latest-news-title {
+	color: var(--gjn-red);
+}
+
+.gjn-latest-news-date {
+	font-size: 0.75rem;
+	color: var(--gjn-text-light);
+	font-weight: 500;
 }
 
 /* ───────────────────────────────────────────────────────────

@@ -530,12 +530,9 @@ textarea:focus {
    9. SIDEBAR
    ─────────────────────────────────────────────────────────── */
 /* Hide redundant or unwanted default widgets */
-.sidebar .widget_search,
-.sidebar .widget_recent_comments,
-.sidebar .widget_recent_entries,
-.sidebar .wp-block-search,
-.sidebar .wp-block-latest-comments,
-.sidebar .wp-block-latest-posts {
+.sidebar .widget:not(.gjn-latest-news-widget),
+.sidebar aside:not(.gjn-latest-news-widget),
+.sidebar .widget_block {
 	display: none !important;
 }
 

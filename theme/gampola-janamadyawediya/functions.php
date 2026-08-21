@@ -159,6 +159,15 @@ function gjn_register_widgets() {
 // which hooks into 'generate_header' after removing 'generate_construct_header'.
 // The old accent stripe (gjn_accent_bar) was superseded by the new top bar.
 
+// Empty default widgets from the right sidebar so only our custom widget shows
+add_filter( 'sidebars_widgets', 'gjn_clear_right_sidebar_widgets' );
+function gjn_clear_right_sidebar_widgets( $sidebars_widgets ) {
+	if ( ! is_admin() && isset( $sidebars_widgets['sidebar-1'] ) ) {
+		$sidebars_widgets['sidebar-1'] = array();
+	}
+	return $sidebars_widgets;
+}
+
 add_action( 'generate_before_right_sidebar_content', 'gjn_custom_latest_news_sidebar' );
 
 function gjn_custom_latest_news_sidebar() {

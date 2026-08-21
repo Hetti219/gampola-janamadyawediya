@@ -34,7 +34,7 @@ function gjn_hero_posts() {
 
 	$recent = wp_get_recent_posts(
 		array(
-			'numberposts' => 3,
+			'numberposts' => 8,
 			'post_status' => 'publish',
 		),
 		OBJECT
@@ -52,7 +52,7 @@ function gjn_hero_posts() {
 		$posts = $recent;
 	}
 
-	return array_slice( $posts, 0, 3 );
+	return array_slice( $posts, 0, 8 );
 }
 
 /**
@@ -114,16 +114,22 @@ $hero_posts = gjn_hero_posts();
 		<?php gjn_render_hero_fallback(); ?>
 	<?php else : ?>
 
-		<div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
-
+		<!-- 1. HERO SECTION -->
+		<div class="mb-8">
 			<?php
 			$featured     = $hero_posts[0];
 			$featured_cat = gjn_first_category( $featured );
 			?>
-			<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-700 p-6 text-white ring-1 ring-white/10 transition-shadow duration-300 hover:shadow-2xl hover:shadow-red-950/40 sm:p-8 lg:col-span-2 lg:min-h-[30rem]">
+			<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-700 p-6 text-white ring-1 ring-white/10 transition-shadow duration-300 hover:shadow-2xl hover:shadow-red-950/40 sm:p-8 lg:min-h-[34rem]">
+				<?php if ( has_post_thumbnail( $featured ) ) : ?>
+					<div class="absolute inset-0 opacity-40 mix-blend-overlay">
+						<?php echo get_the_post_thumbnail( $featured, 'full', array( 'class' => 'h-full w-full object-cover' ) ); ?>
+					</div>
+					<div class="absolute inset-0 bg-gradient-to-t from-red-950 via-red-900/80 to-transparent"></div>
+				<?php endif; ?>
 				<?php gjn_watermark( '-bottom-14 -right-14 h-72 w-72 opacity-[0.08] sm:h-80 sm:w-80' ); ?>
 
-				<div class="relative flex flex-wrap items-center gap-2.5">
+				<div class="relative flex flex-wrap items-center gap-2.5 z-10">
 					<?php if ( $featured_cat ) : ?>
 						<a href="<?php echo esc_url( get_category_link( $featured_cat ) ); ?>" class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white backdrop-blur transition hover:bg-white/25 hover:text-white">
 							<?php echo esc_html( $featured_cat->name ); ?>
@@ -132,12 +138,12 @@ $hero_posts = gjn_hero_posts();
 					<?php gjn_time_chip( $featured ); ?>
 				</div>
 
-				<div class="relative mt-auto pt-8">
-					<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-4xl xl:text-[2.6rem] xl:leading-[1.3]">
+				<div class="relative mt-auto pt-8 z-10">
+					<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-5xl xl:text-[3rem] xl:leading-[1.2]">
 						<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="text-white transition hover:text-white hover:underline"><?php echo esc_html( get_the_title( $featured ) ); ?></a>
 					</h2>
-					<p class="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
-						<?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_excerpt( $featured ) ), 34 ) ); ?>
+					<p class="mt-4 max-w-3xl text-sm leading-relaxed text-white/90 sm:text-lg">
+						<?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_excerpt( $featured ) ), 40 ) ); ?>
 					</p>
 					<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
 						<span class="border-b-2 border-red-300 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
@@ -147,37 +153,92 @@ $hero_posts = gjn_hero_posts();
 					</a>
 				</div>
 			</article>
+		</div>
 
-			<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-1 lg:grid-rows-2">
+		<!-- 2. BENTO GRID SECTION -->
+		<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+			
+			<!-- Left Column: Visual Stories (2x2 Grid) -->
+			<div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5">
 				<?php
-				$right_tone = array(
-					'from-slate-800 via-slate-900 to-slate-950',
-					'from-slate-900 via-slate-900 to-slate-950',
-				);
-				foreach ( array_slice( $hero_posts, 1 ) as $index => $post ) :
+				$visual_posts = array_slice( $hero_posts, 1, 4 );
+				foreach ( $visual_posts as $post ) :
 					$cat = gjn_first_category( $post );
 					?>
-					<article class="relative flex min-h-[13rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br <?php echo esc_attr( $right_tone[ $index % 2 ] ); ?> p-6 text-white ring-1 ring-white/10 transition-shadow duration-300 hover:shadow-xl hover:shadow-slate-950/40 lg:min-h-0">
-						<?php gjn_watermark( '-bottom-10 -right-10 h-44 w-44 opacity-[0.06]' ); ?>
+					<article class="group relative flex aspect-square flex-col overflow-hidden rounded-2xl bg-neutral-900 text-white ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/20">
+						<?php if ( has_post_thumbnail( $post ) ) : ?>
+							<div class="absolute inset-0">
+								<?php echo get_the_post_thumbnail( $post, 'gjn-card', array( 'class' => 'h-full w-full object-cover transition-transform duration-700 group-hover:scale-105' ) ); ?>
+							</div>
+						<?php else: ?>
+							<div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900"></div>
+							<?php gjn_watermark( '-bottom-4 -right-4 h-32 w-32 opacity-10' ); ?>
+						<?php endif; ?>
+						
+						<!-- Gradient overlay for text readability -->
+						<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
 
-						<div class="relative flex flex-wrap items-center justify-between gap-3">
-							<?php if ( $cat ) : ?>
-								<a href="<?php echo esc_url( get_category_link( $cat ) ); ?>" class="rounded-full px-3 py-1 text-xs font-bold transition hover:brightness-125 <?php echo esc_attr( gjn_badge_classes( $cat->slug ) ); ?>">
-									<?php echo esc_html( $cat->name ); ?>
-								</a>
-							<?php endif; ?>
-							<span class="flex items-center gap-1.5 text-xs font-medium text-white/60">
-								<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-								</svg>
-								<?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $post ) ) ); ?>
-							</span>
+						<div class="relative flex flex-1 flex-col justify-between p-5 z-10">
+							<div class="flex items-start justify-between gap-2">
+								<?php if ( $cat ) : ?>
+									<a href="<?php echo esc_url( get_category_link( $cat ) ); ?>" class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition hover:brightness-125 <?php echo esc_attr( gjn_badge_classes( $cat->slug ) ); ?>">
+										<?php echo esc_html( $cat->name ); ?>
+									</a>
+								<?php endif; ?>
+							</div>
+							
+							<!-- Glassmorphism title block -->
+							<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-red-900/80">
+								<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base">
+									<a href="<?php echo esc_url( get_permalink( $post ) ); ?>" class="text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $post ) ); ?></a>
+								</h3>
+								<span class="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-white/70">
+									<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+									</svg>
+									<?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $post ) ) ); ?>
+								</span>
+							</div>
 						</div>
-						<h3 class="relative mt-auto pt-6 text-balance text-base font-extrabold leading-snug sm:text-lg">
-							<a href="<?php echo esc_url( get_permalink( $post ) ); ?>" class="text-white transition hover:text-white hover:underline"><?php echo esc_html( get_the_title( $post ) ); ?></a>
-						</h3>
 					</article>
 				<?php endforeach; ?>
+			</div>
+
+			<!-- Right Column: Quick Feed -->
+			<div class="lg:col-span-1 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200 lg:p-8">
+				<div class="mb-6 flex items-center gap-3 border-b border-neutral-100 pb-4">
+					<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600">
+						<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+						</svg>
+					</span>
+					<h2 class="text-lg font-black text-neutral-900">තවත් පුවත්</h2>
+				</div>
+				
+				<div class="flex flex-col gap-5">
+					<?php
+					$feed_posts = array_slice( $hero_posts, 5, 3 );
+					foreach ( $feed_posts as $post ) :
+						$cat = gjn_first_category( $post );
+						?>
+						<article class="group relative flex gap-4">
+							<div class="flex-1 flex flex-col justify-center">
+								<?php if ( $cat ) : ?>
+									<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600"><?php echo esc_html( $cat->name ); ?></span>
+								<?php endif; ?>
+								<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
+									<a href="<?php echo esc_url( get_permalink( $post ) ); ?>" class="before:absolute before:inset-0"><?php echo esc_html( get_the_title( $post ) ); ?></a>
+								</h3>
+								<span class="mt-1.5 text-xs text-neutral-500"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $post ) ) ); ?></span>
+							</div>
+							<?php if ( has_post_thumbnail( $post ) ) : ?>
+								<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5">
+									<?php echo get_the_post_thumbnail( $post, 'thumbnail', array( 'class' => 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-110' ) ); ?>
+								</div>
+							<?php endif; ?>
+						</article>
+					<?php endforeach; ?>
+				</div>
 			</div>
 
 		</div>
@@ -193,22 +254,22 @@ $hero_posts = gjn_hero_posts();
  */
 function gjn_render_hero_fallback() {
 	?>
-	<div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
-
-		<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-700 p-6 text-white ring-1 ring-white/10 sm:p-8 lg:col-span-2 lg:min-h-[30rem]">
+	<!-- 1. HERO SECTION -->
+	<div class="mb-8">
+		<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-700 p-6 text-white ring-1 ring-white/10 sm:p-8 lg:min-h-[34rem]">
 			<?php gjn_watermark( '-bottom-14 -right-14 h-72 w-72 opacity-[0.08] sm:h-80 sm:w-80' ); ?>
-			<div class="relative flex flex-wrap items-center gap-2.5">
-				<span class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold backdrop-blur">දේශපාලනය</span>
-				<span class="flex items-center gap-1.5 rounded-full bg-black/25 px-3.5 py-1.5 text-xs font-semibold backdrop-blur">
+			<div class="relative flex flex-wrap items-center gap-2.5 z-10">
+				<span class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white backdrop-blur">දේශපාලනය</span>
+				<span class="flex items-center gap-1.5 rounded-full bg-black/25 px-3.5 py-1.5 text-xs font-semibold backdrop-blur text-white">
 					<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
 					</svg>
 					මිනිත්තු 15කට පෙර
 				</span>
 			</div>
-			<div class="relative mt-auto pt-8">
-				<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-4xl xl:text-[2.6rem] xl:leading-[1.3] text-white">ගම්පොළ නගර සභාව නව සංවර්ධන වැඩසටහනක් දියත් කරයි</h2>
-				<p class="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">ගම්පොළ නගර සභාවේ පාලනාධිකාරිය විසින් මෙම වසරේ දී රුපියල් මිලියන 500ක වියදමින් නව යටිතල පහසුකම් සංවර්ධන වැඩසටහනක් ආරම්භ කිරීමට නියමිතය. ඒ අනුව නගරයේ ප්‍රධාන මාර්ග, පාලම් සහ ජලාපවහන පද්ධතීන් ප්‍රතිසංස්කරණය කිරීමට කටයුතු යොදා ඇත.</p>
+			<div class="relative mt-auto pt-8 z-10">
+				<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-5xl xl:text-[3rem] xl:leading-[1.2] text-white">ගම්පොළ නගර සභාව නව සංවර්ධන වැඩසටහනක් දියත් කරයි</h2>
+				<p class="mt-4 max-w-3xl text-sm leading-relaxed text-white/90 sm:text-lg">ගම්පොළ නගර සභාවේ පාලනාධිකාරිය විසින් මෙම වසරේ දී රුපියල් මිලියන 500ක වියදමින් නව යටිතල පහසුකම් සංවර්ධන වැඩසටහනක් ආරම්භ කිරීමට නියමිතය.</p>
 				<a href="#" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
 					<span class="border-b-2 border-red-300 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
 					<svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
@@ -217,35 +278,80 @@ function gjn_render_hero_fallback() {
 				</a>
 			</div>
 		</article>
+	</div>
 
-		<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-1 lg:grid-rows-2">
-			<article class="relative flex min-h-[13rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 text-white ring-1 ring-white/10 lg:min-h-0">
-				<?php gjn_watermark( '-bottom-10 -right-10 h-44 w-44 opacity-[0.06]' ); ?>
-				<div class="relative flex flex-wrap items-center justify-between gap-3">
-					<span class="rounded-full bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-300 ring-1 ring-amber-400/25">ක්‍රීඩා</span>
-					<span class="flex items-center gap-1.5 text-xs font-medium text-white/60">
-						<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
-						පැය 2කට පෙර
-					</span>
+	<!-- 2. BENTO GRID SECTION -->
+	<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+		<!-- Left Column: Visual Stories Grid -->
+		<div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5">
+			<!-- Dummy Visual Post 1 -->
+			<article class="group relative flex aspect-square flex-col overflow-hidden rounded-2xl bg-neutral-900 text-white ring-1 ring-black/5">
+				<div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900"></div>
+				<?php gjn_watermark( '-bottom-4 -right-4 h-32 w-32 opacity-10' ); ?>
+				<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+				<div class="relative flex flex-1 flex-col justify-between p-5 z-10">
+					<div class="flex items-start justify-between gap-2">
+						<span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/25">ක්‍රීඩා</span>
+					</div>
+					<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-red-900/80">
+						<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base text-white">ශ්‍රී ලංකා ක්‍රිකට් කණ්ඩායම ඉන්දීය සංචාරය සඳහා පිටත් වෙයි</h3>
+						<span class="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-white/70">
+							<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+							</svg>
+							පැය 2කට පෙර
+						</span>
+					</div>
 				</div>
-				<h3 class="relative mt-auto pt-6 text-balance text-base font-extrabold leading-snug sm:text-lg text-white">ශ්‍රී ලංකා ක්‍රිකට් කණ්ඩායම ඉන්දීය සංචාරය සඳහා පිටත් වෙයි</h3>
 			</article>
+			<!-- Dummy Visual Post 2 -->
+			<article class="group relative flex aspect-square flex-col overflow-hidden rounded-2xl bg-neutral-900 text-white ring-1 ring-black/5">
+				<div class="absolute inset-0 bg-gradient-to-br from-slate-900 to-black"></div>
+				<?php gjn_watermark( '-bottom-4 -right-4 h-32 w-32 opacity-10' ); ?>
+				<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+				<div class="relative flex flex-1 flex-col justify-between p-5 z-10">
+					<div class="flex items-start justify-between gap-2">
+						<span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-sky-400/15 text-sky-300 ring-1 ring-sky-400/25">ව්‍යාපාර</span>
+					</div>
+					<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-red-900/80">
+						<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base text-white">මහනුවර තේ වෙන්දේසියේ මිල ගණන් ඉහළට</h3>
+						<span class="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-white/70">
+							<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+							</svg>
+							පැය 4කට පෙර
+						</span>
+					</div>
+				</div>
+			</article>
+		</div>
 
-			<article class="relative flex min-h-[13rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 text-white ring-1 ring-white/10 lg:min-h-0">
-				<?php gjn_watermark( '-bottom-10 -right-10 h-44 w-44 opacity-[0.06]' ); ?>
-				<div class="relative flex flex-wrap items-center justify-between gap-3">
-					<span class="rounded-full bg-sky-400/15 px-3 py-1 text-xs font-bold text-sky-300 ring-1 ring-sky-400/25">ව්‍යාපාර</span>
-					<span class="flex items-center gap-1.5 text-xs font-medium text-white/60">
-						<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
-						පැය 4කට පෙර
-					</span>
-				</div>
-				<h3 class="relative mt-auto pt-6 text-balance text-base font-extrabold leading-snug sm:text-lg text-white">මහනුවර තේ වෙන්දේසියේ මිල ගණන් ඉහළට</h3>
-			</article>
+		<!-- Right Column: Quick Feed -->
+		<div class="lg:col-span-1 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200 lg:p-8">
+			<div class="mb-6 flex items-center gap-3 border-b border-neutral-100 pb-4">
+				<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600">
+					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+					</svg>
+				</span>
+				<h2 class="text-lg font-black text-neutral-900">තවත් පුවත්</h2>
+			</div>
+			
+			<div class="flex flex-col gap-5">
+				<!-- Dummy Quick Feed Post -->
+				<article class="group relative flex gap-4">
+					<div class="flex-1 flex flex-col justify-center">
+						<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">දේශීය පුවත්</span>
+						<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
+							<a href="#" class="before:absolute before:inset-0">රජයේ රෝහල් වලට නව වෛද්‍ය උපකරණ</a>
+						</h3>
+						<span class="mt-1.5 text-xs text-neutral-500">පැය 5කට පෙර</span>
+					</div>
+					<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5 flex items-center justify-center">
+						<?php gjn_watermark( 'h-10 w-10 text-neutral-300' ); ?>
+					</div>
+				</article>
+			</div>
 		</div>
 
 	</div>

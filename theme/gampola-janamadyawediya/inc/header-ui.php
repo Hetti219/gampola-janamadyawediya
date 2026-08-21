@@ -335,21 +335,28 @@ function gjn_navigation()
    ─────────────────────────────────────────────────────────── */
 
 /**
- * One half of the marquee track. Rendered twice — the duplicate gets
- * aria-hidden so screen readers announce each headline only once.
+ * Renders the marquee track items with dividers.
  */
-function gjn_ticker_half($items, $aria_hidden = false)
+function gjn_ticker_items_html($items)
 {
-	$attr = $aria_hidden ? ' aria-hidden="true"' : '';
 	ob_start();
+	$count = count($items);
+	$i = 0;
 	?>
-	<div class="flex items-center gap-10 px-6" <?php echo $attr; // phpcs:ignore WordPress.Security.EscapeOutput -- literal attribute. ?>>
-		<?php foreach ($items as $item): ?>
+	<div class="flex items-center gap-6 px-6">
+		<?php foreach ($items as $item): 
+			$i++;
+			?>
 			<a href="<?php echo esc_url($item['url']); ?>"
-				class="flex items-center gap-2.5 whitespace-nowrap text-sm font-semibold text-white transition hover:underline">
-				<span class="h-1.5 w-1.5 rounded-full bg-white/70"></span>
+				class="whitespace-nowrap text-sm font-semibold text-white transition-colors hover:text-yellow-200 hover:underline">
 				<?php echo esc_html($item['text']); ?>
 			</a>
+			
+			<?php if ( $i < $count ): ?>
+			<!-- Distinct divider -->
+			<span class="shrink-0 text-base font-bold italic tracking-widest text-white/30">//</span>
+			<?php endif; ?>
+			
 		<?php endforeach; ?>
 	</div>
 	<?php
@@ -378,8 +385,7 @@ function gjn_news_ticker()
 
 			<div class="relative flex flex-1 items-center overflow-hidden">
 				<div class="animate-marquee flex w-max items-center">
-					<?php echo gjn_ticker_half($items); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped at build time. ?>
-					<?php echo gjn_ticker_half($items, true); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<?php echo gjn_ticker_items_html($items); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
 			</div>
 		</div>

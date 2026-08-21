@@ -125,7 +125,7 @@ $hero_posts = gjn_hero_posts();
 
 				<div class="relative flex flex-wrap items-center gap-2.5">
 					<?php if ( $featured_cat ) : ?>
-						<a href="<?php echo esc_url( get_category_link( $featured_cat ) ); ?>" class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold backdrop-blur transition hover:bg-white/25">
+						<a href="<?php echo esc_url( get_category_link( $featured_cat ) ); ?>" class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white backdrop-blur transition hover:bg-white/25 hover:text-white">
 							<?php echo esc_html( $featured_cat->name ); ?>
 						</a>
 					<?php endif; ?>
@@ -134,12 +134,12 @@ $hero_posts = gjn_hero_posts();
 
 				<div class="relative mt-auto pt-8">
 					<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-4xl xl:text-[2.6rem] xl:leading-[1.3]">
-						<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="transition hover:underline"><?php echo esc_html( get_the_title( $featured ) ); ?></a>
+						<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="text-white transition hover:text-white hover:underline"><?php echo esc_html( get_the_title( $featured ) ); ?></a>
 					</h2>
 					<p class="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
 						<?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_excerpt( $featured ) ), 34 ) ); ?>
 					</p>
-					<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold">
+					<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
 						<span class="border-b-2 border-red-300 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
 						<svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -174,7 +174,7 @@ $hero_posts = gjn_hero_posts();
 							</span>
 						</div>
 						<h3 class="relative mt-auto pt-6 text-balance text-base font-extrabold leading-snug sm:text-lg">
-							<a href="<?php echo esc_url( get_permalink( $post ) ); ?>" class="transition hover:underline"><?php echo esc_html( get_the_title( $post ) ); ?></a>
+							<a href="<?php echo esc_url( get_permalink( $post ) ); ?>" class="text-white transition hover:text-white hover:underline"><?php echo esc_html( get_the_title( $post ) ); ?></a>
 						</h3>
 					</article>
 				<?php endforeach; ?>
@@ -207,9 +207,9 @@ function gjn_render_hero_fallback() {
 				</span>
 			</div>
 			<div class="relative mt-auto pt-8">
-				<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-4xl xl:text-[2.6rem] xl:leading-[1.3]">ගම්පොළ නගර සභාව නව සංවර්ධන වැඩසටහනක් දියත් කරයි</h2>
+				<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-4xl xl:text-[2.6rem] xl:leading-[1.3] text-white">ගම්පොළ නගර සභාව නව සංවර්ධන වැඩසටහනක් දියත් කරයි</h2>
 				<p class="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">ගම්පොළ නගර සභාවේ පාලනාධිකාරිය විසින් මෙම වසරේ දී රුපියල් මිලියන 500ක වියදමින් නව යටිතල පහසුකම් සංවර්ධන වැඩසටහනක් ආරම්භ කිරීමට නියමිතය. ඒ අනුව නගරයේ ප්‍රධාන මාර්ග, පාලම් සහ ජලාපවහන පද්ධතීන් ප්‍රතිසංස්කරණය කිරීමට කටයුතු යොදා ඇත.</p>
-				<a href="#" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold">
+				<a href="#" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
 					<span class="border-b-2 border-red-300 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
 					<svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -230,7 +230,7 @@ function gjn_render_hero_fallback() {
 						පැය 2කට පෙර
 					</span>
 				</div>
-				<h3 class="relative mt-auto pt-6 text-balance text-base font-extrabold leading-snug sm:text-lg">ශ්‍රී ලංකා ක්‍රිකට් කණ්ඩායම ඉන්දීය සංචාරය සඳහා පිටත් වෙයි</h3>
+				<h3 class="relative mt-auto pt-6 text-balance text-base font-extrabold leading-snug sm:text-lg text-white">ශ්‍රී ලංකා ක්‍රිකට් කණ්ඩායම ඉන්දීය සංචාරය සඳහා පිටත් වෙයි</h3>
 			</article>
 
 			<article class="relative flex min-h-[13rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 text-white ring-1 ring-white/10 lg:min-h-0">
@@ -244,7 +244,7 @@ function gjn_render_hero_fallback() {
 						පැය 4කට පෙර
 					</span>
 				</div>
-				<h3 class="relative mt-auto pt-6 text-balance text-base font-extrabold leading-snug sm:text-lg">මහනුවර තේ වෙන්දේසියේ මිල ගණන් ඉහළට</h3>
+				<h3 class="relative mt-auto pt-6 text-balance text-base font-extrabold leading-snug sm:text-lg text-white">මහනුවර තේ වෙන්දේසියේ මිල ගණන් ඉහළට</h3>
 			</article>
 		</div>
 

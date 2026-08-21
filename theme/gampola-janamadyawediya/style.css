@@ -227,6 +227,46 @@ textarea:focus {
 	box-shadow: var(--gjn-shadow-hover);
 }
 
+/* Horizontal cards for Archives & Blog (Grid layout) */
+@media (min-width: 768px) {
+	body:not(.single):not(.page) .separate-containers .inside-article {
+		display: grid;
+		grid-template-columns: 35% 1fr;
+		grid-template-rows: auto 1fr auto;
+		gap: 0 28px;
+		align-items: start;
+	}
+	body:not(.single):not(.page) .separate-containers .post-image {
+		grid-column: 1;
+		grid-row: 1 / 4;
+		margin: 0 !important;
+		height: 100%;
+	}
+	body:not(.single):not(.page) .separate-containers .post-image a,
+	body:not(.single):not(.page) .separate-containers .post-image img {
+		height: 100%;
+		display: block;
+	}
+	body:not(.single):not(.page) .separate-containers .post-image img {
+		object-fit: cover;
+		aspect-ratio: 4 / 3;
+	}
+	body:not(.single):not(.page) .separate-containers .entry-header {
+		grid-column: 2;
+		grid-row: 1;
+	}
+	body:not(.single):not(.page) .separate-containers .entry-summary {
+		grid-column: 2;
+		grid-row: 2;
+		margin-top: 12px;
+	}
+	body:not(.single):not(.page) .separate-containers .entry-meta {
+		grid-column: 2;
+		grid-row: 3;
+		margin-top: 16px;
+	}
+}
+
 /* One-container mode: white content sheet over the gray page. */
 .one-container .site-content {
 	background-color: var(--gjn-bg-surface);

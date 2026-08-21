@@ -159,6 +159,39 @@ function gjn_register_widgets() {
 // which hooks into 'generate_header' after removing 'generate_construct_header'.
 // The old accent stripe (gjn_accent_bar) was superseded by the new top bar.
 
+add_action( 'generate_before_right_sidebar_content', 'gjn_custom_latest_news_sidebar' );
+
+function gjn_custom_latest_news_sidebar() {
+	$recent = wp_get_recent_posts( array(
+		'numberposts' => 5,
+		'post_status' => 'publish'
+	), OBJECT );
+	
+	if ( empty( $recent ) ) {
+		return;
+	}
+	?>
+	<aside class="widget gjn-latest-news-widget">
+		<h2 class="widget-title">නවතම පුවත්</h2>
+		<div class="gjn-latest-news-list">
+			<?php foreach ( $recent as $post ) : ?>
+				<a href="<?php echo esc_url( get_permalink( $post->ID ) ); ?>" class="gjn-latest-news-item">
+					<div class="gjn-latest-news-img">
+						<?php if ( has_post_thumbnail( $post->ID ) ) : ?>
+							<?php echo get_the_post_thumbnail( $post->ID, 'thumbnail' ); ?>
+						<?php endif; ?>
+					</div>
+					<div class="gjn-latest-news-text">
+						<h3 class="gjn-latest-news-title"><?php echo esc_html( get_the_title( $post->ID ) ); ?></h3>
+						<span class="gjn-latest-news-date"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $post->ID ) ) ); ?></span>
+					</div>
+				</a>
+			<?php endforeach; ?>
+		</div>
+	</aside>
+	<?php
+}
+
 /* ───────────────────────────────────────────────────────────
    5. FOOTER
    ─────────────────────────────────────────────────────────── */

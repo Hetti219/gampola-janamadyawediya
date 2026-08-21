@@ -44,15 +44,16 @@
 }
 
 /* ───────────────────────────────────────────────────────────
-   News ticker marquee (seamless -50% translate loop)
+   News ticker marquee (classic scroll)
    ─────────────────────────────────────────────────────────── */
 @keyframes marquee {
 	from { transform: translateX(0); }
-	to   { transform: translateX(-50%); }
+	to   { transform: translateX(-100%); }
 }
 
 .animate-marquee {
-	animation: marquee 32s linear infinite;
+	animation: marquee 25s linear infinite;
+	padding-left: 100%;
 }
 
 .ticker:hover .animate-marquee {

@@ -101,34 +101,20 @@ function gjn_social_links()
 }
 
 /**
- * Headlines for the news ticker: the 5 latest posts.
+ * Headlines for the news ticker: posts marked with the breaking news flag.
  */
 function gjn_ticker_items()
 {
 	$items = array();
 
-	$posts = wp_get_recent_posts(
-		array(
-			'numberposts' => 5,
-			'post_status' => 'publish',
-		)
-	);
-
-	foreach ($posts as $post) {
-		$items[] = array(
-			'text' => get_the_title($post['ID']),
-			'url' => get_permalink($post['ID']),
-		);
-	}
-
-	// Pre-content fallback so the ticker still looks like a news site.
-	if (empty($items)) {
-		$items = array(
-			array('text' => 'ගම්පොළ නගර සභාව නව සංවර්ධන වැඩසටහනක් දියත් කරයි', 'url' => '#'),
-			array('text' => 'මධ්‍යම පළාතට අද පස්වරුවේ ගිගුරුම් සහිත වැසි ඇති විය හැකි බවට කාලගුණ දෙපාර්තමේන්තුව අනතුරු අඟවයි', 'url' => '#'),
-			array('text' => 'රුපියලේ අගය අද තවදුරටත් ස්ථාවර මට්ටමක පවතී', 'url' => '#'),
-			array('text' => 'කොළඹ–මහනුවර ප්‍රධාන මාර්ගයේ රථ වාහන තදබදයක්', 'url' => '#'),
-		);
+	if ( function_exists( 'gjn_get_breaking_posts' ) ) {
+		$posts = gjn_get_breaking_posts( 5 );
+		foreach ($posts as $post) {
+			$items[] = array(
+				'text' => get_the_title($post->ID),
+				'url'  => get_permalink($post->ID),
+			);
+		}
 	}
 
 	return $items;
@@ -349,21 +335,28 @@ function gjn_navigation()
    ─────────────────────────────────────────────────────────── */
 
 /**
- * One half of the marquee track. Rendered twice — the duplicate gets
- * aria-hidden so screen readers announce each headline only once.
+ * Renders the marquee track items with dividers.
  */
-function gjn_ticker_half($items, $aria_hidden = false)
+function gjn_ticker_items_html($items)
 {
-	$attr = $aria_hidden ? ' aria-hidden="true"' : '';
 	ob_start();
+	$count = count($items);
+	$i = 0;
 	?>
-	<div class="flex items-center gap-10 px-6" <?php echo $attr; // phpcs:ignore WordPress.Security.EscapeOutput -- literal attribute. ?>>
-		<?php foreach ($items as $item): ?>
+	<div class="flex items-center gap-6 px-6">
+		<?php foreach ($items as $item): 
+			$i++;
+			?>
 			<a href="<?php echo esc_url($item['url']); ?>"
-				class="flex items-center gap-2.5 whitespace-nowrap text-sm font-semibold transition hover:underline">
-				<span class="h-1.5 w-1.5 rounded-full bg-white/70"></span>
+				class="whitespace-nowrap text-sm font-semibold text-white transition-colors hover:text-yellow-200 hover:underline">
 				<?php echo esc_html($item['text']); ?>
 			</a>
+			
+			<?php if ( $i < $count ): ?>
+			<!-- Distinct divider -->
+			<span class="shrink-0 text-base font-bold italic tracking-widest text-white/30">//</span>
+			<?php endif; ?>
+			
 		<?php endforeach; ?>
 	</div>
 	<?php
@@ -373,6 +366,11 @@ function gjn_ticker_half($items, $aria_hidden = false)
 function gjn_news_ticker()
 {
 	$items = gjn_ticker_items();
+	
+	// Hide completely if there are no breaking news items
+	if ( empty( $items ) ) {
+		return;
+	}
 	?>
 	<div class="ticker bg-red-700 text-white">
 		<div class="mx-auto flex max-w-7xl items-stretch">
@@ -387,8 +385,7 @@ function gjn_news_ticker()
 
 			<div class="relative flex flex-1 items-center overflow-hidden">
 				<div class="animate-marquee flex w-max items-center">
-					<?php echo gjn_ticker_half($items); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped at build time. ?>
-					<?php echo gjn_ticker_half($items, true); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<?php echo gjn_ticker_items_html($items); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
 			</div>
 		</div>

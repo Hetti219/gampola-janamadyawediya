@@ -101,34 +101,20 @@ function gjn_social_links()
 }
 
 /**
- * Headlines for the news ticker: the 5 latest posts.
+ * Headlines for the news ticker: posts marked with the breaking news flag.
  */
 function gjn_ticker_items()
 {
 	$items = array();
 
-	$posts = wp_get_recent_posts(
-		array(
-			'numberposts' => 5,
-			'post_status' => 'publish',
-		)
-	);
-
-	foreach ($posts as $post) {
-		$items[] = array(
-			'text' => get_the_title($post['ID']),
-			'url' => get_permalink($post['ID']),
-		);
-	}
-
-	// Pre-content fallback so the ticker still looks like a news site.
-	if (empty($items)) {
-		$items = array(
-			array('text' => 'ගම්පොළ නගර සභාව නව සංවර්ධන වැඩසටහනක් දියත් කරයි', 'url' => '#'),
-			array('text' => 'මධ්‍යම පළාතට අද පස්වරුවේ ගිගුරුම් සහිත වැසි ඇති විය හැකි බවට කාලගුණ දෙපාර්තමේන්තුව අනතුරු අඟවයි', 'url' => '#'),
-			array('text' => 'රුපියලේ අගය අද තවදුරටත් ස්ථාවර මට්ටමක පවතී', 'url' => '#'),
-			array('text' => 'කොළඹ–මහනුවර ප්‍රධාන මාර්ගයේ රථ වාහන තදබදයක්', 'url' => '#'),
-		);
+	if ( function_exists( 'gjn_get_breaking_posts' ) ) {
+		$posts = gjn_get_breaking_posts( 5 );
+		foreach ($posts as $post) {
+			$items[] = array(
+				'text' => get_the_title($post->ID),
+				'url'  => get_permalink($post->ID),
+			);
+		}
 	}
 
 	return $items;
@@ -373,6 +359,11 @@ function gjn_ticker_half($items, $aria_hidden = false)
 function gjn_news_ticker()
 {
 	$items = gjn_ticker_items();
+	
+	// Hide completely if there are no breaking news items
+	if ( empty( $items ) ) {
+		return;
+	}
 	?>
 	<div class="ticker bg-red-700 text-white">
 		<div class="mx-auto flex max-w-7xl items-stretch">

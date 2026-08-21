@@ -360,7 +360,7 @@ function gjn_ticker_half($items, $aria_hidden = false)
 	<div class="flex items-center gap-10 px-6" <?php echo $attr; // phpcs:ignore WordPress.Security.EscapeOutput -- literal attribute. ?>>
 		<?php foreach ($items as $item): ?>
 			<a href="<?php echo esc_url($item['url']); ?>"
-				class="flex items-center gap-2.5 whitespace-nowrap text-sm font-semibold transition hover:underline">
+				class="flex items-center gap-2.5 whitespace-nowrap text-sm font-semibold text-white transition hover:underline">
 				<span class="h-1.5 w-1.5 rounded-full bg-white/70"></span>
 				<?php echo esc_html($item['text']); ?>
 			</a>

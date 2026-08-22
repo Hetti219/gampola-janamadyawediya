@@ -229,41 +229,47 @@ textarea:focus {
 
 /* Horizontal cards for Archives & Blog (Grid layout) */
 @media (min-width: 768px) {
-	body:not(.single):not(.page) .separate-containers .inside-article {
+	.archive .inside-article:has(> .post-image),
+	.blog .inside-article:has(> .post-image),
+	.search .inside-article:has(> .post-image) {
 		display: grid;
 		grid-template-columns: 35% 1fr;
-		grid-template-rows: auto 1fr auto;
 		gap: 0 28px;
 		align-items: start;
 	}
-	body:not(.single):not(.page) .separate-containers .post-image {
+	
+	.archive .inside-article > .post-image,
+	.blog .inside-article > .post-image,
+	.search .inside-article > .post-image {
 		grid-column: 1;
-		grid-row: 1 / 4;
+		grid-row: 1 / span 10; /* Stretch across all rows */
 		margin: 0 !important;
 		height: 100%;
 	}
-	body:not(.single):not(.page) .separate-containers .post-image a,
-	body:not(.single):not(.page) .separate-containers .post-image img {
+	
+	.archive .inside-article > .post-image a,
+	.archive .inside-article > .post-image img,
+	.blog .inside-article > .post-image a,
+	.blog .inside-article > .post-image img,
+	.search .inside-article > .post-image a,
+	.search .inside-article > .post-image img {
 		height: 100%;
 		display: block;
 	}
-	body:not(.single):not(.page) .separate-containers .post-image img {
+	
+	.archive .inside-article > .post-image img,
+	.blog .inside-article > .post-image img,
+	.search .inside-article > .post-image img {
 		object-fit: cover;
 		aspect-ratio: 4 / 3;
+		border-radius: var(--gjn-radius-sm);
 	}
-	body:not(.single):not(.page) .separate-containers .entry-header {
+	
+	/* Everything else stacks in the right column */
+	.archive .inside-article > :not(.post-image),
+	.blog .inside-article > :not(.post-image),
+	.search .inside-article > :not(.post-image) {
 		grid-column: 2;
-		grid-row: 1;
-	}
-	body:not(.single):not(.page) .separate-containers .entry-summary {
-		grid-column: 2;
-		grid-row: 2;
-		margin-top: 12px;
-	}
-	body:not(.single):not(.page) .separate-containers .entry-meta {
-		grid-column: 2;
-		grid-row: 3;
-		margin-top: 16px;
 	}
 }
 

@@ -34,7 +34,7 @@ function gjn_hero_posts() {
 
 	$recent = wp_get_recent_posts(
 		array(
-			'numberposts' => 8,
+			'numberposts' => 10,
 			'post_status' => 'publish',
 		),
 		OBJECT
@@ -52,7 +52,7 @@ function gjn_hero_posts() {
 		$posts = $recent;
 	}
 
-	return array_slice( $posts, 0, 8 );
+	return array_slice( $posts, 0, 10 );
 }
 
 /**
@@ -217,7 +217,7 @@ $hero_posts = gjn_hero_posts();
 				
 				<div class="flex flex-col gap-5">
 					<?php
-					$feed_posts = array_slice( $hero_posts, 5, 3 );
+					$feed_posts = array_slice( $hero_posts, 5, 5 );
 					foreach ( $feed_posts as $post ) :
 						$cat = gjn_first_category( $post );
 						?>
@@ -338,7 +338,7 @@ function gjn_render_hero_fallback() {
 			</div>
 			
 			<div class="flex flex-col gap-5">
-				<!-- Dummy Quick Feed Post -->
+				<!-- Dummy Quick Feed Post 1 -->
 				<article class="group relative flex gap-4">
 					<div class="flex-1 flex flex-col justify-center">
 						<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">දේශීය පුවත්</span>
@@ -346,6 +346,32 @@ function gjn_render_hero_fallback() {
 							<a href="#" class="before:absolute before:inset-0">රජයේ රෝහල් වලට නව වෛද්‍ය උපකරණ</a>
 						</h3>
 						<span class="mt-1.5 text-xs text-neutral-500">පැය 5කට පෙර</span>
+					</div>
+					<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5 flex items-center justify-center">
+						<?php gjn_watermark( 'h-10 w-10 text-neutral-300' ); ?>
+					</div>
+				</article>
+				<!-- Dummy Quick Feed Post 2 -->
+				<article class="group relative flex gap-4">
+					<div class="flex-1 flex flex-col justify-center">
+						<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">අධ්‍යාපන</span>
+						<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
+							<a href="#" class="before:absolute before:inset-0">නව විෂය නිර්දේශය ලබන වසරේ සිට</a>
+						</h3>
+						<span class="mt-1.5 text-xs text-neutral-500">පැය 7කට පෙර</span>
+					</div>
+					<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5 flex items-center justify-center">
+						<?php gjn_watermark( 'h-10 w-10 text-neutral-300' ); ?>
+					</div>
+				</article>
+				<!-- Dummy Quick Feed Post 3 -->
+				<article class="group relative flex gap-4">
+					<div class="flex-1 flex flex-col justify-center">
+						<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">ගෝලීය</span>
+						<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
+							<a href="#" class="before:absolute before:inset-0">ලෝක ආර්ථික සමුළුව අදින් ඇරඹේ</a>
+						</h3>
+						<span class="mt-1.5 text-xs text-neutral-500">පැය 12කට පෙර</span>
 					</div>
 					<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5 flex items-center justify-center">
 						<?php gjn_watermark( 'h-10 w-10 text-neutral-300' ); ?>

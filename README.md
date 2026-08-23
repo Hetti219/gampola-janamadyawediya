@@ -28,10 +28,10 @@ Start here, scale up only if traffic demands it:
 
 | Tier | Specs | Approx. cost | When |
 |---|---|---|---|
-| Starter | 2 vCPU / 4 GB RAM / 80 GB SSD | ~$24/mo (Linode 4 GB Shared) | Launch, low-to-moderate traffic |
-| Scale-up | 4 vCPU / 8 GB RAM | ~$48/mo (Linode 8 GB Shared) | If a story goes viral and the starter tier chokes |
+| Starter | 1 vCPU / 2 GB RAM / 40 GB SSD | ~$12/mo (Linode 2 GB Shared) | Launch, low-to-moderate traffic |
+| Scale-up | 2 vCPU / 4 GB RAM | ~$24/mo (Linode 4 GB Shared) | If a story goes viral and the starter tier chokes |
 
-Don't go below 4 GB RAM. WordPress + MariaDB + Redis + Nginx + occasional
+Don't go below 2 GB RAM. WordPress + MariaDB + Redis + Nginx + occasional
 video handling in Docker needs the headroom — a 1-2 GB box will swap and
 slow the site down under any real load.
 

@@ -332,3 +332,112 @@ function gjn_single_layout( $layout ) {
 	}
 	return $layout;
 }
+
+/* ───────────────────────────────────────────────────────────
+   9. SEO & GEO ENHANCEMENTS
+   ─────────────────────────────────────────────────────────── */
+
+/**
+ * 9.1 Favicon / Site Icon
+ */
+add_action( 'wp_head', 'gjn_inject_favicon', 5 );
+function gjn_inject_favicon() {
+	// Only output fallback if no WP site icon is set
+	if ( ! has_site_icon() ) {
+		$logo_url = esc_url( get_stylesheet_directory_uri() . '/assets/img/logo.jpeg' );
+		echo '<link rel="icon" href="' . $logo_url . '" sizes="192x192" />' . "\n";
+		echo '<link rel="apple-touch-icon" href="' . $logo_url . '" />' . "\n";
+	}
+	echo '<meta name="theme-color" content="#b91c1c" />' . "\n";
+}
+
+/**
+ * 9.2 Fallback SEO Meta Tags
+ */
+add_action( 'wp_head', 'gjn_inject_fallback_seo', 1 );
+function gjn_inject_fallback_seo() {
+	// Do nothing if Rank Math or Yoast is active
+	if ( defined( 'RANK_MATH_VERSION' ) || defined( 'WPSEO_VERSION' ) ) {
+		return;
+	}
+
+	if ( is_front_page() || is_home() ) {
+		echo '<meta name="description" content="' . esc_attr( 'අපගේ මෙහෙවර වන්නේ වගකීම් සහිත, විශ්වසනීය, ජනතා කේන්ද්රීය මාධ්යකරණයයි.' ) . '" />' . "\n";
+	} elseif ( is_single() ) {
+		// Output a basic excerpt-based description for posts
+		global $post;
+		if ( $post ) {
+			$excerpt = wp_trim_words( $post->post_content, 25, '' );
+			$excerpt = wp_strip_all_tags( $excerpt );
+			if ( ! empty( $excerpt ) ) {
+				echo '<meta name="description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
+			}
+		}
+	}
+}
+
+/**
+ * 9.3 GEO / AEO JSON-LD Schema
+ */
+add_action( 'wp_head', 'gjn_inject_json_ld', 10 );
+function gjn_inject_json_ld() {
+	$site_name = get_bloginfo( 'name' );
+	$site_url  = home_url( '/' );
+	$logo_url  = get_stylesheet_directory_uri() . '/assets/img/logo.jpeg';
+
+	// Organization Schema for Front Page
+	if ( is_front_page() || is_home() ) {
+		$schema = array(
+			'@context' => 'https://schema.org',
+			'@type'    => 'NewsMediaOrganization',
+			'name'     => $site_name,
+			'url'      => $site_url,
+			'logo'     => array(
+				'@type' => 'ImageObject',
+				'url'   => $logo_url,
+			),
+			'sameAs'   => array(
+				'https://www.facebook.com/share/1CUjL7b6Fu/', // Main social link
+			)
+		);
+		echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>' . "\n";
+	}
+
+	// Article Schema for Single Posts
+	if ( is_single() ) {
+		global $post;
+		
+		$schema = array(
+			'@context' => 'https://schema.org',
+			'@type'    => 'NewsArticle',
+			'headline' => get_the_title(),
+			'url'      => get_permalink(),
+			'datePublished' => get_the_date( 'c' ),
+			'dateModified'  => get_the_modified_date( 'c' ),
+			'author'   => array(
+				array(
+					'@type' => 'Person',
+					'name'  => get_the_author(),
+					'url'   => get_author_posts_url( get_the_author_meta( 'ID' ) )
+				)
+			),
+			'publisher' => array(
+				'@type' => 'NewsMediaOrganization',
+				'name'  => $site_name,
+				'logo'  => array(
+					'@type' => 'ImageObject',
+					'url'   => $logo_url,
+				)
+			)
+		);
+
+		if ( has_post_thumbnail() ) {
+			$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'full' );
+			if ( $image ) {
+				$schema['image'] = array( $image[0] );
+			}
+		}
+
+		echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>' . "\n";
+	}
+}

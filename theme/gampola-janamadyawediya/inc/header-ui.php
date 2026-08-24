@@ -172,7 +172,7 @@ function gjn_site_header()
 {
 	?>
 	<header class="border-b border-neutral-200 bg-white">
-		<div class="mx-auto flex max-w-7xl items-center gap-6 px-4 py-4 sm:px-6">
+		<div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
 			<a href="<?php echo esc_url(home_url('/')); ?>" class="flex min-w-0 items-center gap-3">
 				<span class="h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-lg shadow-black/20 ring-1 ring-black/10">
 					<img src="<?php echo esc_url(gjn_logo_url()); ?>" alt="<?php echo esc_attr(get_bloginfo('name')); ?>"
@@ -183,6 +183,18 @@ function gjn_site_header()
 					<span class="block text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Gampola Janamadyawediya</span>
 				</span>
 			</a>
+
+			<div class="relative hidden shrink-0 md:block">
+				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+					fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round"
+						d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+				</svg>
+				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
+					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
+						class="w-44 rounded-full border border-neutral-300 bg-neutral-50 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-red-600 focus:bg-white focus:ring-2 focus:ring-red-600/20">
+				</form>
+			</div>
 		</div>
 	</header>
 	<?php
@@ -257,17 +269,6 @@ function gjn_navigation()
 				)
 			);
 			?>
-			<div class="relative hidden shrink-0 md:block">
-				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
-					fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round"
-						d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-				</svg>
-				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
-					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
-						class="w-44 rounded-full border border-neutral-300 bg-neutral-50 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-red-600 focus:bg-white focus:ring-2 focus:ring-red-600/20">
-				</form>
-			</div>
 		</div>
 		<script>
 			// Enable drag-to-scroll on desktop for the primary navigation

@@ -41,18 +41,6 @@ function gjn_render_header_ui()
    ─────────────────────────────────────────────────────────── */
 
 /**
- * URL of the contact page, falling back to '#' if it doesn't exist yet.
- */
-function gjn_contact_url()
-{
-	$page = get_page_by_path('contact');
-	if (!$page) {
-		$page = get_page_by_path('contact-us');
-	}
-	return $page ? get_permalink($page) : '#';
-}
-
-/**
  * URL of the site logo image shown in the header. Filterable so the file
  * can be swapped without touching markup.
  */

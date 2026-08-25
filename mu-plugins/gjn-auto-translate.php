@@ -36,14 +36,14 @@ define( 'GJN_TRANSLATE_TARGETS', array(
 ) );
 
 /**
- * Gemini model to use. Flash models are fast and covered by the free tier.
+ * Gemini model to use. As of August 2026, gemini-3.7-flash is the standard for fast, high-quality tasks.
  */
-define( 'GJN_GEMINI_MODEL', 'gemini-2.0-flash' );
+define( 'GJN_GEMINI_MODEL', 'gemini-3.7-flash' );
 
 /**
- * API endpoint template. The model name is interpolated at call time.
+ * Interactions API endpoint. This is the modern 2026 API surface for Gemini.
  */
-define( 'GJN_GEMINI_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s' );
+define( 'GJN_GEMINI_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/interactions' );
 
 /**
  * Post meta key used to mark a post as "translations already created".
@@ -210,7 +210,7 @@ function gjn_create_translations( $post, $api_key ) {
  * @return array|false      Array with 'title' and 'content' keys, or false on failure.
  */
 function gjn_translate_via_gemini( $title, $content, $lang_name, $api_key ) {
-	$endpoint = sprintf( GJN_GEMINI_ENDPOINT, GJN_GEMINI_MODEL, $api_key );
+	$endpoint = GJN_GEMINI_ENDPOINT;
 
 	// Strip HTML to reduce token usage, but preserve paragraph structure.
 	// We'll wrap translated paragraphs back in <p> tags.
@@ -223,9 +223,7 @@ Rules:
 1. Translate ONLY the text. Do not add commentary, explanations, or notes.
 2. Preserve the journalistic tone and formality of the original.
 3. Keep proper nouns (place names, person names) in their commonly accepted {$lang_name} form. If no standard form exists, transliterate them.
-4. Return your response as valid JSON with exactly two keys: "title" and "content".
-5. The "content" value should use HTML paragraph tags (<p>...</p>) to preserve paragraph structure.
-6. Do NOT wrap the JSON in markdown code fences or any other formatting.
+4. The "content" value should use HTML paragraph tags (<p>...</p>) to preserve paragraph structure.
 
 Article title:
 {$title}
@@ -235,21 +233,27 @@ Article content:
 PROMPT;
 
 	$body = array(
-		'contents' => array(
-			array(
-				'parts' => array(
-					array( 'text' => $prompt ),
+		'model' => GJN_GEMINI_MODEL,
+		'input' => $prompt,
+		'response_format' => array(
+			'type'      => 'text',
+			'mime_type' => 'application/json',
+			'schema'    => array(
+				'type'       => 'object',
+				'properties' => array(
+					'title'   => array( 'type' => 'string' ),
+					'content' => array( 'type' => 'string' ),
 				),
+				'required'   => array( 'title', 'content' ),
 			),
-		),
-		'generationConfig' => array(
-			'temperature'  => 0.2,
-			'responseMimeType' => 'application/json',
 		),
 	);
 
 	$response = wp_remote_post( $endpoint, array(
-		'headers' => array( 'Content-Type' => 'application/json' ),
+		'headers' => array(
+			'Content-Type'   => 'application/json',
+			'x-goog-api-key' => $api_key,
+		),
 		'body'    => wp_json_encode( $body ),
 		'timeout' => 60, // Generous timeout for long articles.
 	) );
@@ -267,17 +271,17 @@ PROMPT;
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	// Extract the generated text from Gemini's response structure.
-	$text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+	// Extract the generated text from Gemini's Interactions API response structure.
+	$text = $data['output_text'] ?? '';
 	if ( empty( $text ) ) {
 		error_log( '[gjn-auto-translate] Empty response from Gemini for ' . $lang_name );
 		return false;
 	}
 
-	// Parse the JSON that Gemini returned.
+	// Parse the JSON that Gemini returned. (The schema guarantees it's valid JSON).
 	$translated = json_decode( $text, true );
 	if ( ! is_array( $translated ) || empty( $translated['title'] ) || empty( $translated['content'] ) ) {
-		// Sometimes Gemini wraps JSON in markdown fences — try stripping them.
+		// Fallback in case of markdown fences (though the schema should prevent this)
 		$cleaned = preg_replace( '/^```(?:json)?\s*|\s*```$/s', '', trim( $text ) );
 		$translated = json_decode( $cleaned, true );
 

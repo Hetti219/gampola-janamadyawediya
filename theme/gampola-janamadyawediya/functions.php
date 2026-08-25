@@ -50,6 +50,7 @@ function gjn_enqueue_assets() {
 		'https://fonts.googleapis.com/css2?' .
 			'family=Plus+Jakarta+Sans:wght@400;500;600;700' .
 			'&family=Noto+Sans+Sinhala:wght@400;500;700;800;900' .
+			'&family=Noto+Sans+Tamil:wght@400;500;700;800;900' .
 			'&display=swap',
 		array(),
 		null  // null prevents ?ver= being appended, which breaks Google Fonts.
@@ -442,61 +443,3 @@ function gjn_inject_json_ld() {
 	}
 }
 
-/* ───────────────────────────────────────────────────────────
-   10. GOOGLE TRANSLATE WIDGET
-   ─────────────────────────────────────────────────────────── */
-
-add_action( 'wp_footer', 'gjn_google_translate_script' );
-function gjn_google_translate_script() {
-	?>
-	<div id="google_translate_element" style="position:absolute;top:-9999px;left:-9999px;"></div>
-	<script type="text/javascript">
-		function googleTranslateElementInit() {
-			new google.translate.TranslateElement({
-				pageLanguage: 'si',
-				includedLanguages: 'en,ta,fr,es,pt,nl,de,it,si',
-				autoDisplay: false
-			}, 'google_translate_element');
-		}
-
-		/**
-		 * Reliable cookie-based translation trigger.
-		 *
-		 * Google Translate reads a cookie named "googtrans" on page load
-		 * to decide which language to translate to. Setting this cookie
-		 * and reloading the page is the only consistently reliable way
-		 * to trigger translation from custom UI.
-		 */
-		function gjnDoTranslate(lang) {
-			if (lang === 'si') {
-				// Revert to original — delete the cookie and reload.
-				document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-				document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname + ';';
-				// Also try with leading dot for subdomain cookies.
-				document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + location.hostname + ';';
-			} else {
-				// Set the googtrans cookie to the target language.
-				var val = '/si/' + lang;
-				document.cookie = 'googtrans=' + val + '; path=/;';
-				document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname + ';';
-				document.cookie = 'googtrans=' + val + '; path=/; domain=.' + location.hostname + ';';
-			}
-			location.reload();
-		}
-	</script>
-	<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-	<style>
-		/* Hide the top Google Translate banner frame */
-		.goog-te-banner-frame.skiptranslate {
-			display: none !important;
-		}
-		body {
-			top: 0px !important;
-		}
-		/* Hide any Google Translate injected elements */
-		.skiptranslate.goog-te-gadget {
-			display: none !important;
-		}
-	</style>
-	<?php
-}

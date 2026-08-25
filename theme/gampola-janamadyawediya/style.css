@@ -841,3 +841,31 @@ textarea:focus {
 		padding-right: 0;
 	}
 }
+
+/* ───────────────────────────────────────────────────────────
+   POLYLANG LANGUAGE SWITCHER (TOP BAR)
+   ─────────────────────────────────────────────────────────── */
+
+#gjn-lang-menu .lang-item {
+	list-style: none;
+}
+
+#gjn-lang-menu .lang-item a {
+	display: block;
+	padding: 8px 16px;
+	font-size: 12px;
+	font-weight: 500;
+	color: #d4d4d8; /* neutral-300 */
+	text-decoration: none;
+	transition: background-color 0.15s, color 0.15s;
+}
+
+#gjn-lang-menu .lang-item a:hover {
+	background-color: #404040; /* neutral-700 */
+	color: #ffffff;
+}
+
+#gjn-lang-menu .lang-item.current-lang a {
+	color: #ffffff;
+	background-color: #b91c1c; /* brand red */
+}

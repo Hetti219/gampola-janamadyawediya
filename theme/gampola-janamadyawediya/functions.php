@@ -449,7 +449,7 @@ function gjn_inject_json_ld() {
 add_action( 'wp_footer', 'gjn_google_translate_script' );
 function gjn_google_translate_script() {
 	?>
-	<div id="google_translate_element" style="display:none;"></div>
+	<div id="google_translate_element" style="position:absolute; top:-1000px; width:1px; height:1px; overflow:hidden;"></div>
 	<script type="text/javascript">
 		function googleTranslateElementInit() {
 			new google.translate.TranslateElement({
@@ -464,7 +464,16 @@ function gjn_google_translate_script() {
 			var selectField = document.querySelector('.goog-te-combo');
 			if (selectField) {
 				selectField.value = lang;
-				selectField.dispatchEvent(new Event('change'));
+				if (typeof Event === 'function') {
+					selectField.dispatchEvent(new Event('change'));
+				} else {
+					var event = document.createEvent('HTMLEvents');
+					event.initEvent('change', true, true);
+					selectField.dispatchEvent(event);
+				}
+			} else {
+				// If not loaded yet, wait and retry
+				setTimeout(function() { gjnDoTranslate(lang); }, 300);
 			}
 		}
 	</script>

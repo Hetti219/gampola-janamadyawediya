@@ -44,6 +44,9 @@ services:
       # No-ops gracefully when unset (local dev, initial setup).
       CF_ZONE_ID: ${CF_ZONE_ID:-}
       CF_API_TOKEN: ${CF_API_TOKEN:-}
+      # Gemini Flash API key for auto-translation (mu-plugins/gjn-auto-translate.php).
+      # No-ops gracefully when unset.
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       # WP_REDIS_HOST lets a Redis object-cache plugin (e.g. "Redis Object Cache")
       # find Redis automatically once you activate it from the plugin screen.
       WORDPRESS_CONFIG_EXTRA: |

@@ -454,7 +454,7 @@ function gjn_google_translate_script() {
 		function googleTranslateElementInit() {
 			new google.translate.TranslateElement({
 				pageLanguage: 'si',
-				includedLanguages: 'en,ta,si',
+				includedLanguages: 'en,ta,fr,es,pt,nl,de,it,si',
 				autoDisplay: false
 			}, 'google_translate_element');
 		}

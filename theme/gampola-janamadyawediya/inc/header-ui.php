@@ -159,6 +159,12 @@ function gjn_top_bar()
 								<a href="#" onclick="gjnDoTranslate('si'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">සිංහල</a>
 								<a href="#" onclick="gjnDoTranslate('en'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">English</a>
 								<a href="#" onclick="gjnDoTranslate('ta'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">தமிழ்</a>
+								<a href="#" onclick="gjnDoTranslate('fr'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Français</a>
+								<a href="#" onclick="gjnDoTranslate('es'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Español</a>
+								<a href="#" onclick="gjnDoTranslate('pt'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Português</a>
+								<a href="#" onclick="gjnDoTranslate('nl'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Nederlands</a>
+								<a href="#" onclick="gjnDoTranslate('de'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Deutsch</a>
+								<a href="#" onclick="gjnDoTranslate('it'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Italiano</a>
 							</div>
 						</div>
 					</div>

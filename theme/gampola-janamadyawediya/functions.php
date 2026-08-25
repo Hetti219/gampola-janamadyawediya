@@ -461,20 +461,25 @@ function gjn_google_translate_script() {
 		}
 
 		function gjnDoTranslate(lang) {
-			var selectField = document.querySelector('.goog-te-combo');
-			if (selectField) {
-				selectField.value = lang;
-				if (typeof Event === 'function') {
-					selectField.dispatchEvent(new Event('change'));
-				} else {
-					var event = document.createEvent('HTMLEvents');
-					event.initEvent('change', true, true);
-					selectField.dispatchEvent(event);
-				}
-			} else {
+			var teCombo = document.querySelector('.goog-te-combo');
+			if (!teCombo) {
 				// If not loaded yet, wait and retry
 				setTimeout(function() { gjnDoTranslate(lang); }, 300);
+				return;
 			}
+			
+			// To revert to original language, Google expects an empty value or the pageLanguage
+			teCombo.value = lang === 'si' ? '' : lang;
+			
+			// Event must bubble for Google's event listeners to catch it
+			var event;
+			if (typeof window.Event === 'function') {
+				event = new Event('change', { bubbles: true, cancelable: true });
+			} else {
+				event = document.createEvent('HTMLEvents');
+				event.initEvent('change', true, true);
+			}
+			teCombo.dispatchEvent(event);
 		}
 	</script>
 	<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>

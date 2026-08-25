@@ -449,37 +449,39 @@ function gjn_inject_json_ld() {
 add_action( 'wp_footer', 'gjn_google_translate_script' );
 function gjn_google_translate_script() {
 	?>
-	<div id="google_translate_element" style="position:absolute; top:-1000px; width:1px; height:1px; overflow:hidden;"></div>
+	<div id="google_translate_element" style="position:absolute;top:-9999px;left:-9999px;"></div>
 	<script type="text/javascript">
 		function googleTranslateElementInit() {
 			new google.translate.TranslateElement({
 				pageLanguage: 'si',
 				includedLanguages: 'en,ta,si',
-				layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
 				autoDisplay: false
 			}, 'google_translate_element');
 		}
 
+		/**
+		 * Reliable cookie-based translation trigger.
+		 *
+		 * Google Translate reads a cookie named "googtrans" on page load
+		 * to decide which language to translate to. Setting this cookie
+		 * and reloading the page is the only consistently reliable way
+		 * to trigger translation from custom UI.
+		 */
 		function gjnDoTranslate(lang) {
-			var teCombo = document.querySelector('.goog-te-combo');
-			if (!teCombo) {
-				// If not loaded yet, wait and retry
-				setTimeout(function() { gjnDoTranslate(lang); }, 300);
-				return;
-			}
-			
-			// To revert to original language, Google expects an empty value or the pageLanguage
-			teCombo.value = lang === 'si' ? '' : lang;
-			
-			// Event must bubble for Google's event listeners to catch it
-			var event;
-			if (typeof window.Event === 'function') {
-				event = new Event('change', { bubbles: true, cancelable: true });
+			if (lang === 'si') {
+				// Revert to original — delete the cookie and reload.
+				document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+				document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname + ';';
+				// Also try with leading dot for subdomain cookies.
+				document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + location.hostname + ';';
 			} else {
-				event = document.createEvent('HTMLEvents');
-				event.initEvent('change', true, true);
+				// Set the googtrans cookie to the target language.
+				var val = '/si/' + lang;
+				document.cookie = 'googtrans=' + val + '; path=/;';
+				document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname + ';';
+				document.cookie = 'googtrans=' + val + '; path=/; domain=.' + location.hostname + ';';
 			}
-			teCombo.dispatchEvent(event);
+			location.reload();
 		}
 	</script>
 	<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
@@ -490,6 +492,10 @@ function gjn_google_translate_script() {
 		}
 		body {
 			top: 0px !important;
+		}
+		/* Hide any Google Translate injected elements */
+		.skiptranslate.goog-te-gadget {
+			display: none !important;
 		}
 	</style>
 	<?php

@@ -441,3 +441,52 @@ function gjn_inject_json_ld() {
 		echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>' . "\n";
 	}
 }
+
+/* ───────────────────────────────────────────────────────────
+   10. GOOGLE TRANSLATE WIDGET
+   ─────────────────────────────────────────────────────────── */
+
+add_action( 'wp_footer', 'gjn_google_translate_script' );
+function gjn_google_translate_script() {
+	?>
+	<script type="text/javascript">
+		function googleTranslateElementInit() {
+			new google.translate.TranslateElement({
+				pageLanguage: 'si',
+				includedLanguages: 'en,ta,si',
+				layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+				autoDisplay: false
+			}, 'google_translate_element');
+		}
+	</script>
+	<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+	<style>
+		/* Clean up the default Google Translate UI */
+		.goog-te-gadget-simple {
+			background-color: transparent !important;
+			border: 1px solid #3f3f46 !important; /* Tailwind neutral-700 */
+			border-radius: 4px !important;
+			padding: 2px 4px !important;
+			display: flex !important;
+			align-items: center !important;
+			font-size: 12px !important;
+		}
+		.goog-te-gadget-simple .goog-te-menu-value {
+			color: #d4d4d8 !important; /* Tailwind neutral-300 */
+		}
+		.goog-te-gadget-simple .goog-te-menu-value span {
+			color: #d4d4d8 !important;
+		}
+		.goog-te-gadget-icon, .goog-te-gadget-simple img {
+			display: none !important; /* Hide Google logo/icon */
+		}
+		/* Hide the top Google Translate banner frame */
+		.goog-te-banner-frame.skiptranslate {
+			display: none !important;
+		}
+		body {
+			top: 0px !important;
+		}
+	</style>
+	<?php
+}

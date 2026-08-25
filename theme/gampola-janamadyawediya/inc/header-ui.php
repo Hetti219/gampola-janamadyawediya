@@ -146,6 +146,7 @@ function gjn_top_bar()
 			<?php $gjn_links = gjn_social_links(); ?>
 			<?php if (!empty($gjn_links)): ?>
 				<div class="flex shrink-0 items-center gap-2.5 sm:gap-3.5">
+					<div id="google_translate_element" class="mr-2 overflow-hidden rounded-md text-xs"></div>
 					<?php foreach ($gjn_links as $network => $url): ?>
 						<?php if (!isset($social_icons[$network])) {
 							continue;

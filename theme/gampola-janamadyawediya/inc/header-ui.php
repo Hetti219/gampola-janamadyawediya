@@ -147,27 +147,29 @@ function gjn_top_bar()
 			<?php if (!empty($gjn_links)): ?>
 				<div class="flex shrink-0 items-center gap-2.5 sm:gap-3.5">
 					
-					<!-- Custom Translate Trigger -->
-					<div class="relative z-50 flex items-center">
-						<button onclick="document.getElementById('gjn-translate-menu').classList.toggle('hidden');" class="flex items-center gap-1 text-white transition hover:text-white p-1" aria-label="Translate">
+					<!-- Language Switcher (Polylang) -->
+					<?php if ( function_exists( 'pll_the_languages' ) ) : ?>
+					<div class="relative z-50 flex items-center" id="gjn-lang-switcher">
+						<button onclick="document.getElementById('gjn-lang-menu').classList.toggle('hidden');" class="flex items-center gap-1 text-white transition hover:text-white p-1" aria-label="Translate">
 							<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
 								<path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
 							</svg>
 						</button>
-						<div id="gjn-translate-menu" class="absolute right-0 top-full mt-2 hidden w-32 overflow-hidden rounded-lg bg-neutral-900 shadow-xl ring-1 ring-white/10">
-							<div class="flex flex-col">
-								<a href="#" onclick="gjnDoTranslate('si'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">සිංහල</a>
-								<a href="#" onclick="gjnDoTranslate('en'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">English</a>
-								<a href="#" onclick="gjnDoTranslate('ta'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">தமிழ்</a>
-								<a href="#" onclick="gjnDoTranslate('fr'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Français</a>
-								<a href="#" onclick="gjnDoTranslate('es'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Español</a>
-								<a href="#" onclick="gjnDoTranslate('pt'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Português</a>
-								<a href="#" onclick="gjnDoTranslate('nl'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Nederlands</a>
-								<a href="#" onclick="gjnDoTranslate('de'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Deutsch</a>
-								<a href="#" onclick="gjnDoTranslate('it'); document.getElementById('gjn-translate-menu').classList.add('hidden'); return false;" class="px-4 py-2 text-left text-xs font-medium text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors">Italiano</a>
-							</div>
+						<div id="gjn-lang-menu" class="absolute right-0 top-full mt-2 hidden w-32 overflow-hidden rounded-lg bg-neutral-900 shadow-xl ring-1 ring-white/10">
+							<ul class="flex flex-col">
+								<?php
+								pll_the_languages( array(
+									'show_flags'   => 0,
+									'show_names'   => 1,
+									'hide_current' => 0,
+									'display_names_as' => 'name',
+								) );
+								?>
+							</ul>
 						</div>
 					</div>
+					<?php endif; ?>
+
 
 					<?php foreach ($gjn_links as $network => $url): ?>
 						<?php if (!isset($social_icons[$network])) {

@@ -159,10 +159,12 @@ function gjn_top_bar()
 							<ul class="flex flex-col">
 								<?php
 								pll_the_languages( array(
-									'show_flags'   => 0,
-									'show_names'   => 1,
-									'hide_current' => 0,
-									'display_names_as' => 'name',
+									'show_flags'              => 0,
+									'show_names'              => 1,
+									'hide_current'            => 0,
+									'hide_if_no_translation'  => 0,
+									'force_home'              => 1,
+									'display_names_as'        => 'name',
 								) );
 								?>
 							</ul>

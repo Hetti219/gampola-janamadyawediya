@@ -232,6 +232,25 @@ function gjn_site_header()
    ─────────────────────────────────────────────────────────── */
 
 /**
+ * Remove Polylang's auto-injected language switcher items from the primary nav.
+ * We have a dedicated translate button in the top bar — no need for duplicates.
+ */
+add_filter(
+	'wp_nav_menu_objects',
+	function ( $items, $args ) {
+		if ( empty( $args->theme_location ) || 'primary' !== $args->theme_location ) {
+			return $items;
+		}
+		return array_filter( $items, function ( $item ) {
+			// Polylang marks its language items with object type 'language'.
+			return 'language' !== $item->object;
+		} );
+	},
+	10,
+	2
+);
+
+/**
  * Tailwind link classes for the primary menu only.
  */
 add_filter(
@@ -248,6 +267,7 @@ add_filter(
 	10,
 	3
 );
+
 
 /**
  * Fallback when no "primary" menu is assigned yet.

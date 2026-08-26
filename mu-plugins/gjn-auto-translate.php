@@ -135,7 +135,15 @@ function gjn_create_translations( $post, $api_key ) {
 	$tags          = wp_get_post_tags( $post->ID, array( 'fields' => 'ids' ) );
 	$thumbnail_id  = get_post_thumbnail_id( $post->ID );
 
+	$is_first = true;
 	foreach ( GJN_TRANSLATE_TARGETS as $lang_code => $lang_name ) {
+		// Stagger API calls to stay under the free-tier RPM limit (5 RPM).
+		// Wait 15 seconds between calls so we never exceed 4 requests/minute.
+		if ( ! $is_first ) {
+			sleep( 15 );
+		}
+		$is_first = false;
+
 		$translated = gjn_translate_via_gemini(
 			$post->post_title,
 			$post->post_content,
@@ -249,24 +257,45 @@ PROMPT;
 		),
 	);
 
-	$response = wp_remote_post( $endpoint, array(
-		'headers' => array(
-			'Content-Type'   => 'application/json',
-			'x-goog-api-key' => $api_key,
-		),
-		'body'    => wp_json_encode( $body ),
-		'timeout' => 60, // Generous timeout for long articles.
-	) );
+	// Retry with exponential backoff on 429 (rate limit) responses.
+	$max_retries  = 3;
+	$backoff_secs = 20; // Start with 20s — enough to reset the RPM window.
 
-	if ( is_wp_error( $response ) ) {
-		error_log( '[gjn-auto-translate] HTTP error for ' . $lang_name . ': ' . $response->get_error_message() );
-		return false;
-	}
+	for ( $attempt = 0; $attempt <= $max_retries; $attempt++ ) {
+		if ( $attempt > 0 ) {
+			$wait = $backoff_secs * pow( 2, $attempt - 1 ); // 20s, 40s, 80s
+			error_log( '[gjn-auto-translate] Rate limited for ' . $lang_name . '. Retrying in ' . $wait . 's (attempt ' . ( $attempt + 1 ) . '/' . ( $max_retries + 1 ) . ')' );
+			sleep( $wait );
+		}
 
-	$status = wp_remote_retrieve_response_code( $response );
-	if ( 200 !== $status ) {
-		error_log( '[gjn-auto-translate] API returned HTTP ' . $status . ' for ' . $lang_name . ': ' . wp_remote_retrieve_body( $response ) );
-		return false;
+		$response = wp_remote_post( $endpoint, array(
+			'headers' => array(
+				'Content-Type'   => 'application/json',
+				'x-goog-api-key' => $api_key,
+			),
+			'body'    => wp_json_encode( $body ),
+			'timeout' => 90, // Generous timeout for long articles.
+		) );
+
+		if ( is_wp_error( $response ) ) {
+			error_log( '[gjn-auto-translate] HTTP error for ' . $lang_name . ': ' . $response->get_error_message() );
+			return false;
+		}
+
+		$status = wp_remote_retrieve_response_code( $response );
+
+		// 429 = rate limited — retry after backoff.
+		if ( 429 === $status && $attempt < $max_retries ) {
+			continue;
+		}
+
+		if ( 200 !== $status ) {
+			error_log( '[gjn-auto-translate] API returned HTTP ' . $status . ' for ' . $lang_name . ': ' . wp_remote_retrieve_body( $response ) );
+			return false;
+		}
+
+		// Success — break out of the retry loop.
+		break;
 	}
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );

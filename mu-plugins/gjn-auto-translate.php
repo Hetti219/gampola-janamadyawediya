@@ -2,22 +2,26 @@
 /**
  * Auto-translate posts to English and Tamil using Google Gemini Flash API.
  *
- * When a Sinhala post transitions to "publish" for the first time, this
- * plugin sends the title and content to Gemini Flash, creates translated
- * WordPress posts, and links them via Polylang.
+ * Architecture: ASYNC QUEUE via WP-Cron.
+ *
+ * When a Sinhala post transitions to "publish", this plugin queues it for
+ * translation. A WP-Cron job runs every 2 minutes and processes ONE
+ * translation at a time (one language per tick). This keeps API usage
+ * well under the free-tier limits (5 RPM, 20 RPD).
  *
  * Requirements:
  *   - Polylang (free) plugin installed and activated with si, en, ta languages.
  *   - GEMINI_API_KEY environment variable set (from .env → docker-compose).
+ *   - WP-Cron must fire (either via page visits or a real system cron).
  *
  * Graceful degradation:
  *   - If Polylang is not active → no-op.
  *   - If GEMINI_API_KEY is empty → no-op.
- *   - If the API call fails → the Sinhala post publishes normally,
- *     translations just don't appear. Errors are logged via error_log().
+ *   - If the API call fails → the job is retried on the next cron tick
+ *     (up to 3 attempts per language). The Sinhala post publishes normally.
  *
  * @package Gampola_Janamadyawediya
- * @since   4.0.0
+ * @since   4.1.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -36,7 +40,7 @@ define( 'GJN_TRANSLATE_TARGETS', array(
 ) );
 
 /**
- * Gemini model to use. As of August 2026, gemini-3.7-flash is the standard for fast, high-quality tasks.
+ * Gemini model to use. As of August 2026, gemini-3.7-flash is the standard.
  */
 define( 'GJN_GEMINI_MODEL', 'gemini-3.7-flash' );
 
@@ -46,35 +50,60 @@ define( 'GJN_GEMINI_MODEL', 'gemini-3.7-flash' );
 define( 'GJN_GEMINI_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta/interactions' );
 
 /**
- * Post meta key used to mark a post as "translations already created".
+ * Post meta key: stores the queue of remaining languages to translate.
+ * Value: serialized array like ['en', 'ta'] or ['ta'] (partially done).
+ */
+define( 'GJN_META_QUEUE', '_gjn_translation_queue' );
+
+/**
+ * Post meta key: retry counter per language (e.g., '_gjn_retry_en' => 2).
+ */
+define( 'GJN_META_RETRY_PREFIX', '_gjn_retry_' );
+
+/**
+ * Post meta key: marks a post as fully translated (all languages done).
  */
 define( 'GJN_META_TRANSLATED', '_gjn_translations_created' );
 
-/* ───────────────────────────────────────────────────────────
-   Hook: transition_post_status
-   ─────────────────────────────────────────────────────────── */
-
-add_action( 'transition_post_status', 'gjn_auto_translate_on_publish', 10, 3 );
+/**
+ * Maximum retry attempts per language before giving up.
+ */
+define( 'GJN_MAX_RETRIES', 3 );
 
 /**
- * When a post transitions to "publish", auto-translate it.
- *
- * @param string  $new_status New post status.
- * @param string  $old_status Old post status.
- * @param WP_Post $post       The post object.
+ * Option key: tracks daily API request count to enforce budget.
+ * Value: array('date' => 'Y-m-d', 'count' => int).
  */
-function gjn_auto_translate_on_publish( $new_status, $old_status, $post ) {
-	// 1. Only act on transitions TO publish (not re-saves of already-published posts).
+define( 'GJN_OPTION_DAILY_USAGE', 'gjn_gemini_daily_usage' );
+
+/**
+ * Maximum API requests per day. Set below the hard limit (20) to leave headroom.
+ */
+define( 'GJN_DAILY_BUDGET', 18 );
+
+/**
+ * Cron hook name.
+ */
+define( 'GJN_CRON_HOOK', 'gjn_process_translation_queue' );
+
+/* ───────────────────────────────────────────────────────────
+   1. On Publish: Queue the post (instant, no API calls)
+   ─────────────────────────────────────────────────────────── */
+
+add_action( 'transition_post_status', 'gjn_queue_for_translation', 10, 3 );
+
+function gjn_queue_for_translation( $new_status, $old_status, $post ) {
+	// Only act on transitions TO publish.
 	if ( 'publish' !== $new_status || 'publish' === $old_status ) {
 		return;
 	}
 
-	// 2. Only translate standard posts (not pages, attachments, etc.).
+	// Only translate standard posts.
 	if ( 'post' !== $post->post_type ) {
 		return;
 	}
 
-	// 3. Skip autosaves and revisions.
+	// Skip autosaves and revisions.
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 		return;
 	}
@@ -82,130 +111,261 @@ function gjn_auto_translate_on_publish( $new_status, $old_status, $post ) {
 		return;
 	}
 
-	// 4. Require Polylang.
+	// Require Polylang.
+	if ( ! function_exists( 'pll_set_post_language' ) ) {
+		return;
+	}
+
+	// Require API key.
+	if ( empty( gjn_get_gemini_api_key() ) ) {
+		return;
+	}
+
+	// Don't queue if already translated or already queued.
+	if ( get_post_meta( $post->ID, GJN_META_TRANSLATED, true ) ) {
+		return;
+	}
+	if ( get_post_meta( $post->ID, GJN_META_QUEUE, true ) ) {
+		return;
+	}
+
+	// Only translate Sinhala posts.
+	if ( function_exists( 'pll_get_post_language' ) ) {
+		$lang = pll_get_post_language( $post->ID, 'slug' );
+		if ( $lang && 'si' !== $lang ) {
+			return;
+		}
+	}
+
+	// Ensure the post is tagged as Sinhala.
+	pll_set_post_language( $post->ID, 'si' );
+
+	// Queue all target languages.
+	$queue = array_keys( GJN_TRANSLATE_TARGETS );
+	update_post_meta( $post->ID, GJN_META_QUEUE, $queue );
+
+	error_log( '[gjn-auto-translate] Queued post #' . $post->ID . ' for translation: ' . implode( ', ', $queue ) );
+
+	// Ensure the cron job is scheduled.
+	gjn_ensure_cron_scheduled();
+}
+
+/* ───────────────────────────────────────────────────────────
+   2. WP-Cron: Process ONE translation per tick
+   ─────────────────────────────────────────────────────────── */
+
+/**
+ * Register a custom 2-minute cron interval.
+ */
+add_filter( 'cron_schedules', 'gjn_add_cron_interval' );
+
+function gjn_add_cron_interval( $schedules ) {
+	$schedules['gjn_every_2_min'] = array(
+		'interval' => 120,
+		'display'  => __( 'Every 2 minutes (GJN Translation)', 'gampola-janamadyawediya' ),
+	);
+	return $schedules;
+}
+
+/**
+ * Schedule the cron job if not already scheduled.
+ */
+function gjn_ensure_cron_scheduled() {
+	if ( ! wp_next_scheduled( GJN_CRON_HOOK ) ) {
+		wp_schedule_event( time() + 30, 'gjn_every_2_min', GJN_CRON_HOOK );
+	}
+}
+
+/**
+ * Cron callback: find the oldest queued post, translate ONE language, re-queue.
+ */
+add_action( GJN_CRON_HOOK, 'gjn_cron_process_one' );
+
+function gjn_cron_process_one() {
+	// Require Polylang.
 	if ( ! function_exists( 'pll_set_post_language' ) || ! function_exists( 'pll_save_post_translations' ) ) {
 		return;
 	}
 
-	// 5. Require API key.
+	// Require API key.
 	$api_key = gjn_get_gemini_api_key();
 	if ( empty( $api_key ) ) {
 		return;
 	}
 
-	// 6. Don't translate twice.
-	if ( get_post_meta( $post->ID, GJN_META_TRANSLATED, true ) ) {
+	// Check daily budget.
+	if ( gjn_daily_usage_exceeded() ) {
+		error_log( '[gjn-auto-translate] Daily API budget (' . GJN_DAILY_BUDGET . ') exhausted. Skipping until tomorrow.' );
 		return;
 	}
 
-	// 7. Only translate posts that are in Sinhala (or have no language set yet).
-	if ( function_exists( 'pll_get_post_language' ) ) {
-		$lang = pll_get_post_language( $post->ID, 'slug' );
-		if ( $lang && 'si' !== $lang ) {
-			return; // This post is already a translation — don't translate it again.
-		}
+	// Find the oldest post with a non-empty translation queue.
+	$posts = get_posts( array(
+		'post_type'      => 'post',
+		'post_status'    => 'publish',
+		'meta_key'       => GJN_META_QUEUE,
+		'meta_compare'   => '!=',
+		'meta_value'     => '',
+		'orderby'        => 'date',
+		'order'          => 'ASC',
+		'posts_per_page' => 1,
+		'fields'         => 'ids',
+	) );
+
+	if ( empty( $posts ) ) {
+		// Nothing to translate — unschedule the cron to save resources.
+		wp_clear_scheduled_hook( GJN_CRON_HOOK );
+		return;
 	}
 
-	// 8. Perform the translation.
-	gjn_create_translations( $post, $api_key );
+	$post_id = $posts[0];
+	$queue   = get_post_meta( $post_id, GJN_META_QUEUE, true );
+
+	if ( ! is_array( $queue ) || empty( $queue ) ) {
+		// Corrupt/empty queue — clean up.
+		delete_post_meta( $post_id, GJN_META_QUEUE );
+		return;
+	}
+
+	// Take the first language from the queue.
+	$lang_code = $queue[0];
+	$lang_name = GJN_TRANSLATE_TARGETS[ $lang_code ] ?? $lang_code;
+
+	$post = get_post( $post_id );
+	if ( ! $post ) {
+		delete_post_meta( $post_id, GJN_META_QUEUE );
+		return;
+	}
+
+	error_log( '[gjn-auto-translate] Processing post #' . $post_id . ' → ' . $lang_name );
+
+	// Call the Gemini API.
+	$translated = gjn_translate_via_gemini( $post->post_title, $post->post_content, $lang_name, $api_key );
+
+	// Increment daily usage counter.
+	gjn_increment_daily_usage();
+
+	if ( ! $translated ) {
+		// API call failed — check retry count.
+		$retry_key   = GJN_META_RETRY_PREFIX . $lang_code;
+		$retry_count = (int) get_post_meta( $post_id, $retry_key, true );
+		$retry_count++;
+
+		if ( $retry_count >= GJN_MAX_RETRIES ) {
+			// Give up on this language.
+			error_log( '[gjn-auto-translate] Giving up on ' . $lang_name . ' for post #' . $post_id . ' after ' . GJN_MAX_RETRIES . ' attempts.' );
+			array_shift( $queue );
+			update_post_meta( $post_id, GJN_META_QUEUE, $queue );
+			delete_post_meta( $post_id, $retry_key );
+		} else {
+			// Retry on the next cron tick.
+			update_post_meta( $post_id, $retry_key, $retry_count );
+			error_log( '[gjn-auto-translate] Will retry ' . $lang_name . ' for post #' . $post_id . ' (attempt ' . $retry_count . '/' . GJN_MAX_RETRIES . ')' );
+		}
+
+		// If queue is now empty after giving up, finalize.
+		if ( empty( $queue ) ) {
+			gjn_finalize_post( $post_id );
+		}
+
+		return;
+	}
+
+	// Translation succeeded — create the translated post.
+	$new_post_id = gjn_create_translated_post( $post, $translated, $lang_code );
+
+	if ( $new_post_id ) {
+		error_log( '[gjn-auto-translate] Created ' . $lang_name . ' translation (post #' . $new_post_id . ') for post #' . $post_id );
+	}
+
+	// Remove this language from the queue.
+	array_shift( $queue );
+	delete_post_meta( $post_id, GJN_META_RETRY_PREFIX . $lang_code );
+
+	if ( ! empty( $queue ) ) {
+		// More languages to go — update the queue.
+		update_post_meta( $post_id, GJN_META_QUEUE, $queue );
+	} else {
+		// All done — finalize.
+		gjn_finalize_post( $post_id );
+	}
 }
 
 /* ───────────────────────────────────────────────────────────
-   Core: create translations for a post
+   3. Post creation and finalization
    ─────────────────────────────────────────────────────────── */
 
 /**
- * Translate a Sinhala post into all target languages and link via Polylang.
+ * Create a single translated WordPress post and link it via Polylang.
  *
- * @param WP_Post $post    The original Sinhala post.
- * @param string  $api_key Gemini API key.
+ * @param WP_Post $source_post The original Sinhala post.
+ * @param array   $translated  Array with 'title' and 'content' keys.
+ * @param string  $lang_code   Target language code (e.g., 'en', 'ta').
+ * @return int|false The new post ID, or false on failure.
  */
-function gjn_create_translations( $post, $api_key ) {
-	// Prevent infinite loop: unhook ourselves before inserting translated posts.
-	remove_action( 'transition_post_status', 'gjn_auto_translate_on_publish', 10 );
+function gjn_create_translated_post( $source_post, $translated, $lang_code ) {
+	// Prevent our own hook from re-queuing the translated post.
+	remove_action( 'transition_post_status', 'gjn_queue_for_translation', 10 );
 
-	// Ensure the original post is tagged as Sinhala in Polylang.
-	pll_set_post_language( $post->ID, 'si' );
+	$new_post_id = wp_insert_post( array(
+		'post_title'    => sanitize_text_field( $translated['title'] ),
+		'post_content'  => wp_kses_post( $translated['content'] ),
+		'post_status'   => 'publish',
+		'post_type'     => 'post',
+		'post_author'   => $source_post->post_author,
+		'post_date'     => $source_post->post_date,
+		'post_date_gmt' => $source_post->post_date_gmt,
+	), true );
 
-	// Collect translation post IDs: start with the original.
-	$translations = array( 'si' => $post->ID );
+	// Re-hook immediately.
+	add_action( 'transition_post_status', 'gjn_queue_for_translation', 10, 3 );
 
-	// Get post metadata to copy to translations.
-	$categories    = wp_get_post_categories( $post->ID );
-	$tags          = wp_get_post_tags( $post->ID, array( 'fields' => 'ids' ) );
-	$thumbnail_id  = get_post_thumbnail_id( $post->ID );
-
-	$is_first = true;
-	foreach ( GJN_TRANSLATE_TARGETS as $lang_code => $lang_name ) {
-		// Stagger API calls to stay under the free-tier RPM limit (5 RPM).
-		// Wait 15 seconds between calls so we never exceed 4 requests/minute.
-		if ( ! $is_first ) {
-			sleep( 15 );
-		}
-		$is_first = false;
-
-		$translated = gjn_translate_via_gemini(
-			$post->post_title,
-			$post->post_content,
-			$lang_name,
-			$api_key
-		);
-
-		if ( ! $translated ) {
-			// API call failed for this language — skip it, log was already emitted.
-			continue;
-		}
-
-		// Create the translated post.
-		$new_post_id = wp_insert_post( array(
-			'post_title'   => sanitize_text_field( $translated['title'] ),
-			'post_content' => wp_kses_post( $translated['content'] ),
-			'post_status'  => 'publish',
-			'post_type'    => 'post',
-			'post_author'  => $post->post_author,
-			'post_date'    => $post->post_date,
-			'post_date_gmt'=> $post->post_date_gmt,
-		), true );
-
-		if ( is_wp_error( $new_post_id ) ) {
-			error_log( '[gjn-auto-translate] wp_insert_post failed for ' . $lang_code . ': ' . $new_post_id->get_error_message() );
-			continue;
-		}
-
-		// Copy categories, tags, and featured image.
-		if ( ! empty( $categories ) ) {
-			wp_set_post_categories( $new_post_id, $categories );
-		}
-		if ( ! empty( $tags ) ) {
-			wp_set_post_tags( $new_post_id, $tags );
-		}
-		if ( $thumbnail_id ) {
-			set_post_thumbnail( $new_post_id, $thumbnail_id );
-		}
-
-		// Set the language in Polylang.
-		pll_set_post_language( $new_post_id, $lang_code );
-
-		// Mark as a translation so we don't re-translate it.
-		update_post_meta( $new_post_id, GJN_META_TRANSLATED, '1' );
-
-		$translations[ $lang_code ] = $new_post_id;
+	if ( is_wp_error( $new_post_id ) ) {
+		error_log( '[gjn-auto-translate] wp_insert_post failed for ' . $lang_code . ': ' . $new_post_id->get_error_message() );
+		return false;
 	}
 
-	// Link all translations together in Polylang.
-	if ( count( $translations ) > 1 ) {
-		pll_save_post_translations( $translations );
+	// Copy categories, tags, and featured image.
+	$categories   = wp_get_post_categories( $source_post->ID );
+	$tags         = wp_get_post_tags( $source_post->ID, array( 'fields' => 'ids' ) );
+	$thumbnail_id = get_post_thumbnail_id( $source_post->ID );
+
+	if ( ! empty( $categories ) ) {
+		wp_set_post_categories( $new_post_id, $categories );
+	}
+	if ( ! empty( $tags ) ) {
+		wp_set_post_tags( $new_post_id, $tags );
+	}
+	if ( $thumbnail_id ) {
+		set_post_thumbnail( $new_post_id, $thumbnail_id );
 	}
 
-	// Mark the original post so we don't translate it again.
-	update_post_meta( $post->ID, GJN_META_TRANSLATED, '1' );
+	// Set language and mark as a translation.
+	pll_set_post_language( $new_post_id, $lang_code );
+	update_post_meta( $new_post_id, GJN_META_TRANSLATED, '1' );
 
-	// Re-hook ourselves.
-	add_action( 'transition_post_status', 'gjn_auto_translate_on_publish', 10, 3 );
+	// Link translations together.
+	$existing = pll_get_post_translations( $source_post->ID );
+	$existing[ $lang_code ] = $new_post_id;
+	$existing['si']         = $source_post->ID;
+	pll_save_post_translations( $existing );
+
+	return $new_post_id;
+}
+
+/**
+ * Finalize a post after all translations are complete (or retries exhausted).
+ *
+ * @param int $post_id The original Sinhala post ID.
+ */
+function gjn_finalize_post( $post_id ) {
+	delete_post_meta( $post_id, GJN_META_QUEUE );
+	update_post_meta( $post_id, GJN_META_TRANSLATED, '1' );
+	error_log( '[gjn-auto-translate] Finalized post #' . $post_id . ' — translation complete.' );
 }
 
 /* ───────────────────────────────────────────────────────────
-   Gemini API call
+   4. Gemini API call (single, no retries — retries handled by queue)
    ─────────────────────────────────────────────────────────── */
 
 /**
@@ -221,7 +381,6 @@ function gjn_translate_via_gemini( $title, $content, $lang_name, $api_key ) {
 	$endpoint = GJN_GEMINI_ENDPOINT;
 
 	// Strip HTML to reduce token usage, but preserve paragraph structure.
-	// We'll wrap translated paragraphs back in <p> tags.
 	$plain_content = wp_strip_all_tags( $content );
 
 	$prompt = <<<PROMPT
@@ -257,61 +416,40 @@ PROMPT;
 		),
 	);
 
-	// Retry with exponential backoff on 429 (rate limit) responses.
-	$max_retries  = 3;
-	$backoff_secs = 20; // Start with 20s — enough to reset the RPM window.
+	$response = wp_remote_post( $endpoint, array(
+		'headers' => array(
+			'Content-Type'   => 'application/json',
+			'x-goog-api-key' => $api_key,
+		),
+		'body'    => wp_json_encode( $body ),
+		'timeout' => 90,
+	) );
 
-	for ( $attempt = 0; $attempt <= $max_retries; $attempt++ ) {
-		if ( $attempt > 0 ) {
-			$wait = $backoff_secs * pow( 2, $attempt - 1 ); // 20s, 40s, 80s
-			error_log( '[gjn-auto-translate] Rate limited for ' . $lang_name . '. Retrying in ' . $wait . 's (attempt ' . ( $attempt + 1 ) . '/' . ( $max_retries + 1 ) . ')' );
-			sleep( $wait );
-		}
+	if ( is_wp_error( $response ) ) {
+		error_log( '[gjn-auto-translate] HTTP error for ' . $lang_name . ': ' . $response->get_error_message() );
+		return false;
+	}
 
-		$response = wp_remote_post( $endpoint, array(
-			'headers' => array(
-				'Content-Type'   => 'application/json',
-				'x-goog-api-key' => $api_key,
-			),
-			'body'    => wp_json_encode( $body ),
-			'timeout' => 90, // Generous timeout for long articles.
-		) );
-
-		if ( is_wp_error( $response ) ) {
-			error_log( '[gjn-auto-translate] HTTP error for ' . $lang_name . ': ' . $response->get_error_message() );
-			return false;
-		}
-
-		$status = wp_remote_retrieve_response_code( $response );
-
-		// 429 = rate limited — retry after backoff.
-		if ( 429 === $status && $attempt < $max_retries ) {
-			continue;
-		}
-
-		if ( 200 !== $status ) {
-			error_log( '[gjn-auto-translate] API returned HTTP ' . $status . ' for ' . $lang_name . ': ' . wp_remote_retrieve_body( $response ) );
-			return false;
-		}
-
-		// Success — break out of the retry loop.
-		break;
+	$status = wp_remote_retrieve_response_code( $response );
+	if ( 200 !== $status ) {
+		error_log( '[gjn-auto-translate] API returned HTTP ' . $status . ' for ' . $lang_name . ': ' . wp_remote_retrieve_body( $response ) );
+		return false;
 	}
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	// Extract the generated text from Gemini's Interactions API response structure.
+	// Extract from Gemini Interactions API response.
 	$text = $data['output_text'] ?? '';
 	if ( empty( $text ) ) {
 		error_log( '[gjn-auto-translate] Empty response from Gemini for ' . $lang_name );
 		return false;
 	}
 
-	// Parse the JSON that Gemini returned. (The schema guarantees it's valid JSON).
+	// Parse the JSON.
 	$translated = json_decode( $text, true );
 	if ( ! is_array( $translated ) || empty( $translated['title'] ) || empty( $translated['content'] ) ) {
-		// Fallback in case of markdown fences (though the schema should prevent this)
-		$cleaned = preg_replace( '/^```(?:json)?\s*|\s*```$/s', '', trim( $text ) );
+		// Fallback: strip markdown fences.
+		$cleaned    = preg_replace( '/^```(?:json)?\s*|\s*```$/s', '', trim( $text ) );
 		$translated = json_decode( $cleaned, true );
 
 		if ( ! is_array( $translated ) || empty( $translated['title'] ) || empty( $translated['content'] ) ) {
@@ -327,29 +465,64 @@ PROMPT;
 }
 
 /* ───────────────────────────────────────────────────────────
-   Helpers
+   5. Daily usage tracking
+   ─────────────────────────────────────────────────────────── */
+
+/**
+ * Check if the daily API budget has been exceeded.
+ *
+ * @return bool True if we've hit the limit for today.
+ */
+function gjn_daily_usage_exceeded() {
+	$usage = get_option( GJN_OPTION_DAILY_USAGE, array() );
+	$today = gmdate( 'Y-m-d' );
+
+	if ( empty( $usage['date'] ) || $usage['date'] !== $today ) {
+		return false; // New day, counter resets.
+	}
+
+	return ( $usage['count'] ?? 0 ) >= GJN_DAILY_BUDGET;
+}
+
+/**
+ * Increment the daily API request counter.
+ */
+function gjn_increment_daily_usage() {
+	$usage = get_option( GJN_OPTION_DAILY_USAGE, array() );
+	$today = gmdate( 'Y-m-d' );
+
+	if ( empty( $usage['date'] ) || $usage['date'] !== $today ) {
+		// New day — reset.
+		$usage = array( 'date' => $today, 'count' => 1 );
+	} else {
+		$usage['count'] = ( $usage['count'] ?? 0 ) + 1;
+	}
+
+	update_option( GJN_OPTION_DAILY_USAGE, $usage, false );
+}
+
+/* ───────────────────────────────────────────────────────────
+   6. Helpers
    ─────────────────────────────────────────────────────────── */
 
 /**
  * Get the Gemini API key from the environment.
  *
- * Checks (in order): WordPress constant, environment variable, wp-config define.
- *
  * @return string The API key, or empty string if not set.
  */
 function gjn_get_gemini_api_key() {
-	// 1. Check for a WordPress constant (can be defined in wp-config.php).
+	// 1. WordPress constant (can be defined in wp-config.php).
 	if ( defined( 'GEMINI_API_KEY' ) && GEMINI_API_KEY ) {
 		return GEMINI_API_KEY;
 	}
 
-	// 2. Check environment variable (set via docker-compose).
+	// 2. Environment variable (set via docker-compose).
 	$env = getenv( 'GEMINI_API_KEY' );
 	if ( $env ) {
 		return $env;
 	}
 
-	// 3. Check $_ENV / $_SERVER superglobals as a fallback.
+	// 3. $_ENV / $_SERVER superglobals as fallback.
 	if ( ! empty( $_ENV['GEMINI_API_KEY'] ) ) {
 		return $_ENV['GEMINI_API_KEY'];
 	}

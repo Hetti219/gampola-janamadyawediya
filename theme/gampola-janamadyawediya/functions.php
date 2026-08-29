@@ -99,6 +99,7 @@ function gjn_theme_setup() {
 	add_theme_support( 'post-thumbnails' );
 	add_image_size( 'gjn-card', 600, 340, true );
 	add_image_size( 'gjn-featured', 1200, 520, true );
+	add_image_size( 'gjn-discover', 1200, 675, true ); // 16:9 for Google Discover and Facebook
 
 	// Let WordPress manage the <title> tag.
 	add_theme_support( 'title-tag' );
@@ -350,8 +351,16 @@ function gjn_inject_fallback_seo() {
 		return;
 	}
 
+	$site_name = get_bloginfo( 'name' );
+
 	if ( is_front_page() || is_home() ) {
-		echo '<meta name="description" content="' . esc_attr( 'අපගේ මෙහෙවර වන්නේ වගකීම් සහිත, විශ්වසනීය, ජනතා කේන්ද්රීය මාධ්යකරණයයි.' ) . '" />' . "\n";
+		$desc = 'අපගේ මෙහෙවර වන්නේ වගකීම් සහිත, විශ්වසනීය, ජනතා කේන්ද්රීය මාධ්යකරණයයි.';
+		echo '<meta name="description" content="' . esc_attr( $desc ) . '" />' . "\n";
+		echo '<meta property="og:type" content="website" />' . "\n";
+		echo '<meta property="og:title" content="' . esc_attr( $site_name ) . '" />' . "\n";
+		echo '<meta property="og:url" content="' . esc_url( home_url( '/' ) ) . '" />' . "\n";
+		echo '<meta property="og:site_name" content="' . esc_attr( $site_name ) . '" />' . "\n";
+		echo '<meta property="og:description" content="' . esc_attr( $desc ) . '" />' . "\n";
 	} elseif ( is_single() ) {
 		// Output a basic excerpt-based description for posts
 		global $post;
@@ -360,6 +369,23 @@ function gjn_inject_fallback_seo() {
 			$excerpt = wp_strip_all_tags( $excerpt );
 			if ( ! empty( $excerpt ) ) {
 				echo '<meta name="description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
+				echo '<meta property="og:description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
+			}
+
+			echo '<meta property="og:type" content="article" />' . "\n";
+			echo '<meta property="og:title" content="' . esc_attr( get_the_title() ) . '" />' . "\n";
+			echo '<meta property="og:url" content="' . esc_url( get_permalink() ) . '" />' . "\n";
+			echo '<meta property="og:site_name" content="' . esc_attr( $site_name ) . '" />' . "\n";
+			echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+
+			if ( has_post_thumbnail() ) {
+				// Use gjn-discover (1200x675) for Facebook/Twitter previews
+				$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'gjn-discover' );
+				if ( $image ) {
+					echo '<meta property="og:image" content="' . esc_url( $image[0] ) . '" />' . "\n";
+					echo '<meta property="og:image:width" content="' . esc_attr( $image[1] ) . '" />' . "\n";
+					echo '<meta property="og:image:height" content="' . esc_attr( $image[2] ) . '" />' . "\n";
+				}
 			}
 		}
 	}
@@ -484,7 +510,7 @@ function gjn_inject_json_ld() {
 
 		// Image with width and height
 		if ( has_post_thumbnail() ) {
-			$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'full' );
+			$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'gjn-discover' );
 			if ( $image ) {
 				$article_schema['image'] = array(
 					'@type'  => 'ImageObject',

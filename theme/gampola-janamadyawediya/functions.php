@@ -530,3 +530,30 @@ function gjn_inject_json_ld() {
 add_action( 'save_post', function() {
 	delete_transient( 'gjn_ticker_items_cache' );
 } );
+
+/* ───────────────────────────────────────────────────────────
+   9. SEO & AI CRAWLER POLICY
+   ─────────────────────────────────────────────────────────── */
+
+/**
+ * Customize robots.txt to block AI training bots while allowing search retrieval.
+ */
+add_filter( 'robots_txt', 'gjn_robots_txt_ai_policy', 10, 2 );
+function gjn_robots_txt_ai_policy( $output, $public ) {
+	$ai_bots = array(
+		'GPTBot',
+		'ClaudeBot',
+		'CCBot',
+		'Bytespider',
+		'Meta-ExternalAgent',
+		'Google-Extended', // Disallow Gemini training on news content
+	);
+	
+	$rules = "\n# AI Training Bot Policy (Disallow training, allow retrieval)\n";
+	foreach ( $ai_bots as $bot ) {
+		$rules .= "User-agent: " . $bot . "\n";
+		$rules .= "Disallow: /\n\n";
+	}
+	
+	return $output . $rules;
+}

@@ -66,11 +66,22 @@ function gjn_enqueue_assets() {
 
 	// Compiled Tailwind stylesheet for the header suite + front-page hero.
 	// Rebuild with scripts/build-ui-css.sh after changing any UI classes.
+	$ui_css_path = get_stylesheet_directory() . '/assets/dist/ui.css';
+	$ui_css_ver  = file_exists( $ui_css_path ) ? (string) filemtime( $ui_css_path ) : wp_get_theme()->get( 'Version' );
+
 	wp_enqueue_style(
 		'gjn-ui',
 		get_stylesheet_directory_uri() . '/assets/dist/ui.css',
 		array( 'gampola-janamadyawediya' ),
-		(string) filemtime( get_stylesheet_directory() . '/assets/dist/ui.css' )
+		$ui_css_ver
+	);
+
+	wp_enqueue_script(
+		'gjn-ui-scripts',
+		get_stylesheet_directory_uri() . '/assets/js/ui-scripts.js',
+		array(),
+		wp_get_theme()->get( 'Version' ),
+		true
 	);
 }
 
@@ -525,3 +536,7 @@ function gjn_inject_json_ld() {
 	}
 }
 
+// Clear the ticker cache when a post is created or updated
+add_action( 'save_post', function() {
+	delete_transient( 'gjn_ticker_items_cache' );
+} );

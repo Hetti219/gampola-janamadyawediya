@@ -123,7 +123,7 @@ $hero_posts = gjn_hero_posts();
 			<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-700 p-6 text-white ring-1 ring-white/10 transition-shadow duration-300 hover:shadow-2xl hover:shadow-red-950/40 sm:p-8 lg:min-h-[34rem]">
 				<?php if ( has_post_thumbnail( $featured ) ) : ?>
 					<div class="absolute inset-0 opacity-40 mix-blend-overlay">
-						<?php echo get_the_post_thumbnail( $featured, 'full', array( 'class' => 'h-full w-full object-cover' ) ); ?>
+						<?php echo get_the_post_thumbnail( $featured, 'gjn-featured', array( 'class' => 'h-full w-full object-cover', 'fetchpriority' => 'high' ) ); ?>
 					</div>
 					<div class="absolute inset-0 bg-gradient-to-t from-red-950 via-red-900/80 to-transparent"></div>
 				<?php endif; ?>
@@ -139,9 +139,9 @@ $hero_posts = gjn_hero_posts();
 				</div>
 
 				<div class="relative mt-auto pt-8 z-10">
-					<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-5xl xl:text-[3rem] xl:leading-[1.2]">
+					<h1 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-5xl xl:text-[3rem] xl:leading-[1.2]">
 						<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="text-white transition hover:text-white hover:underline"><?php echo esc_html( get_the_title( $featured ) ); ?></a>
-					</h2>
+					</h1>
 					<p class="mt-4 max-w-3xl text-sm leading-relaxed text-white/90 sm:text-lg">
 						<?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_excerpt( $featured ) ), 40 ) ); ?>
 					</p>

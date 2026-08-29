@@ -262,8 +262,8 @@ function gjn_reading_time() {
 	if ( ! is_single() ) {
 		return;
 	}
-	$words   = str_word_count( wp_strip_all_tags( get_post_field( 'post_content', get_the_ID() ) ) );
-	$minutes = max( 1, (int) ceil( $words / 200 ) );
+	$chars   = mb_strlen( wp_strip_all_tags( get_post_field( 'post_content', get_the_ID() ) ) );
+	$minutes = max( 1, (int) ceil( $chars / 1100 ) );
 
 	printf(
 		'<span class="gjn-reading-time">' .
@@ -272,7 +272,7 @@ function gjn_reading_time() {
 		'style="vertical-align:-2px;margin-right:4px">' .
 		'<circle cx="12" cy="12" r="10"/>' .
 		'<polyline points="12 6 12 12 16 14"/>' .
-		'</svg>%d min read</span>',
+		'</svg>විනාඩි %dක කියවීමක්</span>',
 		$minutes
 	);
 }

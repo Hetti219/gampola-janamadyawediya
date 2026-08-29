@@ -47,13 +47,9 @@ function gjn_enqueue_assets() {
 	// Noto loads 400-900 so the UI's font-black headlines render properly.
 	wp_enqueue_style(
 		'gjn-google-fonts',
-		'https://fonts.googleapis.com/css2?' .
-			'family=Plus+Jakarta+Sans:wght@400;500;600;700' .
-			'&family=Noto+Sans+Sinhala:wght@400;500;700;800;900' .
-			'&family=Noto+Sans+Tamil:wght@400;500;700;800;900' .
-			'&display=swap',
+		get_stylesheet_directory_uri() . '/assets/css/fonts.css',
 		array(),
-		null  // null prevents ?ver= being appended, which breaks Google Fonts.
+		wp_get_theme()->get( 'Version' )
 	);
 
 	// Child theme stylesheet — loaded after parent + fonts.
@@ -85,13 +81,7 @@ function gjn_enqueue_assets() {
 	);
 }
 
-// Preconnect to Google Fonts servers for faster font load.
-add_action( 'wp_head', 'gjn_preconnect_fonts', 1 );
 
-function gjn_preconnect_fonts() {
-	echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
-	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
-}
 
 /* ───────────────────────────────────────────────────────────
    2. THEME SETUP

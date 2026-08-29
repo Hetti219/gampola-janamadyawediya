@@ -18,6 +18,7 @@ git reset --hard origin/main
 rm -f docker-compose.override.yml
 
 echo "== Recreating containers if config changed =="
+docker compose pull
 docker compose up -d
 
 echo "== Reload nginx + flush object cache =="

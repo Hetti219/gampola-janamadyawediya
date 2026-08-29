@@ -97,10 +97,10 @@ function gjn_ticker_items()
 
 	if ( function_exists( 'gjn_get_breaking_posts' ) ) {
 		$posts = gjn_get_breaking_posts( 5 );
-		foreach ($posts as $post) {
+		foreach ($posts as $p) {
 			$items[] = array(
-				'text' => get_the_title($post->ID),
-				'url'  => get_permalink($post->ID),
+				'text' => get_the_title($p->ID),
+				'url'  => get_permalink($p->ID),
 			);
 		}
 	}

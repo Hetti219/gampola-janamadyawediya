@@ -173,16 +173,16 @@ function gjn_custom_latest_news_sidebar() {
 	<aside class="widget gjn-latest-news-widget">
 		<h2 class="widget-title">නවතම පුවත්</h2>
 		<div class="gjn-latest-news-list">
-			<?php foreach ( $recent as $post ) : ?>
-				<a href="<?php echo esc_url( get_permalink( $post->ID ) ); ?>" class="gjn-latest-news-item">
+			<?php foreach ( $recent as $item ) : ?>
+				<a href="<?php echo esc_url( get_permalink( $item->ID ) ); ?>" class="gjn-latest-news-item">
 					<div class="gjn-latest-news-img">
-						<?php if ( has_post_thumbnail( $post->ID ) ) : ?>
-							<?php echo get_the_post_thumbnail( $post->ID, 'thumbnail' ); ?>
+						<?php if ( has_post_thumbnail( $item->ID ) ) : ?>
+							<?php echo get_the_post_thumbnail( $item->ID, 'thumbnail' ); ?>
 						<?php endif; ?>
 					</div>
 					<div class="gjn-latest-news-text">
-						<h3 class="gjn-latest-news-title"><?php echo esc_html( get_the_title( $post->ID ) ); ?></h3>
-						<span class="gjn-latest-news-date"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $post->ID ) ) ); ?></span>
+						<h3 class="gjn-latest-news-title"><?php echo esc_html( get_the_title( $item->ID ) ); ?></h3>
+						<span class="gjn-latest-news-date"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $item->ID ) ) ); ?></span>
 					</div>
 				</a>
 			<?php endforeach; ?>

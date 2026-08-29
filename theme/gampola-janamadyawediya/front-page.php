@@ -43,9 +43,9 @@ function gjn_hero_posts() {
 	$posts = array();
 	if ( $featured ) {
 		$posts[] = $featured;
-		foreach ( $recent as $post ) {
-			if ( $post->ID !== $featured->ID ) {
-				$posts[] = $post;
+		foreach ( $recent as $p ) {
+			if ( $p->ID !== $featured->ID ) {
+				$posts[] = $p;
 			}
 		}
 	} else {
@@ -162,13 +162,13 @@ $hero_posts = gjn_hero_posts();
 			<div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5">
 				<?php
 				$visual_posts = array_slice( $hero_posts, 1, 4 );
-				foreach ( $visual_posts as $post ) :
-					$cat = gjn_first_category( $post );
+				foreach ( $visual_posts as $p ) :
+					$cat = gjn_first_category( $p );
 					?>
 					<article class="group relative flex aspect-square flex-col overflow-hidden rounded-2xl bg-neutral-900 text-white ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/20">
-						<?php if ( has_post_thumbnail( $post ) ) : ?>
+						<?php if ( has_post_thumbnail( $p ) ) : ?>
 							<div class="absolute inset-0">
-								<?php echo get_the_post_thumbnail( $post, 'gjn-card', array( 'class' => 'h-full w-full object-cover transition-transform duration-700 group-hover:scale-105' ) ); ?>
+								<?php echo get_the_post_thumbnail( $p, 'gjn-card', array( 'class' => 'h-full w-full object-cover transition-transform duration-700 group-hover:scale-105' ) ); ?>
 							</div>
 						<?php else: ?>
 							<div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900"></div>
@@ -190,13 +190,13 @@ $hero_posts = gjn_hero_posts();
 							<!-- Glassmorphism title block -->
 							<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-red-900/80">
 								<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base">
-									<a href="<?php echo esc_url( get_permalink( $post ) ); ?>" class="text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $post ) ); ?></a>
+									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
 								</h3>
 								<span class="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-white/70">
 									<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
 									</svg>
-									<?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $post ) ) ); ?>
+									<?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $p ) ) ); ?>
 								</span>
 							</div>
 						</div>
@@ -218,8 +218,8 @@ $hero_posts = gjn_hero_posts();
 				<div class="flex flex-col gap-5">
 					<?php
 					$feed_posts = array_slice( $hero_posts, 5, 5 );
-					foreach ( $feed_posts as $post ) :
-						$cat = gjn_first_category( $post );
+					foreach ( $feed_posts as $p ) :
+						$cat = gjn_first_category( $p );
 						?>
 						<article class="group relative flex gap-4">
 							<div class="flex-1 flex flex-col justify-center">
@@ -227,13 +227,13 @@ $hero_posts = gjn_hero_posts();
 									<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600"><?php echo esc_html( $cat->name ); ?></span>
 								<?php endif; ?>
 								<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
-									<a href="<?php echo esc_url( get_permalink( $post ) ); ?>" class="before:absolute before:inset-0"><?php echo esc_html( get_the_title( $post ) ); ?></a>
+									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
 								</h3>
-								<span class="mt-1.5 text-xs text-neutral-500"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $post ) ) ); ?></span>
+								<span class="mt-1.5 text-xs text-neutral-500"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $p ) ) ); ?></span>
 							</div>
-							<?php if ( has_post_thumbnail( $post ) ) : ?>
+							<?php if ( has_post_thumbnail( $p ) ) : ?>
 								<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5">
-									<?php echo get_the_post_thumbnail( $post, 'thumbnail', array( 'class' => 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-110' ) ); ?>
+									<?php echo get_the_post_thumbnail( $p, 'thumbnail', array( 'class' => 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-110' ) ); ?>
 								</div>
 							<?php endif; ?>
 						</article>

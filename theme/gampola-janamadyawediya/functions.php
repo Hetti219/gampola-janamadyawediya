@@ -47,13 +47,9 @@ function gjn_enqueue_assets() {
 	// Noto loads 400-900 so the UI's font-black headlines render properly.
 	wp_enqueue_style(
 		'gjn-google-fonts',
-		'https://fonts.googleapis.com/css2?' .
-			'family=Plus+Jakarta+Sans:wght@400;500;600;700' .
-			'&family=Noto+Sans+Sinhala:wght@400;500;700;800;900' .
-			'&family=Noto+Sans+Tamil:wght@400;500;700;800;900' .
-			'&display=swap',
+		get_stylesheet_directory_uri() . '/assets/css/fonts.css',
 		array(),
-		null  // null prevents ?ver= being appended, which breaks Google Fonts.
+		wp_get_theme()->get( 'Version' )
 	);
 
 	// Child theme stylesheet — loaded after parent + fonts.
@@ -66,33 +62,26 @@ function gjn_enqueue_assets() {
 
 	// Compiled Tailwind stylesheet for the header suite + front-page hero.
 	// Rebuild with scripts/build-ui-css.sh after changing any UI classes.
+	$ui_css_path = get_stylesheet_directory() . '/assets/dist/ui.css';
+	$ui_css_ver  = file_exists( $ui_css_path ) ? (string) filemtime( $ui_css_path ) : wp_get_theme()->get( 'Version' );
+
 	wp_enqueue_style(
 		'gjn-ui',
 		get_stylesheet_directory_uri() . '/assets/dist/ui.css',
 		array( 'gampola-janamadyawediya' ),
-		(string) filemtime( get_stylesheet_directory() . '/assets/dist/ui.css' )
+		$ui_css_ver
+	);
+
+	wp_enqueue_script(
+		'gjn-ui-scripts',
+		get_stylesheet_directory_uri() . '/assets/js/ui-scripts.js',
+		array(),
+		wp_get_theme()->get( 'Version' ),
+		true
 	);
 }
 
-// Preconnect to Google Fonts servers for faster font load.
-add_action( 'wp_head', 'gjn_preconnect_fonts', 1 );
 
-function gjn_preconnect_fonts() {
-	echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
-	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
-}
-
-// Favicon — use the same logo image as the browser tab icon.
-add_action( 'wp_head', 'gjn_site_icon', 5 );
-
-function gjn_site_icon() {
-	if ( has_site_icon() ) {
-		return;
-	}
-	$url = gjn_logo_url();
-	echo '<link rel="icon" href="' . esc_url( $url ) . '">' . "\n";
-	echo '<link rel="apple-touch-icon" href="' . esc_url( $url ) . '">' . "\n";
-}
 
 /* ───────────────────────────────────────────────────────────
    2. THEME SETUP
@@ -111,6 +100,7 @@ function gjn_theme_setup() {
 	add_theme_support( 'post-thumbnails' );
 	add_image_size( 'gjn-card', 600, 340, true );
 	add_image_size( 'gjn-featured', 1200, 520, true );
+	add_image_size( 'gjn-discover', 1200, 675, true ); // 16:9 for Google Discover and Facebook
 
 	// Let WordPress manage the <title> tag.
 	add_theme_support( 'title-tag' );
@@ -184,16 +174,16 @@ function gjn_custom_latest_news_sidebar() {
 	<aside class="widget gjn-latest-news-widget">
 		<h2 class="widget-title">නවතම පුවත්</h2>
 		<div class="gjn-latest-news-list">
-			<?php foreach ( $recent as $post ) : ?>
-				<a href="<?php echo esc_url( get_permalink( $post->ID ) ); ?>" class="gjn-latest-news-item">
+			<?php foreach ( $recent as $item ) : ?>
+				<a href="<?php echo esc_url( get_permalink( $item->ID ) ); ?>" class="gjn-latest-news-item">
 					<div class="gjn-latest-news-img">
-						<?php if ( has_post_thumbnail( $post->ID ) ) : ?>
-							<?php echo get_the_post_thumbnail( $post->ID, 'thumbnail' ); ?>
+						<?php if ( has_post_thumbnail( $item->ID ) ) : ?>
+							<?php echo get_the_post_thumbnail( $item->ID, 'thumbnail' ); ?>
 						<?php endif; ?>
 					</div>
 					<div class="gjn-latest-news-text">
-						<h3 class="gjn-latest-news-title"><?php echo esc_html( get_the_title( $post->ID ) ); ?></h3>
-						<span class="gjn-latest-news-date"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $post->ID ) ) ); ?></span>
+						<h3 class="gjn-latest-news-title"><?php echo esc_html( get_the_title( $item->ID ) ); ?></h3>
+						<span class="gjn-latest-news-date"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $item->ID ) ) ); ?></span>
 					</div>
 				</a>
 			<?php endforeach; ?>
@@ -273,8 +263,8 @@ function gjn_reading_time() {
 	if ( ! is_single() ) {
 		return;
 	}
-	$words   = str_word_count( wp_strip_all_tags( get_post_field( 'post_content', get_the_ID() ) ) );
-	$minutes = max( 1, (int) ceil( $words / 200 ) );
+	$chars   = mb_strlen( wp_strip_all_tags( get_post_field( 'post_content', get_the_ID() ) ) );
+	$minutes = max( 1, (int) ceil( $chars / 1100 ) );
 
 	printf(
 		'<span class="gjn-reading-time">' .
@@ -283,7 +273,7 @@ function gjn_reading_time() {
 		'style="vertical-align:-2px;margin-right:4px">' .
 		'<circle cx="12" cy="12" r="10"/>' .
 		'<polyline points="12 6 12 12 16 14"/>' .
-		'</svg>%d min read</span>',
+		'</svg>විනාඩි %dක කියවීමක්</span>',
 		$minutes
 	);
 }
@@ -345,9 +335,9 @@ add_action( 'wp_head', 'gjn_inject_favicon', 5 );
 function gjn_inject_favicon() {
 	// Only output fallback if no WP site icon is set
 	if ( ! has_site_icon() ) {
-		$logo_url = esc_url( get_stylesheet_directory_uri() . '/assets/img/logo.jpeg' );
-		echo '<link rel="icon" href="' . $logo_url . '" sizes="192x192" />' . "\n";
-		echo '<link rel="apple-touch-icon" href="' . $logo_url . '" />' . "\n";
+		$icon_url = esc_url( get_stylesheet_directory_uri() . '/assets/img/favicon.png' );
+		echo '<link rel="icon" href="' . $icon_url . '" sizes="512x512" />' . "\n";
+		echo '<link rel="apple-touch-icon" href="' . $icon_url . '" />' . "\n";
 	}
 	echo '<meta name="theme-color" content="#b91c1c" />' . "\n";
 }
@@ -362,8 +352,16 @@ function gjn_inject_fallback_seo() {
 		return;
 	}
 
+	$site_name = get_bloginfo( 'name' );
+
 	if ( is_front_page() || is_home() ) {
-		echo '<meta name="description" content="' . esc_attr( 'අපගේ මෙහෙවර වන්නේ වගකීම් සහිත, විශ්වසනීය, ජනතා කේන්ද්රීය මාධ්යකරණයයි.' ) . '" />' . "\n";
+		$desc = 'අපගේ මෙහෙවර වන්නේ වගකීම් සහිත, විශ්වසනීය, ජනතා කේන්ද්රීය මාධ්යකරණයයි.';
+		echo '<meta name="description" content="' . esc_attr( $desc ) . '" />' . "\n";
+		echo '<meta property="og:type" content="website" />' . "\n";
+		echo '<meta property="og:title" content="' . esc_attr( $site_name ) . '" />' . "\n";
+		echo '<meta property="og:url" content="' . esc_url( home_url( '/' ) ) . '" />' . "\n";
+		echo '<meta property="og:site_name" content="' . esc_attr( $site_name ) . '" />' . "\n";
+		echo '<meta property="og:description" content="' . esc_attr( $desc ) . '" />' . "\n";
 	} elseif ( is_single() ) {
 		// Output a basic excerpt-based description for posts
 		global $post;
@@ -372,6 +370,23 @@ function gjn_inject_fallback_seo() {
 			$excerpt = wp_strip_all_tags( $excerpt );
 			if ( ! empty( $excerpt ) ) {
 				echo '<meta name="description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
+				echo '<meta property="og:description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
+			}
+
+			echo '<meta property="og:type" content="article" />' . "\n";
+			echo '<meta property="og:title" content="' . esc_attr( get_the_title() ) . '" />' . "\n";
+			echo '<meta property="og:url" content="' . esc_url( get_permalink() ) . '" />' . "\n";
+			echo '<meta property="og:site_name" content="' . esc_attr( $site_name ) . '" />' . "\n";
+			echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+
+			if ( has_post_thumbnail() ) {
+				// Use gjn-discover (1200x675) for Facebook/Twitter previews
+				$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'gjn-discover' );
+				if ( $image ) {
+					echo '<meta property="og:image" content="' . esc_url( $image[0] ) . '" />' . "\n";
+					echo '<meta property="og:image:width" content="' . esc_attr( $image[1] ) . '" />' . "\n";
+					echo '<meta property="og:image:height" content="' . esc_attr( $image[2] ) . '" />' . "\n";
+				}
 			}
 		}
 	}
@@ -382,23 +397,55 @@ function gjn_inject_fallback_seo() {
  */
 add_action( 'wp_head', 'gjn_inject_json_ld', 10 );
 function gjn_inject_json_ld() {
+	// Do nothing if Rank Math or Yoast is active to prevent duplicate JSON-LD
+	if ( defined( 'RANK_MATH_VERSION' ) || defined( 'WPSEO_VERSION' ) ) {
+		return;
+	}
+
 	$site_name = get_bloginfo( 'name' );
 	$site_url  = home_url( '/' );
 	$logo_url  = get_stylesheet_directory_uri() . '/assets/img/logo.jpeg';
 
-	// Organization Schema for Front Page
+	// Organization & WebSite Schema for Front Page
 	if ( is_front_page() || is_home() ) {
 		$schema = array(
 			'@context' => 'https://schema.org',
-			'@type'    => 'NewsMediaOrganization',
-			'name'     => $site_name,
-			'url'      => $site_url,
-			'logo'     => array(
-				'@type' => 'ImageObject',
-				'url'   => $logo_url,
-			),
-			'sameAs'   => array(
-				'https://www.facebook.com/share/1CUjL7b6Fu/', // Main social link
+			'@graph'   => array(
+				array(
+					'@type'             => 'NewsMediaOrganization',
+					'@id'               => $site_url . '#organization',
+					'name'              => $site_name,
+					'url'               => $site_url,
+					'logo'              => array(
+						'@type' => 'ImageObject',
+						'@id'   => $site_url . '#logo',
+						'url'   => $logo_url,
+					),
+					'sameAs'            => array(
+						'https://www.facebook.com/share/1CUjL7b6Fu/', // Main social link
+					),
+					'ethicsPolicy'      => $site_url . 'about/',
+					'correctionsPolicy' => $site_url . 'contact/',
+				),
+				array(
+					'@type' => 'WebSite',
+					'@id'   => $site_url . '#website',
+					'url'   => $site_url,
+					'name'  => $site_name,
+					'publisher' => array(
+						'@id' => $site_url . '#organization'
+					),
+					'potentialAction' => array(
+						array(
+							'@type'       => 'SearchAction',
+							'target'      => array(
+								'@type' => 'EntryPoint',
+								'urlTemplate' => $site_url . '?s={search_term_string}'
+							),
+							'query-input' => 'required name=search_term_string'
+						)
+					)
+				)
 			)
 		);
 		echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>' . "\n";
@@ -408,38 +455,105 @@ function gjn_inject_json_ld() {
 	if ( is_single() ) {
 		global $post;
 		
-		$schema = array(
+		$article_schema = array(
 			'@context' => 'https://schema.org',
 			'@type'    => 'NewsArticle',
+			'mainEntityOfPage' => array(
+				'@type' => 'WebPage',
+				'@id'   => get_permalink(),
+			),
 			'headline' => get_the_title(),
 			'url'      => get_permalink(),
+			'isAccessibleForFree' => true,
 			'datePublished' => get_the_date( 'c' ),
-			'dateModified'  => get_the_modified_date( 'c' ),
-			'author'   => array(
-				array(
-					'@type' => 'Person',
-					'name'  => get_the_author(),
-					'url'   => get_author_posts_url( get_the_author_meta( 'ID' ) )
-				)
-			),
-			'publisher' => array(
-				'@type' => 'NewsMediaOrganization',
-				'name'  => $site_name,
-				'logo'  => array(
-					'@type' => 'ImageObject',
-					'url'   => $logo_url,
-				)
+		);
+
+		// dateModified only when actually modified
+		if ( get_the_modified_date( 'c' ) !== get_the_date( 'c' ) ) {
+			$article_schema['dateModified'] = get_the_modified_date( 'c' );
+		}
+
+		// Description (excerpt)
+		$excerpt = wp_trim_words( $post->post_content, 25, '' );
+		$excerpt = wp_strip_all_tags( $excerpt );
+		if ( ! empty( $excerpt ) ) {
+			$article_schema['description'] = $excerpt;
+		}
+
+		// Category (articleSection)
+		$categories = get_the_category();
+		if ( ! empty( $categories ) ) {
+			$article_schema['articleSection'] = $categories[0]->name;
+		}
+
+		// Author with sameAs
+		$author_id = get_the_author_meta( 'ID' );
+		$author_url = get_the_author_meta( 'user_url' );
+		$author_data = array(
+			'@type' => 'Person',
+			'name'  => get_the_author(),
+			'url'   => get_author_posts_url( $author_id ),
+		);
+		if ( ! empty( $author_url ) ) {
+			$author_data['sameAs'] = array( $author_url );
+		}
+		$article_schema['author'] = array( $author_data );
+
+		// Publisher
+		$article_schema['publisher'] = array(
+			'@type' => 'NewsMediaOrganization',
+			'name'  => $site_name,
+			'logo'  => array(
+				'@type' => 'ImageObject',
+				'url'   => $logo_url,
 			)
 		);
 
+		// Image with width and height
 		if ( has_post_thumbnail() ) {
-			$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'full' );
+			$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'gjn-discover' );
 			if ( $image ) {
-				$schema['image'] = array( $image[0] );
+				$article_schema['image'] = array(
+					'@type'  => 'ImageObject',
+					'url'    => $image[0],
+					'width'  => $image[1],
+					'height' => $image[2],
+				);
 			}
 		}
 
-		echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>' . "\n";
+		echo '<script type="application/ld+json">' . wp_json_encode( $article_schema ) . '</script>' . "\n";
 	}
 }
 
+// Clear the ticker cache when a post is created or updated
+add_action( 'save_post', function() {
+	delete_transient( 'gjn_ticker_items_cache' );
+} );
+
+/* ───────────────────────────────────────────────────────────
+   9. SEO & AI CRAWLER POLICY
+   ─────────────────────────────────────────────────────────── */
+
+/**
+ * Customize robots.txt to block AI training bots while allowing search retrieval.
+ */
+add_filter( 'robots_txt', 'gjn_robots_txt_ai_policy', 10, 2 );
+function gjn_robots_txt_ai_policy( $output, $public ) {
+	$ai_bots = array(
+		'GPTBot',
+		'ClaudeBot',
+		'CCBot',
+		'Bytespider',
+		'Meta-ExternalAgent',
+		'Google-Extended', // Disallow Gemini training on news content
+	);
+	
+	$rules = "\n# AI Training Bot Policy (Disallow training, allow retrieval)\n";
+	foreach ( $ai_bots as $bot ) {
+		$rules .= "User-agent: " . $bot . "\n";
+		$rules .= "Disallow: /\n\n";
+	}
+	
+	return $output . $rules;
+}

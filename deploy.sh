@@ -8,11 +8,26 @@ set -euo pipefail
 echo "== 1. System update =="
 sudo apt update && sudo apt upgrade -y
 
-echo "== 2. Firewall: allow only SSH, HTTP, HTTPS =="
+echo "== 2. Firewall: allow only SSH and Cloudflare edge IPs for HTTP/HTTPS =="
 sudo apt install -y ufw
 sudo ufw allow OpenSSH
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
+
+# Remove old open-world rules if they exist
+sudo ufw delete allow 80/tcp || true
+sudo ufw delete allow 443/tcp || true
+
+echo "Configuring Cloudflare IPv4 rules..."
+for ip in 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22; do
+  sudo ufw allow from "$ip" to any port 80 proto tcp > /dev/null
+  sudo ufw allow from "$ip" to any port 443 proto tcp > /dev/null
+done
+
+echo "Configuring Cloudflare IPv6 rules..."
+for ip in 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32; do
+  sudo ufw allow from "$ip" to any port 80 proto tcp > /dev/null
+  sudo ufw allow from "$ip" to any port 443 proto tcp > /dev/null
+done
+
 sudo ufw --force enable
 
 echo "== 3. fail2ban: block repeated SSH login attempts =="
@@ -60,7 +75,10 @@ if [ -z "${DOMAIN:-}" ]; then
     echo "WARNING: DOMAIN not set in .env — skipping wp-cron cron job."
     echo "         Set DOMAIN in .env and re-run this script."
 else
-    CRON_CMD="curl -sS \"http://localhost/wp-cron.php?doing_wp_cron\" -H \"Host: $DOMAIN\" > /dev/null 2>&1"
+    CRON_CMD="curl -fsS \"https://$DOMAIN/wp-cron.php?doing_wp_cron\" --resolve \"$DOMAIN:443:127.0.0.1\" >/dev/null"
+    if [ -n "${HEALTHCHECKS_CRON_URL:-}" ]; then
+        CRON_CMD="$CRON_CMD && curl -fsS \"$HEALTHCHECKS_CRON_URL\" >/dev/null"
+    fi
     CRON_LINE="*/15 * * * * $CRON_CMD"
     ( crontab -l 2>/dev/null | grep -v 'wp-cron.php' ; echo "$CRON_LINE" ) | crontab -
     echo "wp-cron cron job installed (every 15 min)."

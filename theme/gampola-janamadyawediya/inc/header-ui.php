@@ -93,17 +93,24 @@ function gjn_social_links()
  */
 function gjn_ticker_items()
 {
+	$items = get_transient( 'gjn_ticker_items_cache' );
+	if ( false !== $items ) {
+		return $items;
+	}
+
 	$items = array();
 
 	if ( function_exists( 'gjn_get_breaking_posts' ) ) {
 		$posts = gjn_get_breaking_posts( 5 );
-		foreach ($posts as $post) {
+		foreach ($posts as $p) {
 			$items[] = array(
-				'text' => get_the_title($post->ID),
-				'url'  => get_permalink($post->ID),
+				'text' => get_the_title($p->ID),
+				'url'  => get_permalink($p->ID),
 			);
 		}
 	}
+
+	set_transient( 'gjn_ticker_items_cache', $items, HOUR_IN_SECONDS );
 
 	return $items;
 }
@@ -200,6 +207,21 @@ function gjn_site_header()
 				</form>
 			</div>
 		</div>
+
+		<!-- Mobile Search (Full Width) -->
+		<div class="border-t border-neutral-100 bg-neutral-50/50 px-4 py-3 md:hidden">
+			<div class="relative mx-auto max-w-md">
+				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+					fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round"
+						d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+				</svg>
+				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
+					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
+						class="w-full rounded-full border border-neutral-300 bg-white !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-red-600 focus:ring-2 focus:ring-red-600/20">
+				</form>
+			</div>
+		</div>
 	</header>
 	<?php
 }
@@ -233,17 +255,20 @@ function gjn_nav_fallback()
 {
 	$links = array(
 		'මුල් පිටුව'       => home_url('/'),
-		'දේශීය පුවත්'      => '#',   // Local News — most-read section, listed first.
-		'දේශපාලනය'         => '#',   // Politics.
-		'අධිකරණ/පොලිස්'    => '#',   // Crime & Courts.
-		'ක්‍රීඩා'            => '#',   // Sports.
-		'වෙළඳ/ව්‍යාපාරික'   => '#',   // Business.
-		'විදේශ'             => '#',   // World.
-		'ප්‍රාදේශීය'         => '#',   // Regional.
-		'විශේෂාංග'          => '#',   // Features.
-		'කතුවැකිය'          => '#',   // Editorial.
-		'වීඩියෝ'            => '#',   // Video.
 	);
+
+	$categories = get_categories( array(
+		'hide_empty' => false,
+		'number'     => 10,
+	) );
+	
+	if ( ! empty( $categories ) ) {
+		foreach ( $categories as $category ) {
+			if ( 'Uncategorized' !== $category->name && 'uncategorized' !== $category->slug ) {
+				$links[ $category->name ] = get_category_link( $category->term_id );
+			}
+		}
+	}
 
 	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700">';
 	$first = true;
@@ -274,51 +299,6 @@ function gjn_navigation()
 			);
 			?>
 		</div>
-		<script>
-			// Enable drag-to-scroll on desktop for the primary navigation
-			document.addEventListener('DOMContentLoaded', () => {
-				const slider = document.querySelector('.nav-primary');
-				if (!slider) return;
-
-				let isDown = false;
-				let startX;
-				let scrollLeft;
-
-				slider.addEventListener('mousedown', (e) => {
-					isDown = true;
-					slider.classList.add('cursor-grabbing');
-					startX = e.pageX - slider.offsetLeft;
-					scrollLeft = slider.scrollLeft;
-				});
-				
-				slider.addEventListener('mouseleave', () => {
-					isDown = false;
-					slider.classList.remove('cursor-grabbing');
-				});
-				
-				slider.addEventListener('mouseup', () => {
-					isDown = false;
-					slider.classList.remove('cursor-grabbing');
-				});
-				
-				slider.addEventListener('mousemove', (e) => {
-					if (!isDown) return;
-					e.preventDefault();
-					const x = e.pageX - slider.offsetLeft;
-					const walk = (x - startX) * 2; // Scroll speed multiplier
-					slider.scrollLeft = scrollLeft - walk;
-				});
-
-				// Prevent link clicks if the user was dragging
-				slider.querySelectorAll('a').forEach(link => {
-					link.addEventListener('click', (e) => {
-						if (slider.classList.contains('cursor-grabbing')) {
-							e.preventDefault();
-						}
-					});
-				});
-			});
-		</script>
 	</nav>
 	<?php
 }
@@ -376,10 +356,14 @@ function gjn_news_ticker()
 				<span class="hidden text-xs font-semibold text-neutral-300 sm:inline">විශේෂ පුවත්</span>
 			</div>
 
-			<div class="relative flex flex-1 items-center overflow-hidden">
+			<div class="relative flex flex-1 items-center overflow-hidden group">
 				<div class="animate-marquee flex w-max items-center">
 					<?php echo gjn_ticker_items_html($items); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
+				<button aria-label="Pause ticker" class="gjn-ticker-toggle absolute right-0 z-20 flex h-full items-center justify-center bg-gradient-to-l from-red-700 via-red-700 px-3 text-white/70 transition hover:text-white sm:px-4">
+					<svg class="h-4 w-4 pause-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+					<svg class="h-4 w-4 play-icon hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+				</button>
 			</div>
 		</div>
 	</div>

@@ -100,7 +100,7 @@ nano .env   # set real DB_PASSWORD and DB_ROOT_PASSWORD
 Generate strong passwords with `openssl rand -base64 24`.
 
 > **Note:** Do not change `COMPOSE_PROJECT_NAME` in `.env` — the backup
-> script depends on the volume name `news-site-deploy_wordpress_data` that
+> script depends on the volume name `gampola-janamadyawediya_wordpress_data` that
 > this value produces.
 
 Edit `nginx/prod/wordpress.conf` and replace `example.com` with your real
@@ -311,12 +311,12 @@ uploads) nightly, keeping 7 days locally. Set it up with cron:
 chmod +x backup.sh
 crontab -e
 # add this line:
-0 2 * * * /home/YOUR_USER/news-site-deploy/backup.sh >> /home/YOUR_USER/backup.log 2>&1
+0 2 * * * /home/YOUR_USER/gampola-janamadyawediya/backup.sh >> /home/YOUR_USER/backup.log 2>&1
 ```
 
 > **Important:** The backup script assumes the Docker volume is named
-> `news-site-deploy_wordpress_data`. This name is controlled by the
-> `COMPOSE_PROJECT_NAME=news-site-deploy` variable in `.env`. Do not
+> `gampola-janamadyawediya_wordpress_data`. This name is controlled by the
+> `COMPOSE_PROJECT_NAME=gampola-janamadyawediya` variable in `.env`. Do not
 > change it without also updating `backup.sh`.
 
 **Do the off-site sync step too** (commented out at the bottom of

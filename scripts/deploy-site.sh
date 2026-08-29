@@ -18,6 +18,7 @@ git reset --hard origin/main
 rm -f docker-compose.override.yml
 
 echo "== Recreating containers if config changed =="
+docker compose pull
 docker compose up -d
 
 echo "== Reload nginx + flush object cache =="
@@ -42,6 +43,19 @@ if [ "$ok" -ne 1 ]; then
   rm -f docker-compose.override.yml
   docker compose up -d
   docker exec news_nginx nginx -s reload || true
+
+  echo "== Validating rollback health =="
+  rollback_ok=0
+  for _ in $(seq 1 12); do
+    if healthy; then rollback_ok=1; break; fi
+    sleep 10
+  done
+  
+  if [ "$rollback_ok" -ne 1 ]; then
+    echo "CRITICAL: Rollback failed health check! The site is DOWN."
+    exit 1
+  fi
+
   echo "!! Rolled back. Investigate before pushing again."
   exit 1
 fi

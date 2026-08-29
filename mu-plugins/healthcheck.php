@@ -22,10 +22,19 @@ function ncg_healthcheck_query_vars( $vars ) {
 	return $vars;
 }
 
-add_action( 'template_redirect', 'ncg_healthcheck_respond' );
+if ( isset( $_SERVER['REQUEST_URI'] ) && ( $_SERVER['REQUEST_URI'] === '/healthz' || $_SERVER['REQUEST_URI'] === '/healthz/' ) ) {
+	// Prevent any caching of the healthcheck.
+	header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0' );
+	header( 'X-Accel-Expires: 0' );
+	header( 'Content-Type: text/plain; charset=utf-8' );
+
+	status_header( 200 );
+	echo 'OK';
+	exit;
+}
 
 function ncg_healthcheck_respond() {
-	if ( ! get_query_var( 'ncg_healthz' ) ) {
+	if ( ! isset( $_GET['ncg_healthz'] ) && ! get_query_var( 'ncg_healthz' ) ) {
 		return;
 	}
 

@@ -82,18 +82,6 @@ function gjn_preconnect_fonts() {
 	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
 }
 
-// Favicon — use the same logo image as the browser tab icon.
-add_action( 'wp_head', 'gjn_site_icon', 5 );
-
-function gjn_site_icon() {
-	if ( has_site_icon() ) {
-		return;
-	}
-	$url = gjn_logo_url();
-	echo '<link rel="icon" href="' . esc_url( $url ) . '">' . "\n";
-	echo '<link rel="apple-touch-icon" href="' . esc_url( $url ) . '">' . "\n";
-}
-
 /* ───────────────────────────────────────────────────────────
    2. THEME SETUP
    ─────────────────────────────────────────────────────────── */
@@ -345,9 +333,9 @@ add_action( 'wp_head', 'gjn_inject_favicon', 5 );
 function gjn_inject_favicon() {
 	// Only output fallback if no WP site icon is set
 	if ( ! has_site_icon() ) {
-		$logo_url = esc_url( get_stylesheet_directory_uri() . '/assets/img/logo.jpeg' );
-		echo '<link rel="icon" href="' . $logo_url . '" sizes="192x192" />' . "\n";
-		echo '<link rel="apple-touch-icon" href="' . $logo_url . '" />' . "\n";
+		$icon_url = esc_url( get_stylesheet_directory_uri() . '/assets/img/favicon.png' );
+		echo '<link rel="icon" href="' . $icon_url . '" sizes="512x512" />' . "\n";
+		echo '<link rel="apple-touch-icon" href="' . $icon_url . '" />' . "\n";
 	}
 	echo '<meta name="theme-color" content="#b91c1c" />' . "\n";
 }

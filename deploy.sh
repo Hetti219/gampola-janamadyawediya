@@ -60,7 +60,10 @@ if [ -z "${DOMAIN:-}" ]; then
     echo "WARNING: DOMAIN not set in .env — skipping wp-cron cron job."
     echo "         Set DOMAIN in .env and re-run this script."
 else
-    CRON_CMD="curl -sS \"http://localhost/wp-cron.php?doing_wp_cron\" -H \"Host: $DOMAIN\" > /dev/null 2>&1"
+    CRON_CMD="curl -fsS \"https://$DOMAIN/wp-cron.php?doing_wp_cron\" --resolve \"$DOMAIN:443:127.0.0.1\" >/dev/null"
+    if [ -n "${HEALTHCHECKS_CRON_URL:-}" ]; then
+        CRON_CMD="$CRON_CMD && curl -fsS \"$HEALTHCHECKS_CRON_URL\" >/dev/null"
+    fi
     CRON_LINE="*/15 * * * * $CRON_CMD"
     ( crontab -l 2>/dev/null | grep -v 'wp-cron.php' ; echo "$CRON_LINE" ) | crontab -
     echo "wp-cron cron job installed (every 15 min)."

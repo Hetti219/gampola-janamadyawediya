@@ -254,132 +254,19 @@ $hero_posts = gjn_hero_posts();
  */
 function gjn_render_hero_fallback() {
 	?>
-	<!-- 1. HERO SECTION -->
 	<div class="mb-8">
-		<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-700 p-6 text-white ring-1 ring-white/10 sm:p-8 lg:min-h-[34rem]">
-			<?php gjn_watermark( '-bottom-14 -right-14 h-72 w-72 opacity-[0.08] sm:h-80 sm:w-80' ); ?>
-			<div class="relative flex flex-wrap items-center gap-2.5 z-10">
-				<span class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white backdrop-blur">දේශපාලනය</span>
-				<span class="flex items-center gap-1.5 rounded-full bg-black/25 px-3.5 py-1.5 text-xs font-semibold backdrop-blur text-white">
-					<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+		<article class="relative flex min-h-[26rem] flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 p-6 text-center text-white ring-1 ring-white/10 sm:p-8 lg:min-h-[34rem]">
+			<?php gjn_watermark( 'h-48 w-48 opacity-[0.05] sm:h-64 sm:w-64 absolute' ); ?>
+			<div class="relative z-10 flex flex-col items-center gap-4">
+				<div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 backdrop-blur">
+					<svg class="h-8 w-8 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
 					</svg>
-					මිනිත්තු 15කට පෙර
-				</span>
-			</div>
-			<div class="relative mt-auto pt-8 z-10">
-				<h2 class="text-balance text-2xl font-black leading-[1.35] sm:text-3xl lg:text-5xl xl:text-[3rem] xl:leading-[1.2] text-white">ගම්පොළ නගර සභාව නව සංවර්ධන වැඩසටහනක් දියත් කරයි</h2>
-				<p class="mt-4 max-w-3xl text-sm leading-relaxed text-white/90 sm:text-lg">ගම්පොළ නගර සභාවේ පාලනාධිකාරිය විසින් මෙම වසරේ දී රුපියල් මිලියන 500ක වියදමින් නව යටිතල පහසුකම් සංවර්ධන වැඩසටහනක් ආරම්භ කිරීමට නියමිතය.</p>
-				<a href="#" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
-					<span class="border-b-2 border-red-300 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
-					<svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-					</svg>
-				</a>
+				</div>
+				<h2 class="text-2xl font-black text-white sm:text-3xl">තවමත් පුවත් පළ වී නොමැත</h2>
+				<p class="max-w-md text-sm text-neutral-400 sm:text-base">පුවත් ලැබෙන විට මෙහි පළ වේ. කරුණාකර පසුව නැවත පැමිණෙන්න.</p>
 			</div>
 		</article>
-	</div>
-
-	<!-- 2. BENTO GRID SECTION -->
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-		<!-- Left Column: Visual Stories Grid -->
-		<div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5">
-			<!-- Dummy Visual Post 1 -->
-			<article class="group relative flex aspect-square flex-col overflow-hidden rounded-2xl bg-neutral-900 text-white ring-1 ring-black/5">
-				<div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900"></div>
-				<?php gjn_watermark( '-bottom-4 -right-4 h-32 w-32 opacity-10' ); ?>
-				<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-				<div class="relative flex flex-1 flex-col justify-between p-5 z-10">
-					<div class="flex items-start justify-between gap-2">
-						<span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/25">ක්‍රීඩා</span>
-					</div>
-					<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-red-900/80">
-						<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base text-white">ශ්‍රී ලංකා ක්‍රිකට් කණ්ඩායම ඉන්දීය සංචාරය සඳහා පිටත් වෙයි</h3>
-						<span class="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-white/70">
-							<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-							</svg>
-							පැය 2කට පෙර
-						</span>
-					</div>
-				</div>
-			</article>
-			<!-- Dummy Visual Post 2 -->
-			<article class="group relative flex aspect-square flex-col overflow-hidden rounded-2xl bg-neutral-900 text-white ring-1 ring-black/5">
-				<div class="absolute inset-0 bg-gradient-to-br from-slate-900 to-black"></div>
-				<?php gjn_watermark( '-bottom-4 -right-4 h-32 w-32 opacity-10' ); ?>
-				<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-				<div class="relative flex flex-1 flex-col justify-between p-5 z-10">
-					<div class="flex items-start justify-between gap-2">
-						<span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-sky-400/15 text-sky-300 ring-1 ring-sky-400/25">ව්‍යාපාර</span>
-					</div>
-					<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-red-900/80">
-						<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base text-white">මහනුවර තේ වෙන්දේසියේ මිල ගණන් ඉහළට</h3>
-						<span class="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-white/70">
-							<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-							</svg>
-							පැය 4කට පෙර
-						</span>
-					</div>
-				</div>
-			</article>
-		</div>
-
-		<!-- Right Column: Quick Feed -->
-		<div class="lg:col-span-1 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200 lg:p-8">
-			<div class="mb-6 flex items-center gap-3 border-b border-neutral-100 pb-4">
-				<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600">
-					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-					</svg>
-				</span>
-				<h2 class="text-lg font-black text-neutral-900">තවත් පුවත්</h2>
-			</div>
-			
-			<div class="flex flex-col gap-5">
-				<!-- Dummy Quick Feed Post 1 -->
-				<article class="group relative flex gap-4">
-					<div class="flex-1 flex flex-col justify-center">
-						<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">දේශීය පුවත්</span>
-						<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
-							<a href="#" class="before:absolute before:inset-0">රජයේ රෝහල් වලට නව වෛද්‍ය උපකරණ</a>
-						</h3>
-						<span class="mt-1.5 text-xs text-neutral-500">පැය 5කට පෙර</span>
-					</div>
-					<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5 flex items-center justify-center">
-						<?php gjn_watermark( 'h-10 w-10 text-neutral-300' ); ?>
-					</div>
-				</article>
-				<!-- Dummy Quick Feed Post 2 -->
-				<article class="group relative flex gap-4">
-					<div class="flex-1 flex flex-col justify-center">
-						<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">අධ්‍යාපන</span>
-						<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
-							<a href="#" class="before:absolute before:inset-0">නව විෂය නිර්දේශය ලබන වසරේ සිට</a>
-						</h3>
-						<span class="mt-1.5 text-xs text-neutral-500">පැය 7කට පෙර</span>
-					</div>
-					<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5 flex items-center justify-center">
-						<?php gjn_watermark( 'h-10 w-10 text-neutral-300' ); ?>
-					</div>
-				</article>
-				<!-- Dummy Quick Feed Post 3 -->
-				<article class="group relative flex gap-4">
-					<div class="flex-1 flex flex-col justify-center">
-						<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">ගෝලීය</span>
-						<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
-							<a href="#" class="before:absolute before:inset-0">ලෝක ආර්ථික සමුළුව අදින් ඇරඹේ</a>
-						</h3>
-						<span class="mt-1.5 text-xs text-neutral-500">පැය 12කට පෙර</span>
-					</div>
-					<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-black/5 flex items-center justify-center">
-						<?php gjn_watermark( 'h-10 w-10 text-neutral-300' ); ?>
-					</div>
-				</article>
-			</div>
-		</div>
-
 	</div>
 	<?php
 }

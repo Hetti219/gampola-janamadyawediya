@@ -296,8 +296,25 @@ function gjn_category_pill() {
 	);
 }
 
+// Share row: WhatsApp + Facebook buttons on single posts.
+add_action( 'generate_before_entry_content', 'gjn_share_row_top' );
+function gjn_share_row_top() {
+	if ( ! is_single() ) {
+		return;
+	}
+	get_template_part( 'template-parts/share-row' );
+}
+
+add_action( 'generate_after_entry_content', 'gjn_share_row_bottom', 5 );
+function gjn_share_row_bottom() {
+	if ( ! is_single() ) {
+		return;
+	}
+	get_template_part( 'template-parts/share-row' );
+}
+
 // End-of-article recirculation: related stories grid on single posts.
-add_action( 'generate_after_entry_content', 'gjn_related_posts' );
+add_action( 'generate_after_entry_content', 'gjn_related_posts', 10 );
 function gjn_related_posts() {
 	if ( ! is_single() ) {
 		return;

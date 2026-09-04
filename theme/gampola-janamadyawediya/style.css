@@ -843,6 +843,80 @@ textarea:focus {
 }
 
 /* ───────────────────────────────────────────────────────────
+   SHARE ROW — WhatsApp + Facebook on single posts
+   ─────────────────────────────────────────────────────────── */
+.gjn-share-row {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	padding: 0.75rem 0;
+	margin-bottom: 0.5rem;
+	border-bottom: 1px solid var(--gjn-border);
+}
+
+/* When used after article content, flip the border */
+.entry-content + .gjn-share-row,
+.gjn-share-row:last-of-type {
+	border-bottom: none;
+	border-top: 1px solid var(--gjn-border);
+	margin-bottom: 0;
+	margin-top: 0.5rem;
+	padding-top: 1rem;
+}
+
+.gjn-share-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.45rem 0.875rem;
+	border-radius: 9999px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	font-family: var(--gjn-font-heading);
+	text-decoration: none;
+	color: var(--gjn-text-muted);
+	background: var(--gjn-bg-body);
+	border: 1px solid var(--gjn-border);
+	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	line-height: 1;
+}
+
+.gjn-share-icon {
+	width: 1rem;
+	height: 1rem;
+	flex-shrink: 0;
+}
+
+/* WhatsApp hover */
+.gjn-share-whatsapp:hover {
+	background: #25D366;
+	color: #fff;
+	border-color: #25D366;
+}
+
+/* Facebook hover */
+.gjn-share-facebook:hover {
+	background: #1877F2;
+	color: #fff;
+	border-color: #1877F2;
+}
+
+.gjn-share-label {
+	line-height: 1;
+}
+
+@media (max-width: 480px) {
+	.gjn-share-row {
+		gap: 0.5rem;
+	}
+
+	.gjn-share-btn {
+		padding: 0.4rem 0.7rem;
+		font-size: 0.75rem;
+	}
+}
+
+/* ───────────────────────────────────────────────────────────
    RELATED POSTS — end-of-article recirculation
    ─────────────────────────────────────────────────────────── */
 .gjn-related-posts {

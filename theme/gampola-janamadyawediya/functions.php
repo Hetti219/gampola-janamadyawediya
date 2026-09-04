@@ -365,7 +365,7 @@ function gjn_inject_favicon() {
 		echo '<link rel="icon" href="' . $icon_url . '" sizes="512x512" />' . "\n";
 		echo '<link rel="apple-touch-icon" href="' . $icon_url . '" />' . "\n";
 	}
-	echo '<meta name="theme-color" content="#b91c1c" />' . "\n";
+	echo '<meta name="theme-color" content="#0a0a0a" />' . "\n";
 }
 
 /**

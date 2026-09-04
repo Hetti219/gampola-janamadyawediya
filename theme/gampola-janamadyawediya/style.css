@@ -17,9 +17,9 @@
 :root {
 	/* Brand: black & red — aligned with the Tailwind red/neutral ramp
 	   used by the compiled UI stylesheet (assets/dist/ui.css). */
-	--gjn-red: #B91C1C;
-	--gjn-red-hover: #991B1B;
-	--gjn-red-soft: #FEE2E2;
+	--gjn-red: #D97706;
+	--gjn-red-hover: #B45309;
+	--gjn-red-soft: #FEF3C7;
 
 	/* Dark surfaces */
 	--gjn-ink: #0A0A0A;
@@ -46,7 +46,7 @@
 	--gjn-border-on-dark: rgba(245, 246, 247, 0.12);
 	--gjn-shadow-sm: 0 1px 3px rgba(16, 16, 20, 0.07);
 	--gjn-shadow-md: 0 4px 14px rgba(16, 16, 20, 0.09);
-	--gjn-shadow-hover: 0 12px 28px rgba(224, 42, 42, 0.14);
+	--gjn-shadow-hover: 0 12px 28px rgba(217, 119, 6, 0.14);
 
 	/* Typography */
 	--gjn-font-heading: 'Plus Jakarta Sans', 'Noto Sans Sinhala', system-ui, -apple-system, sans-serif;

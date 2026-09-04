@@ -115,19 +115,26 @@ $hero_posts = gjn_hero_posts();
 	<?php else : ?>
 
 		<!-- 1. HERO SECTION -->
-		<div class="mb-8">
+		<div class="mb-8 grid gap-4 lg:grid-cols-3 lg:gap-6">
 			<?php
 			$featured     = $hero_posts[0];
 			$featured_cat = gjn_first_category( $featured );
 			?>
-			<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-700 p-6 text-white ring-1 ring-white/10 transition-shadow duration-300 hover:shadow-2xl hover:shadow-red-950/40 sm:p-8 lg:min-h-[34rem]">
+			<!-- Featured Post (2/3 width) -->
+			<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-950 via-neutral-900 to-amber-900 p-6 text-white ring-1 ring-white/10 transition-shadow duration-300 hover:shadow-2xl hover:shadow-amber-900/40 sm:p-8 lg:col-span-2 lg:min-h-[34rem]">
+				
 				<?php if ( has_post_thumbnail( $featured ) ) : ?>
-					<div class="absolute inset-0 opacity-40 mix-blend-overlay">
-						<?php echo get_the_post_thumbnail( $featured, 'gjn-featured', array( 'class' => 'h-full w-full object-cover', 'fetchpriority' => 'high' ) ); ?>
+					<div class="absolute inset-0">
+						<?php echo get_the_post_thumbnail( $featured, 'gjn-featured', array( 
+							'class' => 'h-full w-full object-cover opacity-40 mix-blend-overlay transition-transform duration-700 hover:scale-105',
+							'fetchpriority' => 'high'
+						) ); ?>
 					</div>
-					<div class="absolute inset-0 bg-gradient-to-t from-red-950 via-red-900/80 to-transparent"></div>
-				<?php endif; ?>
+					<!-- Scrim to ensure text contrast over bright images -->
+					<div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-amber-900/80 to-transparent"></div>
+				<?php else : ?>
 				<?php gjn_watermark( '-bottom-14 -right-14 h-72 w-72 opacity-[0.08] sm:h-80 sm:w-80' ); ?>
+				<?php endif; ?>
 
 				<div class="relative flex flex-wrap items-center gap-2.5 z-10">
 					<?php if ( $featured_cat ) : ?>
@@ -146,7 +153,7 @@ $hero_posts = gjn_hero_posts();
 						<?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_excerpt( $featured ) ), 40 ) ); ?>
 					</p>
 					<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
-						<span class="border-b-2 border-red-300 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
+						<span class="border-b-2 border-amber-300 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
 						<svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
 						</svg>
@@ -188,7 +195,7 @@ $hero_posts = gjn_hero_posts();
 							</div>
 							
 							<!-- Glassmorphism title block -->
-							<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-red-900/80">
+							<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-amber-900/80">
 								<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base">
 									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
 								</h3>
@@ -207,7 +214,7 @@ $hero_posts = gjn_hero_posts();
 			<!-- Right Column: Quick Feed -->
 			<div class="lg:col-span-1 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200 lg:p-8">
 				<div class="mb-6 flex items-center gap-3 border-b border-neutral-100 pb-4">
-					<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600">
+					<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
 						<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
 						</svg>
@@ -224,9 +231,9 @@ $hero_posts = gjn_hero_posts();
 						<article class="group relative flex gap-4">
 							<div class="flex-1 flex flex-col justify-center">
 								<?php if ( $cat ) : ?>
-									<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600"><?php echo esc_html( $cat->name ); ?></span>
+									<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-600"><?php echo esc_html( $cat->name ); ?></span>
 								<?php endif; ?>
-								<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-red-600">
+								<h3 class="text-sm font-bold leading-snug text-neutral-800 transition-colors group-hover:text-amber-600">
 									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
 								</h3>
 								<span class="mt-1.5 text-xs text-neutral-500"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $p ) ) ); ?></span>

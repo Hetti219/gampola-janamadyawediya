@@ -296,6 +296,15 @@ function gjn_category_pill() {
 	);
 }
 
+// End-of-article recirculation: related stories grid on single posts.
+add_action( 'generate_after_entry_content', 'gjn_related_posts' );
+function gjn_related_posts() {
+	if ( ! is_single() ) {
+		return;
+	}
+	get_template_part( 'template-parts/related-posts' );
+}
+
 /* ───────────────────────────────────────────────────────────
    7. EXCERPT
    ─────────────────────────────────────────────────────────── */

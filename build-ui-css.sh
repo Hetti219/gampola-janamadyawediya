@@ -9,7 +9,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-npx -y tailwindcss@3 \
+npx -y tailwindcss@3.4.19 \
   -c theme/gampola-janamadyawediya/tailwind.config.js \
   -i theme/gampola-janamadyawediya/assets/src/input.css \
   -o theme/gampola-janamadyawediya/assets/dist/ui.css \

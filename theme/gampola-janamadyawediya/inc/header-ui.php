@@ -132,7 +132,7 @@ function gjn_top_bar()
 	<div class="bg-neutral-950 text-neutral-300">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 text-xs sm:px-6 sm:text-sm">
 			<div class="flex shrink-0 items-center gap-2">
-				<svg class="hidden h-4 w-4 shrink-0 text-red-600 sm:block" fill="none" viewBox="0 0 24 24"
+				<svg class="hidden h-4 w-4 shrink-0 text-amber-500 sm:block" fill="none" viewBox="0 0 24 24"
 					stroke-width="1.8" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round"
 						d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -144,9 +144,9 @@ function gjn_top_bar()
 			<?php $gjn_description = get_bloginfo('description'); ?>
 			<?php if ($gjn_description) : ?>
 			<p class="hidden items-center gap-2.5 text-center font-medium text-neutral-400 md:flex">
-				<span class="h-1 w-1 shrink-0 rounded-full bg-red-600"></span>
+				<span class="h-1 w-1 shrink-0 rounded-full bg-amber-500"></span>
 				<?php echo esc_html($gjn_description); ?>
-				<span class="h-1 w-1 shrink-0 rounded-full bg-red-600"></span>
+				<span class="h-1 w-1 shrink-0 rounded-full bg-amber-500"></span>
 			</p>
 			<?php endif; ?>
 
@@ -203,7 +203,7 @@ function gjn_site_header()
 				</svg>
 				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
 					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
-						class="w-44 rounded-full border border-neutral-300 bg-neutral-50 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-red-600 focus:bg-white focus:ring-2 focus:ring-red-600/20">
+						class="w-44 rounded-full border border-neutral-300 bg-neutral-50 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20">
 				</form>
 			</div>
 		</div>

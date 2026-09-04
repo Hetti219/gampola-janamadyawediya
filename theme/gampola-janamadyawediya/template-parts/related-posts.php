@@ -1,0 +1,106 @@
+<?php
+/**
+ * Related Posts — End-of-article recirculation block.
+ *
+ * Displays a 3-card grid of related stories below each single post.
+ * Sourced by: shared tags (primary) → same category (fallback).
+ * Excludes the current post. Uses the same card language as front-page.php.
+ *
+ * @package Gampola_Janamadyawediya
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$current_id = get_the_ID();
+$related    = array();
+
+// Strategy 1: Posts sharing the same tags (strongest relevance signal).
+$tags = wp_get_post_tags( $current_id, array( 'fields' => 'ids' ) );
+if ( ! empty( $tags ) ) {
+	$related = get_posts( array(
+		'tag__in'        => $tags,
+		'post__not_in'   => array( $current_id ),
+		'posts_per_page' => 3,
+		'post_status'    => 'publish',
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	) );
+}
+
+// Strategy 2 (fallback): Same category if tags didn't yield enough.
+if ( count( $related ) < 3 ) {
+	$cats = wp_get_post_categories( $current_id, array( 'fields' => 'ids' ) );
+	if ( ! empty( $cats ) ) {
+		$already = array_merge( array( $current_id ), wp_list_pluck( $related, 'ID' ) );
+		$more    = get_posts( array(
+			'category__in'   => $cats,
+			'post__not_in'   => $already,
+			'posts_per_page' => 3 - count( $related ),
+			'post_status'    => 'publish',
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+		) );
+		$related = array_merge( $related, $more );
+	}
+}
+
+// Nothing to show? Bail silently.
+if ( empty( $related ) ) {
+	return;
+}
+?>
+
+<section class="gjn-related-posts" aria-label="තවත් පුවත්">
+	<div class="gjn-related-header">
+		<span class="gjn-related-icon">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+			</svg>
+		</span>
+		<h2 class="gjn-related-title">තවත් පුවත් — ඔබට වැදගත් විය හැකි</h2>
+	</div>
+
+	<div class="gjn-related-grid">
+		<?php foreach ( $related as $rp ) :
+			$rp_cat = get_the_category( $rp->ID );
+			$rp_cat = ! empty( $rp_cat ) ? $rp_cat[0] : null;
+		?>
+		<article class="gjn-related-card group">
+			<a href="<?php echo esc_url( get_permalink( $rp->ID ) ); ?>" class="gjn-related-card-link">
+				<div class="gjn-related-card-img">
+					<?php if ( has_post_thumbnail( $rp->ID ) ) : ?>
+						<?php echo get_the_post_thumbnail( $rp->ID, 'gjn-card', array(
+							'class'   => 'gjn-related-card-thumb',
+							'loading' => 'lazy',
+						) ); ?>
+					<?php else : ?>
+						<div class="gjn-related-card-placeholder">
+							<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+								<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+								<circle cx="8.5" cy="8.5" r="1.5"/>
+								<polyline points="21 15 16 10 5 21"/>
+							</svg>
+						</div>
+					<?php endif; ?>
+				</div>
+
+				<div class="gjn-related-card-body">
+					<?php if ( $rp_cat ) : ?>
+						<span class="gjn-related-card-cat"><?php echo esc_html( $rp_cat->name ); ?></span>
+					<?php endif; ?>
+					<h3 class="gjn-related-card-title"><?php echo esc_html( get_the_title( $rp->ID ) ); ?></h3>
+					<span class="gjn-related-card-time">
+						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="12" cy="12" r="10"/>
+							<polyline points="12 6 12 12 16 14"/>
+						</svg>
+						<?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $rp->ID ) ) ); ?>
+					</span>
+				</div>
+			</a>
+		</article>
+		<?php endforeach; ?>
+	</div>
+</section>

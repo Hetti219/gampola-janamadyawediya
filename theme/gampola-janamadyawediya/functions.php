@@ -2,9 +2,9 @@
 /**
  * Gampola Janamadyawediya — GeneratePress Child Theme
  *
- * Clean, minimal news theme for a Sinhala-language local journalism site.
- * Inspired by The Guardian and Medium — strong typography, generous
- * whitespace, professional blue accent.
+ * Nothing OS 5.0-inspired monochrome news theme for a Sinhala-language
+ * local journalism site. Geist Sans typography, charcoal/white palette,
+ * Nothing Red reserved for the breaking-news ticker.
  *
  * @package Gampola_Janamadyawediya
  * @since   1.0.0
@@ -30,36 +30,18 @@ require get_stylesheet_directory() . '/inc/header-ui.php';
 add_action( 'wp_enqueue_scripts', 'gjn_enqueue_assets', 20 );
 
 function gjn_enqueue_assets() {
-	/* Ensure parent theme stylesheet is loaded. GeneratePress uses the
-	   handle "generate-style" — if it's already queued (it usually is),
-	   this is a no-op. */
-	$parent = 'generate-style';
-	if ( ! wp_style_is( $parent, 'enqueued' ) ) {
-		wp_enqueue_style(
-			$parent,
-			get_template_directory_uri() . '/style.css',
-			array(),
-			wp_get_theme( 'generatepress' )->get( 'Version' )
-		);
-	}
-
-	// Child theme stylesheet — loaded after parent.
-	wp_enqueue_style(
-		'gampola-janamadyawediya',
-		get_stylesheet_uri(),
-		array( $parent ),
-		wp_get_theme()->get( 'Version' )
-	);
+	/* The GeneratePress parent enqueues the child stylesheet itself
+	   (handle "generate-child"), so style.css needs no enqueue here. */
 
 	// Compiled Tailwind stylesheet for the header suite + front-page hero.
-	// Rebuild with scripts/build-ui-css.sh after changing any UI classes.
+	// Rebuild with ./build-ui-css.sh after changing any UI classes.
 	$ui_css_path = get_stylesheet_directory() . '/assets/dist/ui.css';
 	$ui_css_ver  = file_exists( $ui_css_path ) ? (string) filemtime( $ui_css_path ) : wp_get_theme()->get( 'Version' );
 
 	wp_enqueue_style(
 		'gjn-ui',
 		get_stylesheet_directory_uri() . '/assets/dist/ui.css',
-		array( 'gampola-janamadyawediya' ),
+		array( 'generate-child' ),
 		$ui_css_ver
 	);
 
@@ -70,6 +52,64 @@ function gjn_enqueue_assets() {
 		wp_get_theme()->get( 'Version' ),
 		true
 	);
+}
+
+/* ───────────────────────────────────────────────────────────
+   1b. GENERATEPRESS PALETTE → NOTHING OS
+   GeneratePress injects its Customizer palette (default: #1e73be blue
+   accent, #636363 top bar, #55555e buttons) as inline CSS on every page.
+   The child stylesheet masks most of it, but Gutenberg blocks using GP
+   global-colour classes (.has-accent-color, …) would still render blue.
+   These filters pin the palette to the Nothing OS colours at the source,
+   on every environment, without writing to the database.
+   ─────────────────────────────────────────────────────────── */
+add_filter( 'option_generate_settings', 'gjn_nothing_generate_settings' );
+add_filter( 'default_option_generate_settings', 'gjn_nothing_generate_settings' );
+
+function gjn_nothing_generate_settings( $settings ) {
+	$palette = array(
+		'top_bar_background_color'           => '#1B1B1D',
+		'top_bar_text_color'                 => '#F5F5F5',
+		'form_button_background_color'       => '#1B1B1D',
+		'form_button_background_color_hover' => '#2E2E30',
+		'form_button_text_color'             => '#F5F5F5',
+		'form_button_text_color_hover'       => '#F5F5F5',
+		'global_colors'                      => array(
+			array( 'name' => __( 'Contrast', 'generatepress' ),   'slug' => 'contrast',   'color' => '#1B1B1D' ),
+			array( 'name' => __( 'Contrast 2', 'generatepress' ), 'slug' => 'contrast-2', 'color' => '#404040' ),
+			array( 'name' => __( 'Contrast 3', 'generatepress' ), 'slug' => 'contrast-3', 'color' => '#A1A1A6' ),
+			array( 'name' => __( 'Base', 'generatepress' ),       'slug' => 'base',       'color' => '#F5F5F5' ),
+			array( 'name' => __( 'Base 2', 'generatepress' ),     'slug' => 'base-2',     'color' => '#F5F5F5' ),
+			array( 'name' => __( 'Base 3', 'generatepress' ),     'slug' => 'base-3',     'color' => '#FFFFFF' ),
+			array( 'name' => __( 'Accent', 'generatepress' ),     'slug' => 'accent',     'color' => '#1B1B1D' ),
+		),
+	);
+
+	if ( ! is_array( $settings ) ) {
+		return $palette;
+	}
+	return array_merge( $settings, $palette );
+}
+
+/* ───────────────────────────────────────────────────────────
+   1c. SITE LANGUAGE
+   Content is Sinhala-first, but WordPress itself runs in en_US, so
+   GeneratePress prints lang="en-US". Pin the lang attribute to si-LK,
+   letting Polylang's explicit en/ta versions override.
+   ─────────────────────────────────────────────────────────── */
+add_filter( 'language_attributes', 'gjn_language_attributes' );
+
+function gjn_language_attributes( $attributes ) {
+	$lang = 'si-LK';
+	if ( function_exists( 'pll_current_language' ) ) {
+		$current = pll_current_language( 'slug' );
+		if ( 'en' === $current ) {
+			$lang = 'en-US';
+		} elseif ( 'ta' === $current ) {
+			$lang = 'ta-LK';
+		}
+	}
+	return preg_replace( '/lang="[^"]*"/', 'lang="' . $lang . '"', $attributes );
 }
 
 
@@ -139,7 +179,6 @@ function gjn_register_widgets() {
 // The site-wide header suite (top bar, site header, nav, ticker) replaces
 // GeneratePress's default header + navigation. It lives in inc/header-ui.php,
 // which hooks into 'generate_header' after removing 'generate_construct_header'.
-// The old accent stripe (gjn_accent_bar) was superseded by the new top bar.
 
 // Empty default widgets from the right sidebar so only our custom widget shows
 add_filter( 'sidebars_widgets', 'gjn_clear_right_sidebar_widgets' );
@@ -356,7 +395,10 @@ function gjn_inject_favicon() {
 		echo '<link rel="icon" href="' . $icon_url . '" sizes="512x512" />' . "\n";
 		echo '<link rel="apple-touch-icon" href="' . $icon_url . '" />' . "\n";
 	}
-	echo '<meta name="theme-color" content="#0a0a0a" />' . "\n";
+	// Browser-chrome colour per theme; the toggle script in header-ui.php
+	// updates these when the visitor switches theme manually.
+	echo '<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F5" />' . "\n";
+	echo '<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1B1B1D" />' . "\n";
 }
 
 /**

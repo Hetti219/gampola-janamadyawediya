@@ -166,7 +166,7 @@ function gjn_top_bar()
 		'whatsapp' => '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>',
 	);
 	?>
-	<div class="bg-neutral-950 text-neutral-300">
+	<div class="bg-neutral-950 dark:bg-black text-neutral-300 dark:text-neutral-400">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 text-xs sm:px-6 sm:text-sm">
 			<div class="flex shrink-0 items-center gap-2">
 				<svg class="hidden h-4 w-4 shrink-0 text-amber-500 sm:block" fill="none" viewBox="0 0 24 24"
@@ -219,7 +219,7 @@ function gjn_top_bar()
 function gjn_site_header()
 {
 	?>
-	<header class="border-b border-neutral-200 bg-white">
+	<header class="border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-black/80 backdrop-blur-md">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
 			<a href="<?php echo esc_url(home_url('/')); ?>" class="flex min-w-0 items-center gap-3">
 				<span class="h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-lg shadow-black/20 ring-1 ring-black/10">
@@ -227,8 +227,8 @@ function gjn_site_header()
 						class="h-full w-full object-cover">
 				</span>
 				<span class="min-w-0">
-					<span class="block truncate text-xl font-black leading-tight text-neutral-900 sm:text-2xl"><?php echo esc_html(get_bloginfo('name')); ?></span>
-					<span class="block text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Gampola Janamadyawediya</span>
+					<span class="block truncate text-xl font-black leading-tight text-neutral-900 dark:text-white sm:text-2xl"><?php echo esc_html(get_bloginfo('name')); ?></span>
+					<span class="block text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500 dark:text-neutral-400 font-dot">Gampola Janamadyawediya</span>
 				</span>
 			</a>
 
@@ -244,14 +244,14 @@ function gjn_site_header()
 					</svg>
 					<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
 						<input type="text" name="s" placeholder="පුවත් සොයන්න…"
-							class="w-44 rounded-full border border-neutral-300 bg-neutral-50 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20">
+							class="w-44 rounded-full border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 dark:text-white !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-red-600 focus:bg-white dark:focus:bg-black focus:ring-2 focus:ring-red-600/20">
 					</form>
 				</div>
 			</div>
 		</div>
 
 		<!-- Mobile Search (Full Width) -->
-		<div class="border-t border-neutral-100 bg-neutral-50/50 px-4 py-3 md:hidden">
+		<div class="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 px-4 py-3 md:hidden">
 			<div class="relative mx-auto max-w-md">
 				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
 					fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -260,7 +260,7 @@ function gjn_site_header()
 				</svg>
 				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
 					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
-						class="w-full rounded-full border border-neutral-300 bg-white !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">
+						class="w-full rounded-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black dark:text-white !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-red-600 focus:ring-2 focus:ring-red-600/20">
 				</form>
 			</div>
 		</div>
@@ -281,7 +281,7 @@ add_filter(
 		if (!empty($args->theme_location) && 'primary' === $args->theme_location) {
 			$atts['class'] = trim(
 				($atts['class'] ?? '') .
-				' whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-amber-50 hover:text-amber-700'
+				' whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/30 dark:hover:text-red-400'
 			);
 		}
 		return $atts;
@@ -312,12 +312,12 @@ function gjn_nav_fallback()
 		}
 	}
 
-	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700">';
+	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300">';
 	$first = true;
 	foreach ($links as $label => $url) {
 		$active = $first ? ' current-menu-item' : '';
 		echo '<li class="menu-item' . esc_attr($active) . '">';
-		echo '<a href="' . esc_url($url) . '" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-amber-50 hover:text-amber-700">' . esc_html($label) . '</a>';
+		echo '<a href="' . esc_url($url) . '" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/30 dark:hover:text-red-400">' . esc_html($label) . '</a>';
 		echo '</li>';
 		$first = false;
 	}
@@ -327,14 +327,14 @@ function gjn_nav_fallback()
 function gjn_navigation()
 {
 	?>
-	<nav class="gjn-nav sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur">
+	<nav class="gjn-nav sticky top-0 z-40 border-b border-neutral-200 dark:border-neutral-800 bg-white/65 dark:bg-black/65 backdrop-blur-xl">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
 			<?php
 			wp_nav_menu(
 				array(
 					'theme_location' => 'primary',
 					'container' => false,
-					'menu_class' => 'nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700',
+					'menu_class' => 'nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300',
 					'depth' => 1,
 					'fallback_cb' => 'gjn_nav_fallback',
 				)
@@ -387,14 +387,14 @@ function gjn_news_ticker()
 		return;
 	}
 	?>
-	<div class="ticker bg-red-700 text-white">
+	<div class="ticker bg-red-600 text-white">
 		<div class="mx-auto flex max-w-7xl items-stretch">
 			<div class="relative z-10 flex shrink-0 items-center gap-2.5 bg-neutral-950 px-3.5 py-1.5 sm:px-4">
 				<span class="relative flex h-2.5 w-2.5">
-					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75"></span>
-					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500"></span>
+					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-400"></span>
 				</span>
-				<span class="text-sm font-black uppercase tracking-widest">Breaking</span>
+				<span class="text-sm font-black uppercase tracking-widest font-dot">Breaking</span>
 				<span class="hidden text-xs font-semibold text-neutral-300 sm:inline">විශේෂ පුවත්</span>
 			</div>
 

@@ -21,15 +21,14 @@ module.exports = {
   corePlugins: {
     preflight: false,
   },
+  darkMode: ['selector', '[data-theme="dark"]'],
 
   theme: {
     extend: {
       fontFamily: {
-        // Noto (webfont) first; then native Sinhala fonts per platform so
-        // glyphs stay consistent even if Google Fonts is unreachable:
-        // Nirmala UI (Windows), Sinhala Sangam MN / Sinhala MN (macOS),
-        // LKLUG (Linux).
+        // Geist Sans as primary, fallback to Noto and native Sinhala fonts
         sans: [
+          '"Geist Sans"',
           '"Noto Sans Sinhala"',
           '"Nirmala UI"',
           '"Sinhala Sangam MN"',
@@ -39,6 +38,11 @@ module.exports = {
           'ui-sans-serif',
           'system-ui',
           'sans-serif',
+        ],
+        // Doto for Nothing OS 5.0 dot-matrix effect
+        dot: [
+          '"Doto"',
+          'monospace',
         ],
       },
     },

@@ -8,8 +8,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// 1. Register the meta box
-add_action( 'add_meta_boxes', 'gjn_add_breaking_news_meta_box' );
+// 1. Register the meta box — admin only
+if ( is_admin() ) {
+	add_action( 'add_meta_boxes', 'gjn_add_breaking_news_meta_box' );
+	add_action( 'save_post', 'gjn_save_breaking_news_meta_data' );
+}
 function gjn_add_breaking_news_meta_box() {
 	add_meta_box(
 		'gjn_breaking_news',
@@ -71,7 +74,7 @@ function gjn_render_breaking_news_meta_box( $post ) {
 }
 
 // 2. Save the meta box data and schedule/clear cron
-add_action( 'save_post', 'gjn_save_breaking_news_meta_data' );
+// (hook registered in the is_admin() block above)
 function gjn_save_breaking_news_meta_data( $post_id ) {
 	// Check if our nonce is set and verify it.
 	if ( ! isset( $_POST['gjn_breaking_news_nonce'] ) || ! wp_verify_nonce( $_POST['gjn_breaking_news_nonce'], 'gjn_breaking_news_save' ) ) {
@@ -109,6 +112,9 @@ function gjn_save_breaking_news_meta_data( $post_id ) {
 		delete_post_meta( $post_id, '_gjn_breaking_duration' );
 		delete_post_meta( $post_id, '_gjn_breaking_expiry_time' );
 	}
+
+	// Invalidate the cached ticker query so changes appear immediately.
+	delete_transient( 'gjn_breaking_posts_cache' );
 }
 
 // 3. The cron callback to remove the breaking flag
@@ -117,12 +123,21 @@ function gjn_execute_breaking_news_removal( $post_id ) {
 	delete_post_meta( $post_id, '_gjn_is_breaking' );
 	// We can leave the duration meta so if they edit it again, it remembers their preference.
 	delete_post_meta( $post_id, '_gjn_breaking_expiry_time' );
+
+	// Invalidate the cached ticker query so expired posts disappear.
+	delete_transient( 'gjn_breaking_posts_cache' );
 }
 
 /**
  * Helper function for the theme to fetch active breaking news posts.
  */
 function gjn_get_breaking_posts( $limit = 5 ) {
+	$cache_key = 'gjn_breaking_posts_cache';
+	$cached    = get_transient( $cache_key );
+	if ( false !== $cached ) {
+		return $cached;
+	}
+
 	$args = array(
 		'post_type'      => 'post',
 		'post_status'    => 'publish',
@@ -138,5 +153,7 @@ function gjn_get_breaking_posts( $limit = 5 ) {
 		'order'          => 'DESC',
 	);
 
-	return get_posts( $args );
+	$posts = get_posts( $args );
+	set_transient( $cache_key, $posts, 5 * MINUTE_IN_SECONDS );
+	return $posts;
 }

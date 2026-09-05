@@ -26,7 +26,11 @@
  * Hooked to `save_post` (fires on create and update) so the blurred
  * image is ready before the post is shared anywhere.
  */
-add_action( 'save_post', 'ncg_autoblur_on_save', 20, 2 );
+// Admin-only hooks: blur generation only happens on post save.
+if ( is_admin() ) {
+	add_action( 'save_post', 'ncg_autoblur_on_save', 20, 2 );
+	add_action( 'set_object_terms', 'ncg_autoblur_on_terms_set', 20, 4 );
+}
 
 function ncg_autoblur_on_save( $post_id, $post ) {
 	// Bail on autosaves, revisions, and non-posts.
@@ -89,7 +93,7 @@ function ncg_autoblur_on_save( $post_id, $post ) {
  * category terms change; the skip-regeneration check keeps repeat runs
  * cheap.
  */
-add_action( 'set_object_terms', 'ncg_autoblur_on_terms_set', 20, 4 );
+// (hook registered in the is_admin() block above)
 
 function ncg_autoblur_on_terms_set( $object_id, $terms, $tt_ids, $taxonomy ) {
 	if ( 'content_flag' !== $taxonomy || 'post' !== get_post_type( $object_id ) ) {
@@ -189,24 +193,36 @@ function ncg_generate_blurred_image( $source_path, $post_id ) {
  * current page. Returns the blurred URL, or false.
  */
 function ncg_should_use_blurred_og() {
+	// Static cache: this function is called 5+ times per page (once per
+	// Yoast/RankMath filter + direct OG tag). Cache to avoid redundant
+	// get_post_meta() lookups.
+	static $cache = null;
+	if ( null !== $cache ) {
+		return $cache;
+	}
+
 	if ( ! is_single() ) {
-		return false;
+		$cache = false;
+		return $cache;
 	}
 
 	$post_id = get_the_ID();
 	if ( ! has_term( 'graphic-content', 'content_flag', $post_id ) ) {
-		return false;
+		$cache = false;
+		return $cache;
 	}
 
 	// If author set an explicit social image, respect it.
 	$has_rankmath = get_post_meta( $post_id, 'rank_math_facebook_image', true );
 	$has_yoast    = get_post_meta( $post_id, '_yoast_wpseo_opengraph-image', true );
 	if ( $has_rankmath || $has_yoast ) {
-		return false;
+		$cache = false;
+		return $cache;
 	}
 
 	$blurred_url = get_post_meta( $post_id, '_ncg_blurred_og_image', true );
-	return $blurred_url ? $blurred_url : false;
+	$cache = $blurred_url ? $blurred_url : false;
+	return $cache;
 }
 
 /**

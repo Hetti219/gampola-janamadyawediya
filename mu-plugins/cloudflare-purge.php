@@ -18,17 +18,20 @@
  */
 
 // --- Post lifecycle hooks (priority 99) ---
-add_action( 'transition_post_status', 'ncg_cf_purge_on_status_change', 99, 3 );
-add_action( 'edit_post',             'ncg_cf_purge_on_edit',          99, 2 );
-add_action( 'deleted_post',          'ncg_cf_purge_on_delete',        99, 2 );
-add_action( 'set_object_terms',      'ncg_cf_purge_on_terms',         99, 4 );
+// Only register on admin/API requests where content changes happen.
+if ( is_admin() ) {
+	add_action( 'transition_post_status', 'ncg_cf_purge_on_status_change', 99, 3 );
+	add_action( 'edit_post',             'ncg_cf_purge_on_edit',          99, 2 );
+	add_action( 'deleted_post',          'ncg_cf_purge_on_delete',        99, 2 );
+	add_action( 'set_object_terms',      'ncg_cf_purge_on_terms',         99, 4 );
 
-// --- Comment hooks (priority 99) ---
-// Guard: only fire if comments are enabled on the post (the child theme never
-// renders comments; these hooks are a safety net for GeneratePress default).
-add_action( 'comment_post',          'ncg_cf_purge_on_comment',       99, 3 );
-add_action( 'wp_set_comment_status', 'ncg_cf_purge_on_comment_status', 99, 2 );
-add_action( 'edit_comment',          'ncg_cf_purge_on_comment_edit',  99, 2 );
+	// --- Comment hooks (priority 99) ---
+	// Guard: only fire if comments are enabled on the post (the child theme never
+	// renders comments; these hooks are a safety net for GeneratePress default).
+	add_action( 'comment_post',          'ncg_cf_purge_on_comment',       99, 3 );
+	add_action( 'wp_set_comment_status', 'ncg_cf_purge_on_comment_status', 99, 2 );
+	add_action( 'edit_comment',          'ncg_cf_purge_on_comment_edit',  99, 2 );
+}
 
 /**
  * Purge when a post transitions to or from "publish".

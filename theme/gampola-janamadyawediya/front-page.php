@@ -192,7 +192,7 @@ $hero_posts = gjn_hero_posts();
 							</div>
 							
 							<!-- Glassmorphism title block -->
-							<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-white/20">
+							<div class="mt-auto rounded-xl bg-white/10 p-4 gjn-liquid-glass ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-white/20">
 								<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base">
 									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
 								</h3>

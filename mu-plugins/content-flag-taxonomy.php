@@ -70,6 +70,11 @@ function ncg_register_content_flag_taxonomy() {
 add_action( 'init', 'ncg_seed_content_flag_terms', 20 );
 
 function ncg_seed_content_flag_terms() {
+	// One-time flag: skip entirely after first successful seed.
+	if ( get_option( 'ncg_content_flags_seeded' ) ) {
+		return;
+	}
+
 	$defaults = array(
 		array(
 			'name'        => 'Graphic Content',
@@ -95,4 +100,7 @@ function ncg_seed_content_flag_terms() {
 			);
 		}
 	}
+
+	// Mark as done so this never runs again.
+	update_option( 'ncg_content_flags_seeded', '1', true );
 }

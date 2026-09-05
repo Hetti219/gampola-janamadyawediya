@@ -25,6 +25,43 @@ add_action('after_setup_theme', function () {
 
 add_action('generate_header', 'gjn_render_header_ui');
 
+add_action('wp_head', function () {
+	?>
+	<script>
+		// Apply theme early to prevent FOUC
+		(function() {
+			var savedTheme = localStorage.getItem('gjn-theme');
+			if (savedTheme === 'dark') {
+				document.documentElement.setAttribute('data-theme', 'dark');
+			}
+		})();
+	</script>
+	<?php
+});
+
+add_action('wp_footer', function () {
+	?>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const toggleBtn = document.getElementById('theme-toggle');
+			if (toggleBtn) {
+				toggleBtn.addEventListener('click', function() {
+					const root = document.documentElement;
+					const isDark = root.getAttribute('data-theme') === 'dark';
+					if (isDark) {
+						root.removeAttribute('data-theme');
+						localStorage.setItem('gjn-theme', 'light');
+					} else {
+						root.setAttribute('data-theme', 'dark');
+						localStorage.setItem('gjn-theme', 'dark');
+					}
+				});
+			}
+		});
+	</script>
+	<?php
+});
+
 /**
  * Render the whole header suite in GP's header slot.
  */
@@ -195,16 +232,21 @@ function gjn_site_header()
 				</span>
 			</a>
 
-			<div class="relative hidden shrink-0 md:block">
-				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
-					fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round"
-						d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-				</svg>
-				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
-					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
-						class="w-44 rounded-full border border-neutral-300 bg-neutral-50 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20">
-				</form>
+			<div class="flex items-center gap-4">
+				<button id="theme-toggle" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 transition hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700" aria-label="Toggle Dark Mode">
+					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+				</button>
+				<div class="relative hidden shrink-0 md:block">
+					<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+						fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round"
+							d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+					</svg>
+					<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
+						<input type="text" name="s" placeholder="පුවත් සොයන්න…"
+							class="w-44 rounded-full border border-neutral-300 bg-neutral-50 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20">
+					</form>
+				</div>
 			</div>
 		</div>
 

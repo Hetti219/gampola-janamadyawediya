@@ -51,9 +51,8 @@ add_action('wp_footer', function () {
 			// Set initial visual state
 			function syncToggle() {
 				var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-				if (label) label.textContent = isDark ? 'DARK' : 'LIGHT';
 				if (dot) {
-					dot.style.transform = isDark ? 'translateX(100%)' : 'translateX(0)';
+					dot.style.transform = isDark ? 'translateX(32px)' : 'translateX(0)';
 				}
 				toggleBtn.setAttribute('aria-checked', isDark ? 'true' : 'false');
 			}
@@ -247,12 +246,16 @@ function gjn_site_header()
 			</a>
 
 			<div class="flex items-center gap-3">
-				<!-- Nothing-style pill toggle -->
+				<!-- Nothing-style pill toggle with icons -->
 				<button id="theme-toggle" role="switch" aria-checked="false" aria-label="Toggle Dark Mode"
-					class="relative flex h-8 items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-nothing-surface px-3 font-dot text-[10px] font-bold uppercase tracking-widest text-neutral-600 dark:text-neutral-300 transition-all duration-300 hover:border-neutral-400 dark:hover:border-neutral-500 cursor-pointer select-none">
-					<span id="theme-toggle-dot" class="absolute left-1 h-5 w-5 rounded-full bg-nothing-charcoal dark:bg-white transition-transform duration-300" style="transform: translateX(0)"></span>
-					<span class="w-5"></span>
-					<span id="theme-toggle-label" class="pr-0.5">LIGHT</span>
+					class="relative flex h-8 w-16 items-center rounded-full border border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-nothing-surface transition-all duration-300 hover:border-neutral-400 dark:hover:border-neutral-500 cursor-pointer select-none">
+					<div class="flex w-full justify-between px-2 text-neutral-400 dark:text-neutral-500">
+						<!-- Sun icon -->
+						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+						<!-- Moon icon -->
+						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+					</div>
+					<span id="theme-toggle-dot" class="absolute left-1 h-6 w-6 rounded-full bg-nothing-charcoal dark:bg-white transition-transform duration-300" style="transform: translateX(0)"></span>
 				</button>
 				<div class="relative hidden shrink-0 md:block">
 					<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"

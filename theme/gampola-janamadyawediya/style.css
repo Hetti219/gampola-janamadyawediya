@@ -5,7 +5,7 @@
  Author:       Sathikashervinhettiarachchi
  Author URI:   https://hetti219.github.io
  Template:     generatepress
- Version:      3.0.0
+ Version:      5.0.0
  License:      GNU General Public License v2 or later
  License URI:  http://www.gnu.org/licenses/gpl-2.0.html
  Text Domain:  gampola-janamadyawediya
@@ -280,7 +280,8 @@ body button.button:hover {
 .separate-containers .inside-article,
 .separate-containers .comments-area,
 .separate-containers .page-header {
-	background-color: var(--gjn-bg-surface-lucent);
+	background-color: var(--gjn-bg-surface-lucent) !important;
+	color: var(--gjn-text-muted) !important;
 	backdrop-filter: blur(16px);
 	-webkit-backdrop-filter: blur(16px);
 	border: 1px solid var(--gjn-border);
@@ -343,7 +344,7 @@ body button.button:hover {
 
 /* One-container mode: white content sheet over the gray page. */
 .one-container .site-content {
-	background-color: var(--gjn-bg-surface);
+	background-color: var(--gjn-bg-surface) !important;
 }
 
 .post-image {
@@ -404,7 +405,7 @@ body button.button:hover {
 }
 
 .generate-columns .inside-article {
-	background-color: var(--gjn-bg-surface-lucent);
+	background-color: var(--gjn-bg-surface-lucent) !important;
 	backdrop-filter: blur(16px);
 	-webkit-backdrop-filter: blur(16px);
 	border: 1px solid var(--gjn-border);
@@ -484,7 +485,7 @@ body button.button:hover {
 }
 
 .single .inside-article {
-	background-color: var(--gjn-bg-surface-lucent);
+	background-color: var(--gjn-bg-surface-lucent) !important;
 	backdrop-filter: blur(16px);
 	-webkit-backdrop-filter: blur(16px);
 	border: 1px solid var(--gjn-border);

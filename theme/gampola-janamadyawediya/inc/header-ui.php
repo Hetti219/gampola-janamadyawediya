@@ -2,9 +2,8 @@
 /**
  * Site-wide header suite: top bar, site header, navigation, news ticker.
  *
- * Replaces GeneratePress's default site header + navigation. The markup
- * mirrors the finalized Tailwind UI prototype (ui/index.html) 1:1; styles
- * come from the compiled stylesheet assets/dist/ui.css.
+ * Replaces GeneratePress's default site header + navigation. Styles come
+ * from the compiled stylesheet assets/dist/ui.css.
  *
  * @package Gampola_Janamadyawediya
  * @since   3.0.0
@@ -384,7 +383,7 @@ function gjn_ticker_items_html($items)
 			$i++;
 			?>
 			<a href="<?php echo esc_url($item['url']); ?>"
-				class="whitespace-nowrap text-sm font-semibold text-white transition-colors hover:text-yellow-200 hover:underline">
+				class="whitespace-nowrap text-sm font-semibold text-white transition-colors hover:text-white hover:underline">
 				<?php echo esc_html($item['text']); ?>
 			</a>
 			
@@ -412,8 +411,8 @@ function gjn_news_ticker()
 		<div class="mx-auto flex max-w-7xl items-stretch">
 			<div class="relative z-10 flex shrink-0 items-center gap-2.5 bg-nothing-charcoal px-3.5 py-1.5 sm:px-4">
 				<span class="relative flex h-2.5 w-2.5">
-					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-400"></span>
+					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-nothing-red opacity-75"></span>
+					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-nothing-red"></span>
 				</span>
 				<span class="text-sm font-black uppercase tracking-widest font-dot">Breaking</span>
 				<span class="hidden text-xs font-semibold text-neutral-300 sm:inline">විශේෂ පුවත්</span>

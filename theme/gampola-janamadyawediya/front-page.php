@@ -61,7 +61,7 @@ function gjn_hero_posts() {
  * on the featured card.
  */
 function gjn_badge_classes( $slug ) {
-	return 'bg-white/15 text-white backdrop-blur font-dot';
+	return 'bg-white/15 text-white hover:text-white backdrop-blur font-dot';
 }
 
 /**
@@ -135,7 +135,7 @@ $hero_posts = gjn_hero_posts();
 
 				<div class="relative flex flex-wrap items-center gap-2.5 z-10">
 					<?php if ( $featured_cat ) : ?>
-						<a href="<?php echo esc_url( get_category_link( $featured_cat ) ); ?>" class="rounded-full bg-white/15 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur transition hover:bg-white/25 font-dot">
+						<a href="<?php echo esc_url( get_category_link( $featured_cat ) ); ?>" class="rounded-full bg-white/15 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white hover:text-white backdrop-blur transition hover:bg-white/25 font-dot">
 							<?php echo esc_html( $featured_cat->name ); ?>
 						</a>
 					<?php endif; ?>
@@ -149,7 +149,7 @@ $hero_posts = gjn_hero_posts();
 					<p class="mt-4 max-w-3xl text-sm leading-relaxed text-white/80 sm:text-lg">
 						<?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_excerpt( $featured ) ), 40 ) ); ?>
 					</p>
-					<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white">
+					<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
 						<span class="border-b-2 border-white/30 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
 						<svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -194,7 +194,7 @@ $hero_posts = gjn_hero_posts();
 							<!-- Glassmorphism title block -->
 							<div class="mt-auto rounded-xl bg-white/10 p-4 gjn-liquid-glass ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-white/20">
 								<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base">
-									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
+									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="text-white hover:text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
 								</h3>
 								<span class="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-white/70">
 									<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -230,8 +230,8 @@ $hero_posts = gjn_hero_posts();
 								<?php if ( $cat ) : ?>
 									<span class="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-dot"><?php echo esc_html( $cat->name ); ?></span>
 								<?php endif; ?>
-								<h3 class="text-sm font-bold leading-snug text-nothing-charcoal dark:text-neutral-100 transition-colors group-hover:text-neutral-600 dark:group-hover:text-white">
-									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
+								<h3 class="text-sm font-bold leading-snug text-nothing-charcoal dark:text-neutral-100 transition-colors">
+									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="transition-colors hover:text-neutral-600 dark:hover:text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
 								</h3>
 								<span class="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400"><?php echo esc_html( gjn_relative_time( get_post_time( 'U', false, $p ) ) ); ?></span>
 							</div>

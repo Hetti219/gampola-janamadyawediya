@@ -70,6 +70,11 @@ add_action('wp_footer', function () {
 					dot.style.transform = isDark ? 'translateX(32px)' : 'translateX(0)';
 				}
 				toggleBtn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+
+				// Keep browser-chrome theme-color in step with the toggle
+				document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+					m.setAttribute('content', isDark ? '#1B1B1D' : '#F5F5F5');
+				});
 			}
 			syncToggle();
 

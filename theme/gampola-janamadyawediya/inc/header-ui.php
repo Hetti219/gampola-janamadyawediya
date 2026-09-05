@@ -24,6 +24,22 @@ add_action('after_setup_theme', function () {
 
 add_action('generate_header', 'gjn_render_header_ui');
 
+/* ───────────────────────────────────────────────────────────
+   Liquid-glass SVG filter defs
+   Referenced by .gjn-liquid-glass (backdrop-filter: url(...)).
+   Must live inline in the page — one copy, hidden, per page.
+   ─────────────────────────────────────────────────────────── */
+add_action('wp_body_open', function () {
+	?>
+	<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+		<filter id="gjn-liquid-glass" colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
+			<feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="7" result="noise" />
+			<feDisplacementMap in="SourceGraphic" in2="noise" scale="24" xChannelSelector="R" yChannelSelector="G" />
+		</filter>
+	</svg>
+	<?php
+});
+
 add_action('wp_head', function () {
 	?>
 	<script>

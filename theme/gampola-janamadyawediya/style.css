@@ -195,6 +195,55 @@ textarea:focus {
    header suite in inc/header-ui.php. */
 
 /* ───────────────────────────────────────────────────────────
+   4b. GENERATEPRESS CUSTOMIZER OVERRIDES
+   GeneratePress injects inline CSS from its Customizer accent
+   colour, which is still red in the DB. These !important rules
+   force our amber palette over the inline styles.
+   ─────────────────────────────────────────────────────────── */
+body .entry-content a,
+body .site-content a:not([class]),
+body .entry-meta a {
+	color: var(--gjn-red) !important;
+}
+body .entry-content a:hover,
+body .site-content a:not([class]):hover,
+body .entry-meta a:hover {
+	color: var(--gjn-red-hover) !important;
+}
+
+/* Category badges on archive pages */
+.gjn-category-pill {
+	background-color: var(--gjn-red) !important;
+	color: #fff !important;
+}
+
+/* "Read more" pill override */
+.entry-summary a.read-more,
+a.read-more {
+	border-color: var(--gjn-red) !important;
+	color: var(--gjn-red) !important;
+}
+a.read-more:hover {
+	background-color: var(--gjn-red) !important;
+	color: #fff !important;
+}
+
+/* Sidebar widget title markers / bullets */
+.widget-title {
+	border-color: var(--gjn-red) !important;
+}
+
+/* GeneratePress generates inline link/button colours — override */
+body a.button,
+body button.button {
+	background-color: var(--gjn-red) !important;
+}
+body a.button:hover,
+body button.button:hover {
+	background-color: var(--gjn-red-hover) !important;
+}
+
+/* ───────────────────────────────────────────────────────────
    5. CONTENT & CARDS
    ─────────────────────────────────────────────────────────── */
 .site-content {

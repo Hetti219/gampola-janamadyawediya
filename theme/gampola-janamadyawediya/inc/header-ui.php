@@ -218,7 +218,7 @@ function gjn_site_header()
 				</svg>
 				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
 					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
-						class="w-full rounded-full border border-neutral-300 bg-white !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-red-600 focus:ring-2 focus:ring-red-600/20">
+						class="w-full rounded-full border border-neutral-300 bg-white !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">
 				</form>
 			</div>
 		</div>

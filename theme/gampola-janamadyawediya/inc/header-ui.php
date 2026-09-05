@@ -239,7 +239,7 @@ add_filter(
 		if (!empty($args->theme_location) && 'primary' === $args->theme_location) {
 			$atts['class'] = trim(
 				($atts['class'] ?? '') .
-				' whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700'
+				' whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-amber-50 hover:text-amber-700'
 			);
 		}
 		return $atts;
@@ -275,7 +275,7 @@ function gjn_nav_fallback()
 	foreach ($links as $label => $url) {
 		$active = $first ? ' current-menu-item' : '';
 		echo '<li class="menu-item' . esc_attr($active) . '">';
-		echo '<a href="' . esc_url($url) . '" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700">' . esc_html($label) . '</a>';
+		echo '<a href="' . esc_url($url) . '" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-amber-50 hover:text-amber-700">' . esc_html($label) . '</a>';
 		echo '</li>';
 		$first = false;
 	}

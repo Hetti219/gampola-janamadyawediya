@@ -70,6 +70,8 @@ function gjn_nothing_generate_settings( $settings ) {
 	$palette = array(
 		'top_bar_background_color'           => '#1B1B1D',
 		'top_bar_text_color'                 => '#F5F5F5',
+		'top_bar_link_color'                 => '#F5F5F5',
+		'top_bar_link_color_hover'           => '#A1A1A6',
 		'form_button_background_color'       => '#1B1B1D',
 		'form_button_background_color_hover' => '#2E2E30',
 		'form_button_text_color'             => '#F5F5F5',

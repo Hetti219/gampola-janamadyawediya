@@ -15,24 +15,35 @@
    ─────────────────────────────────────────────────────────── */
 @layer base {
 	::selection {
-		@apply bg-amber-600 text-white;
+		@apply bg-nothing-charcoal text-white;
+	}
+	[data-theme="dark"] ::selection {
+		@apply bg-neutral-200 text-nothing-charcoal;
 	}
 }
 
 /* ───────────────────────────────────────────────────────────
-   Primary nav — amber pill on the active item (WP's current-menu-*)
+   Primary nav — monochrome pill on the active item
    ─────────────────────────────────────────────────────────── */
 .nav-primary li[class*="current-menu-"] > a {
-	@apply rounded-full bg-amber-600 text-white shadow-md shadow-amber-600/30;
+	@apply rounded-full bg-nothing-charcoal text-white shadow-md shadow-nothing-charcoal/20;
+}
+
+[data-theme="dark"] .nav-primary li[class*="current-menu-"] > a {
+	@apply bg-white text-nothing-charcoal shadow-white/10;
 }
 
 .nav-primary li[class*="current-menu-"] > a:hover {
-	@apply bg-amber-700 text-white;
+	@apply bg-neutral-800 text-white;
+}
+
+[data-theme="dark"] .nav-primary li[class*="current-menu-"] > a:hover {
+	@apply bg-neutral-200 text-nothing-charcoal;
 }
 
 /* Modern slanted separators for nav items */
 .nav-primary {
-	@apply list-none; /* Ensure default bullets never show */
+	@apply list-none;
 }
 .nav-primary li {
 	@apply flex items-center gap-2;
@@ -41,6 +52,9 @@
 	content: '';
 	@apply block w-px h-3.5 bg-neutral-300 shrink-0;
 	transform: skewX(-24deg);
+}
+[data-theme="dark"] .nav-primary li:not(:last-child)::after {
+	@apply bg-neutral-600;
 }
 
 /* ───────────────────────────────────────────────────────────

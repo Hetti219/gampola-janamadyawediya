@@ -25,7 +25,7 @@ module.exports = {
 
   theme: {
     extend: {
-      fontFamily: {
+       fontFamily: {
         // Geist Sans as primary, fallback to Noto and native Sinhala fonts
         sans: [
           '"Geist Sans"',
@@ -44,6 +44,16 @@ module.exports = {
           '"Doto"',
           'monospace',
         ],
+      },
+      colors: {
+        // Nothing OS 5.0 signature palette
+        'nothing': {
+          red:       '#D71921',
+          'red-dim': '#B8151B',
+          charcoal:  '#1B1B1D',
+          surface:   '#242426',
+          elevated:  '#2E2E30',
+        },
       },
     },
   },

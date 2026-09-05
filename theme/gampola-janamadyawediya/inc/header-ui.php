@@ -43,20 +43,34 @@ add_action('wp_footer', function () {
 	?>
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
-			const toggleBtn = document.getElementById('theme-toggle');
-			if (toggleBtn) {
-				toggleBtn.addEventListener('click', function() {
-					const root = document.documentElement;
-					const isDark = root.getAttribute('data-theme') === 'dark';
-					if (isDark) {
-						root.removeAttribute('data-theme');
-						localStorage.setItem('gjn-theme', 'light');
-					} else {
-						root.setAttribute('data-theme', 'dark');
-						localStorage.setItem('gjn-theme', 'dark');
-					}
-				});
+			var toggleBtn = document.getElementById('theme-toggle');
+			var label = document.getElementById('theme-toggle-label');
+			var dot = document.getElementById('theme-toggle-dot');
+			if (!toggleBtn) return;
+
+			// Set initial visual state
+			function syncToggle() {
+				var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+				if (label) label.textContent = isDark ? 'DARK' : 'LIGHT';
+				if (dot) {
+					dot.style.transform = isDark ? 'translateX(100%)' : 'translateX(0)';
+				}
+				toggleBtn.setAttribute('aria-checked', isDark ? 'true' : 'false');
 			}
+			syncToggle();
+
+			toggleBtn.addEventListener('click', function() {
+				var root = document.documentElement;
+				var isDark = root.getAttribute('data-theme') === 'dark';
+				if (isDark) {
+					root.removeAttribute('data-theme');
+					localStorage.setItem('gjn-theme', 'light');
+				} else {
+					root.setAttribute('data-theme', 'dark');
+					localStorage.setItem('gjn-theme', 'dark');
+				}
+				syncToggle();
+			});
 		});
 	</script>
 	<?php
@@ -166,10 +180,10 @@ function gjn_top_bar()
 		'whatsapp' => '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>',
 	);
 	?>
-	<div class="bg-neutral-950 dark:bg-black text-neutral-300 dark:text-neutral-400">
+	<div class="bg-nothing-charcoal text-neutral-400">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 text-xs sm:px-6 sm:text-sm">
 			<div class="flex shrink-0 items-center gap-2">
-				<svg class="hidden h-4 w-4 shrink-0 text-amber-500 sm:block" fill="none" viewBox="0 0 24 24"
+				<svg class="hidden h-4 w-4 shrink-0 text-neutral-500 sm:block" fill="none" viewBox="0 0 24 24"
 					stroke-width="1.8" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round"
 						d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -181,9 +195,9 @@ function gjn_top_bar()
 			<?php $gjn_description = get_bloginfo('description'); ?>
 			<?php if ($gjn_description) : ?>
 			<p class="hidden items-center gap-2.5 text-center font-medium text-neutral-400 md:flex">
-				<span class="h-1 w-1 shrink-0 rounded-full bg-amber-500"></span>
+				<span class="h-1 w-1 shrink-0 rounded-full bg-neutral-500"></span>
 				<?php echo esc_html($gjn_description); ?>
-				<span class="h-1 w-1 shrink-0 rounded-full bg-amber-500"></span>
+				<span class="h-1 w-1 shrink-0 rounded-full bg-neutral-500"></span>
 			</p>
 			<?php endif; ?>
 
@@ -219,7 +233,7 @@ function gjn_top_bar()
 function gjn_site_header()
 {
 	?>
-	<header class="border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-black/80 backdrop-blur-md">
+	<header class="border-b border-neutral-200 dark:border-nothing-elevated bg-white dark:bg-nothing-charcoal transition-colors duration-300">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
 			<a href="<?php echo esc_url(home_url('/')); ?>" class="flex min-w-0 items-center gap-3">
 				<span class="h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-lg shadow-black/20 ring-1 ring-black/10">
@@ -227,14 +241,18 @@ function gjn_site_header()
 						class="h-full w-full object-cover">
 				</span>
 				<span class="min-w-0">
-					<span class="block truncate text-xl font-black leading-tight text-neutral-900 dark:text-white sm:text-2xl"><?php echo esc_html(get_bloginfo('name')); ?></span>
+					<span class="block truncate text-xl font-black leading-tight text-nothing-charcoal dark:text-neutral-100 sm:text-2xl"><?php echo esc_html(get_bloginfo('name')); ?></span>
 					<span class="block text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500 dark:text-neutral-400 font-dot">Gampola Janamadyawediya</span>
 				</span>
 			</a>
 
-			<div class="flex items-center gap-4">
-				<button id="theme-toggle" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 transition hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700" aria-label="Toggle Dark Mode">
-					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+			<div class="flex items-center gap-3">
+				<!-- Nothing-style pill toggle -->
+				<button id="theme-toggle" role="switch" aria-checked="false" aria-label="Toggle Dark Mode"
+					class="relative flex h-8 items-center gap-2 rounded-full border border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-nothing-surface px-3 font-dot text-[10px] font-bold uppercase tracking-widest text-neutral-600 dark:text-neutral-300 transition-all duration-300 hover:border-neutral-400 dark:hover:border-neutral-500 cursor-pointer select-none">
+					<span id="theme-toggle-dot" class="absolute left-1 h-5 w-5 rounded-full bg-nothing-charcoal dark:bg-white transition-transform duration-300" style="transform: translateX(0)"></span>
+					<span class="w-5"></span>
+					<span id="theme-toggle-label" class="pr-0.5">LIGHT</span>
 				</button>
 				<div class="relative hidden shrink-0 md:block">
 					<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
@@ -244,14 +262,14 @@ function gjn_site_header()
 					</svg>
 					<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
 						<input type="text" name="s" placeholder="පුවත් සොයන්න…"
-							class="w-44 rounded-full border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 dark:text-white !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-red-600 focus:bg-white dark:focus:bg-black focus:ring-2 focus:ring-red-600/20">
+							class="w-44 rounded-full border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-nothing-surface dark:text-neutral-100 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-nothing-charcoal dark:focus:border-neutral-400 focus:bg-white dark:focus:bg-nothing-elevated focus:ring-2 focus:ring-nothing-charcoal/10 dark:focus:ring-white/10">
 					</form>
 				</div>
 			</div>
 		</div>
 
 		<!-- Mobile Search (Full Width) -->
-		<div class="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 px-4 py-3 md:hidden">
+		<div class="border-t border-neutral-100 dark:border-nothing-elevated bg-neutral-50/50 dark:bg-nothing-surface/50 px-4 py-3 md:hidden">
 			<div class="relative mx-auto max-w-md">
 				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
 					fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -260,7 +278,7 @@ function gjn_site_header()
 				</svg>
 				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
 					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
-						class="w-full rounded-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black dark:text-white !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-red-600 focus:ring-2 focus:ring-red-600/20">
+						class="w-full rounded-full border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-nothing-surface dark:text-neutral-100 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-nothing-charcoal dark:focus:border-neutral-400 focus:ring-2 focus:ring-nothing-charcoal/10 dark:focus:ring-white/10">
 				</form>
 			</div>
 		</div>
@@ -281,7 +299,7 @@ add_filter(
 		if (!empty($args->theme_location) && 'primary' === $args->theme_location) {
 			$atts['class'] = trim(
 				($atts['class'] ?? '') .
-				' whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/30 dark:hover:text-red-400'
+				' whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-neutral-100 hover:text-nothing-charcoal dark:hover:bg-nothing-surface dark:hover:text-neutral-100'
 			);
 		}
 		return $atts;
@@ -312,12 +330,12 @@ function gjn_nav_fallback()
 		}
 	}
 
-	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300">';
+	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">';
 	$first = true;
 	foreach ($links as $label => $url) {
 		$active = $first ? ' current-menu-item' : '';
 		echo '<li class="menu-item' . esc_attr($active) . '">';
-		echo '<a href="' . esc_url($url) . '" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/30 dark:hover:text-red-400">' . esc_html($label) . '</a>';
+		echo '<a href="' . esc_url($url) . '" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-neutral-100 hover:text-nothing-charcoal dark:hover:bg-nothing-surface dark:hover:text-neutral-100">' . esc_html($label) . '</a>';
 		echo '</li>';
 		$first = false;
 	}
@@ -327,14 +345,14 @@ function gjn_nav_fallback()
 function gjn_navigation()
 {
 	?>
-	<nav class="gjn-nav sticky top-0 z-40 border-b border-neutral-200 dark:border-neutral-800 bg-white/65 dark:bg-black/65 backdrop-blur-xl">
+	<nav class="gjn-nav sticky top-0 z-40 border-b border-neutral-200 dark:border-nothing-elevated bg-white/90 dark:bg-nothing-charcoal/90 backdrop-blur-xl transition-colors duration-300">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
 			<?php
 			wp_nav_menu(
 				array(
 					'theme_location' => 'primary',
 					'container' => false,
-					'menu_class' => 'nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300',
+					'menu_class' => 'nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300',
 					'depth' => 1,
 					'fallback_cb' => 'gjn_nav_fallback',
 				)
@@ -387,9 +405,9 @@ function gjn_news_ticker()
 		return;
 	}
 	?>
-	<div class="ticker bg-red-600 text-white">
+	<div class="ticker bg-nothing-red text-white">
 		<div class="mx-auto flex max-w-7xl items-stretch">
-			<div class="relative z-10 flex shrink-0 items-center gap-2.5 bg-neutral-950 px-3.5 py-1.5 sm:px-4">
+			<div class="relative z-10 flex shrink-0 items-center gap-2.5 bg-nothing-charcoal px-3.5 py-1.5 sm:px-4">
 				<span class="relative flex h-2.5 w-2.5">
 					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
 					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-400"></span>
@@ -402,7 +420,7 @@ function gjn_news_ticker()
 				<div class="animate-marquee flex w-max items-center">
 					<?php echo gjn_ticker_items_html($items); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
-				<button aria-label="Pause ticker" class="gjn-ticker-toggle absolute right-0 z-20 flex h-full items-center justify-center bg-gradient-to-l from-red-700 via-red-700 px-3 text-white/70 transition hover:text-white sm:px-4">
+				<button aria-label="Pause ticker" class="gjn-ticker-toggle absolute right-0 z-20 flex h-full items-center justify-center bg-gradient-to-l from-nothing-red via-nothing-red px-3 text-white/70 transition hover:text-white sm:px-4">
 					<svg class="h-4 w-4 pause-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
 					<svg class="h-4 w-4 play-icon hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
 				</button>

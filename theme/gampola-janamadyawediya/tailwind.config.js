@@ -15,7 +15,6 @@
 module.exports = {
   content: [
     './theme/gampola-janamadyawediya/**/*.php',
-    './ui/index.html',
   ],
 
   corePlugins: {

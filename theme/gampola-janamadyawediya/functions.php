@@ -66,6 +66,11 @@ function gjn_enqueue_assets() {
 add_filter( 'option_generate_settings', 'gjn_nothing_generate_settings' );
 add_filter( 'default_option_generate_settings', 'gjn_nothing_generate_settings' );
 
+// GeneratePress bakes its dynamic CSS into the generate_dynamic_css_output
+// option on Customizer saves. Skip that cache so the CSS is generated fresh
+// per request and the palette filter above always applies.
+add_filter( 'generate_dynamic_css_skip_cache', '__return_true' );
+
 function gjn_nothing_generate_settings( $settings ) {
 	$palette = array(
 		'top_bar_background_color'           => '#1B1B1D',

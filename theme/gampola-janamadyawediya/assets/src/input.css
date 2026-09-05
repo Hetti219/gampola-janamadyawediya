@@ -95,3 +95,24 @@
 	.backdrop-blur { -webkit-backdrop-filter: blur(8px); }
 	.gjn-nav { -webkit-backdrop-filter: blur(8px); }
 }
+
+/* ───────────────────────────────────────────────────────────
+   Liquid glass — real refraction (Chromium) with frost fallbacks.
+   The url() reference distorts the backdrop via feTurbulence +
+   feDisplacementMap (SVG defs emitted by inc/header-ui.php).
+   Firefox parses url() in backdrop-filter but paints nothing,
+   so it is pinned to a blur-only stack via the -moz-appearance
+   gate below. Safari keeps the blur baseline until WebKit ships
+   reference-filter support.
+   ─────────────────────────────────────────────────────────── */
+.gjn-liquid-glass {
+	backdrop-filter: blur(10px) saturate(150%);
+	-webkit-backdrop-filter: blur(10px) saturate(150%);
+	backdrop-filter: url(#gjn-liquid-glass) blur(4px) saturate(160%);
+}
+
+@supports (-moz-appearance: none) {
+	.gjn-liquid-glass {
+		backdrop-filter: blur(10px) saturate(150%);
+	}
+}

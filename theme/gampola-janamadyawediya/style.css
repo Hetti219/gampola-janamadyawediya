@@ -1,7 +1,7 @@
 /*
  Theme Name:   Gampola Janamadyawediya
  Theme URI:    https://gampolajanamadyawediya.com
- Description:  Bold black & red news theme for a Sinhala-language local journalism site.
+ Description:  Nothing OS 5.0-inspired monochrome news theme for a Sinhala-language local journalism site.
  Author:       Sathikashervinhettiarachchi
  Author URI:   https://hetti219.github.io
  Template:     generatepress
@@ -23,6 +23,20 @@
 	--gjn-red-hover: #B8151B;
 	--gjn-red-soft: rgba(215, 25, 33, 0.1);
 
+	/* Interactive states — monochrome (Nothing OS 5.0) */
+	--gjn-btn-bg: #1B1B1D;
+	--gjn-btn-hover: #2E2E30;
+	--gjn-btn-text: #F5F5F5;
+	--gjn-focus-ring: rgba(27, 27, 29, 0.12);
+
+	/* Footer — always dark, in both themes */
+	--gjn-ink: #1B1B1D;
+	--gjn-ink-soft: #242426;
+	--gjn-ink-deep: #161617;
+	--gjn-text-on-dark: #F5F5F5;
+	--gjn-text-on-dark-muted: #A1A1A6;
+	--gjn-border-on-dark: rgba(255, 255, 255, 0.15);
+
 	/* Light mode (Default) */
 	--gjn-bg-body: #F5F5F5;
 	--gjn-bg-surface: #FFFFFF;
@@ -30,7 +44,6 @@
 
 	--gjn-text-main: #1B1B1D;
 	--gjn-text-muted: #404040;
-	--gjn-text-light: #6E6E73;
 
 	/* Borders & depth */
 	--gjn-border: rgba(0, 0, 0, 0.08);
@@ -65,7 +78,11 @@
 
 	--gjn-text-main: #F5F5F5;
 	--gjn-text-muted: #A1A1A6;
-	--gjn-text-light: #6E6E73;
+
+	--gjn-btn-bg: #F5F5F5;
+	--gjn-btn-hover: #E5E5E5;
+	--gjn-btn-text: #1B1B1D;
+	--gjn-focus-ring: rgba(245, 245, 245, 0.18);
 
 	--gjn-border: rgba(255, 255, 255, 0.08);
 	--gjn-border-strong: rgba(255, 255, 255, 0.15);
@@ -79,10 +96,10 @@
    ─────────────────────────────────────────────────────────── */
 body {
 	/* !important: GeneratePress prints its Customizer colors as inline
-	   CSS, so brand surfaces are pinned here to keep the black & red
-	   identity regardless of panel settings. */
+	   CSS, so brand surfaces are pinned here to keep the Nothing OS
+	   monochrome identity regardless of panel settings. */
 	background-color: var(--gjn-bg-body) !important;
-	color: var(--gjn-text-muted);
+	color: var(--gjn-text-main);
 	font-family: var(--gjn-font-content);
 	font-size: 1.05rem;
 	line-height: 1.7;
@@ -102,24 +119,15 @@ h6 {
 	line-height: 1.2;
 }
 
-h1.dot-matrix,
-h2.dot-matrix,
-.widget-title,
-.page-title {
-	font-family: var(--gjn-font-dot);
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-}
-
 a {
-	color: var(--gjn-red);
+	color: var(--gjn-text-main);
 	text-decoration: none;
 	transition: var(--gjn-transition);
 }
 
 a:hover,
 a:focus {
-	color: var(--gjn-red-hover);
+	color: var(--gjn-text-muted);
 }
 
 img {
@@ -134,8 +142,8 @@ button,
 .button,
 input[type="submit"],
 input[type="button"] {
-	background-color: var(--gjn-red);
-	color: #ffffff;
+	background-color: var(--gjn-btn-bg);
+	color: var(--gjn-btn-text);
 	border: none;
 	border-radius: var(--gjn-radius-sm);
 	padding: 12px 22px;
@@ -151,15 +159,15 @@ button:hover,
 .button:hover,
 input[type="submit"]:hover,
 input[type="button"]:hover {
-	background-color: var(--gjn-red-hover);
-	color: #ffffff;
+	background-color: var(--gjn-btn-hover);
+	color: var(--gjn-btn-text);
 }
 
 a:focus,
 button:focus,
 input:focus,
 textarea:focus {
-	outline: 2px solid var(--gjn-red);
+	outline: 2px solid var(--gjn-text-main);
 	outline-offset: 2px;
 }
 
@@ -180,17 +188,17 @@ textarea {
 
 input:focus,
 textarea:focus {
-	border-color: var(--gjn-red);
+	border-color: var(--gjn-text-main);
 	outline: none;
-	box-shadow: 0 0 0 3px var(--gjn-red-soft);
+	box-shadow: 0 0 0 3px var(--gjn-focus-ring);
 }
 
-/* "Read more" links as red outline pills */
+/* "Read more" links as monochrome outline pills */
 .read-more-container a,
 .read-more a {
 	display: inline-block;
-	border: 1px solid var(--gjn-red);
-	color: var(--gjn-red);
+	border: 1px solid var(--gjn-text-main);
+	color: var(--gjn-text-main);
 	border-radius: 999px;
 	padding: 8px 18px;
 	font-family: var(--gjn-font-heading);
@@ -200,8 +208,8 @@ textarea:focus {
 
 .read-more-container a:hover,
 .read-more a:hover {
-	background-color: var(--gjn-red);
-	color: #ffffff;
+	background-color: var(--gjn-btn-bg);
+	color: var(--gjn-btn-text);
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -220,44 +228,45 @@ textarea:focus {
 body .entry-content a,
 body .site-content a:not([class]),
 body .entry-meta a {
-	color: var(--gjn-red) !important;
+	color: var(--gjn-text-main) !important;
 }
 body .entry-content a:hover,
 body .site-content a:not([class]):hover,
 body .entry-meta a:hover {
-	color: var(--gjn-red-hover) !important;
+	color: var(--gjn-text-muted) !important;
 }
 
 /* Category badges on archive pages */
 .gjn-category-pill {
-	background-color: var(--gjn-red) !important;
-	color: #fff !important;
+	background-color: var(--gjn-btn-bg) !important;
+	color: var(--gjn-btn-text) !important;
 }
 
 /* "Read more" pill override */
 .entry-summary a.read-more,
 a.read-more {
-	border-color: var(--gjn-red) !important;
-	color: var(--gjn-red) !important;
+	border-color: var(--gjn-text-main) !important;
+	color: var(--gjn-text-main) !important;
 }
 a.read-more:hover {
-	background-color: var(--gjn-red) !important;
-	color: #fff !important;
+	background-color: var(--gjn-btn-bg) !important;
+	color: var(--gjn-btn-text) !important;
 }
 
 /* Sidebar widget title markers / bullets */
 .widget-title {
-	border-color: var(--gjn-red) !important;
+	border-color: var(--gjn-text-main) !important;
 }
 
 /* GeneratePress generates inline link/button colours — override */
 body a.button,
 body button.button {
-	background-color: var(--gjn-red) !important;
+	background-color: var(--gjn-btn-bg) !important;
+	color: var(--gjn-btn-text) !important;
 }
 body a.button:hover,
 body button.button:hover {
-	background-color: var(--gjn-red-hover) !important;
+	background-color: var(--gjn-btn-hover) !important;
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -368,7 +377,7 @@ body button.button:hover {
 }
 
 .inside-article:hover .entry-title a {
-	color: var(--gjn-red);
+	color: var(--gjn-text-muted);
 }
 
 .entry-summary {
@@ -379,11 +388,11 @@ body button.button:hover {
 .entry-meta {
 	font-family: var(--gjn-font-heading);
 	font-size: 0.82rem;
-	color: var(--gjn-text-light);
+	color: var(--gjn-text-muted);
 }
 
 .entry-meta a {
-	color: var(--gjn-red);
+	color: var(--gjn-text-main);
 }
 
 /* Archive page header (category titles etc.) */
@@ -549,21 +558,21 @@ body button.button:hover {
 }
 
 .single .entry-content a {
-	color: var(--gjn-red);
+	color: var(--gjn-text-main);
 	text-decoration: underline;
 	text-underline-offset: 3px;
 }
 
 .single .entry-content a:hover {
-	color: var(--gjn-red-hover);
+	color: var(--gjn-text-muted);
 }
 
 .single .entry-content blockquote {
-	border-left: 4px solid var(--gjn-red);
+	border-left: 4px solid var(--gjn-text-main);
 	padding: 1.25rem 1.75rem;
 	background: var(--gjn-bg-surface);
 	border: 1px solid var(--gjn-border);
-	border-left: 4px solid var(--gjn-red);
+	border-left: 4px solid var(--gjn-text-main);
 	border-radius: 0 var(--gjn-radius) var(--gjn-radius) 0;
 	box-shadow: var(--gjn-shadow-sm);
 	font-size: 1.2rem;
@@ -576,8 +585,8 @@ body button.button:hover {
    ─────────────────────────────────────────────────────────── */
 .gjn-category-pill {
 	display: inline-block;
-	background: var(--gjn-red);
-	color: #ffffff;
+	background: var(--gjn-btn-bg);
+	color: var(--gjn-btn-text);
 	font-family: var(--gjn-font-heading);
 	font-size: 0.75rem;
 	font-weight: 700;
@@ -589,8 +598,8 @@ body button.button:hover {
 }
 
 .gjn-category-pill:hover {
-	background: var(--gjn-red-hover);
-	color: #ffffff;
+	background: var(--gjn-btn-hover);
+	color: var(--gjn-btn-text);
 }
 
 .single .gjn-category-pill {
@@ -600,7 +609,7 @@ body button.button:hover {
 .gjn-reading-time {
 	display: inline-flex;
 	align-items: center;
-	color: var(--gjn-text-light);
+	color: var(--gjn-text-muted);
 	font-family: var(--gjn-font-heading);
 	font-size: 0.85rem;
 }
@@ -635,13 +644,13 @@ body button.button:hover {
 	align-items: center;
 }
 
-/* Red block marker before widget titles. */
+/* Monochrome block marker before widget titles. */
 .sidebar .widget-title::before {
 	content: '';
 	display: block;
 	width: 12px;
 	height: 12px;
-	background: var(--gjn-red);
+	background: var(--gjn-text-main);
 	margin-right: 10px;
 	border-radius: 2px;
 }
@@ -666,7 +675,7 @@ body button.button:hover {
 }
 
 .sidebar .widget a:hover {
-	color: var(--gjn-red);
+	color: var(--gjn-text-main);
 }
 
 /* Custom Latest News Widget */
@@ -735,12 +744,12 @@ body button.button:hover {
 }
 
 .gjn-latest-news-item:hover .gjn-latest-news-title {
-	color: var(--gjn-red);
+	color: var(--gjn-text-muted);
 }
 
 .gjn-latest-news-date {
 	font-size: 0.75rem;
-	color: var(--gjn-text-light);
+	color: var(--gjn-text-muted);
 	font-weight: 500;
 }
 
@@ -770,7 +779,7 @@ body button.button:hover {
 	color: #ffffff;
 	display: inline-block;
 	padding-bottom: 6px;
-	border-bottom: 2px solid var(--gjn-red);
+	border-bottom: 2px solid rgba(255, 255, 255, 0.35);
 	margin: 0 0 12px;
 }
 
@@ -811,7 +820,7 @@ body button.button:hover {
 
 .gjn-footer-menu a:hover,
 .gjn-footer-widget a:hover {
-	color: var(--gjn-red);
+	color: var(--gjn-text-on-dark);
 }
 
 .gjn-footer-widgets {
@@ -844,7 +853,7 @@ body button.button:hover {
 
 .footer-widgets .widget .widget-title {
 	color: #ffffff;
-	border-left: 4px solid var(--gjn-red);
+	border-left: 4px solid rgba(255, 255, 255, 0.35);
 	padding-left: 12px;
 }
 
@@ -853,13 +862,13 @@ body button.button:hover {
 }
 
 .footer-widgets .widget a:hover {
-	color: var(--gjn-red);
+	color: var(--gjn-text-on-dark);
 }
 
 /* Copyright bar (GP default class) */
 .site-info {
 	background-color: var(--gjn-ink-deep) !important;
-	color: var(--gjn-text-on-dark-light) !important;
+	color: var(--gjn-text-on-dark-muted) !important;
 	font-family: var(--gjn-font-heading);
 	font-size: 0.8rem;
 	padding: 14px 24px;
@@ -867,7 +876,7 @@ body button.button:hover {
 }
 
 .site-info a {
-	color: var(--gjn-red);
+	color: var(--gjn-text-on-dark);
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -962,18 +971,12 @@ body button.button:hover {
 	flex-shrink: 0;
 }
 
-/* WhatsApp hover */
-.gjn-share-whatsapp:hover {
-	background: #25D366;
-	color: #fff;
-	border-color: #25D366;
-}
-
-/* Facebook hover */
+/* Monochrome hover (Nothing OS 5.0 — no brand colours) */
+.gjn-share-whatsapp:hover,
 .gjn-share-facebook:hover {
-	background: #1877F2;
-	color: #fff;
-	border-color: #1877F2;
+	background: var(--gjn-btn-bg);
+	color: var(--gjn-btn-text);
+	border-color: var(--gjn-btn-bg);
 }
 
 .gjn-share-label {
@@ -1014,8 +1017,8 @@ body button.button:hover {
 	width: 2rem;
 	height: 2rem;
 	border-radius: 0.5rem;
-	background: var(--gjn-red-soft);
-	color: var(--gjn-red);
+	background: var(--gjn-bg-body);
+	color: var(--gjn-text-main);
 	flex-shrink: 0;
 }
 
@@ -1062,7 +1065,7 @@ body button.button:hover {
 	width: 100%;
 	aspect-ratio: 16 / 9;
 	overflow: hidden;
-	background: #f0f0f0;
+	background: var(--gjn-bg-body);
 }
 
 .gjn-related-card-thumb {
@@ -1082,8 +1085,8 @@ body button.button:hover {
 	justify-content: center;
 	width: 100%;
 	height: 100%;
-	background: linear-gradient(135deg, #e5e5e5, #f5f5f5);
-	color: var(--gjn-text-light);
+	background: linear-gradient(135deg, var(--gjn-bg-body), var(--gjn-bg-surface));
+	color: var(--gjn-text-muted);
 }
 
 /* Text body */
@@ -1099,7 +1102,7 @@ body button.button:hover {
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
-	color: var(--gjn-red);
+	color: var(--gjn-text-muted);
 	line-height: 1;
 }
 
@@ -1118,7 +1121,7 @@ body button.button:hover {
 }
 
 .gjn-related-card:hover .gjn-related-card-title {
-	color: var(--gjn-red);
+	color: var(--gjn-text-muted);
 }
 
 .gjn-related-card-time {
@@ -1126,7 +1129,7 @@ body button.button:hover {
 	align-items: center;
 	gap: 0.35rem;
 	font-size: 0.7rem;
-	color: var(--gjn-text-light);
+	color: var(--gjn-text-muted);
 	margin-top: 0.15rem;
 }
 

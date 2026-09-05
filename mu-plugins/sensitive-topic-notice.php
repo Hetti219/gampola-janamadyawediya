@@ -74,21 +74,21 @@ add_action(
 				max-width: 720px;
 				margin: 16px auto;
 				padding: 16px 48px 16px 20px;
-				background: #FFF7ED;
-				border: 1px solid #FDBA74;
-				border-left: 4px solid #F97316;
+				background: var(--gjn-bg-surface, #FFFFFF);
+				border: 1px solid var(--gjn-border, rgba(0, 0, 0, 0.08));
+				border-left: 4px solid var(--gjn-text-main, #1B1B1D);
 				border-radius: 8px;
-				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Sinhala", sans-serif;
+				font-family: var(--gjn-font-content, "Geist Sans", "Noto Sans Sinhala", system-ui, sans-serif);
 				font-size: 14px;
 				line-height: 1.5;
-				color: #7C2D12;
+				color: var(--gjn-text-muted, #404040);
 				animation: ncg-notice-in 0.35s ease-out;
 			}
 			#ncg-sensitive-notice h3 {
 				margin: 0 0 4px;
 				font-size: 15px;
 				font-weight: 700;
-				color: #9A3412;
+				color: var(--gjn-text-main, #1B1B1D);
 			}
 			#ncg-sensitive-notice p {
 				margin: 0;
@@ -101,7 +101,7 @@ add_action(
 				background: none;
 				border: none;
 				cursor: pointer;
-				color: #9A3412;
+				color: var(--gjn-text-muted, #404040);
 				font-size: 18px;
 				line-height: 1;
 				padding: 4px;

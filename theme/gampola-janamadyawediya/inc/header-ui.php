@@ -2,9 +2,8 @@
 /**
  * Site-wide header suite: top bar, site header, navigation, news ticker.
  *
- * Replaces GeneratePress's default site header + navigation. The markup
- * mirrors the finalized Tailwind UI prototype (ui/index.html) 1:1; styles
- * come from the compiled stylesheet assets/dist/ui.css.
+ * Replaces GeneratePress's default site header + navigation. Styles come
+ * from the compiled stylesheet assets/dist/ui.css.
  *
  * @package Gampola_Janamadyawediya
  * @since   3.0.0
@@ -24,6 +23,22 @@ add_action('after_setup_theme', function () {
 }, 20);
 
 add_action('generate_header', 'gjn_render_header_ui');
+
+/* ───────────────────────────────────────────────────────────
+   Liquid-glass SVG filter defs
+   Referenced by .gjn-liquid-glass (backdrop-filter: url(...)).
+   Must live inline in the page — one copy, hidden, per page.
+   ─────────────────────────────────────────────────────────── */
+add_action('wp_body_open', function () {
+	?>
+	<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+		<filter id="gjn-liquid-glass" colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
+			<feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="7" result="noise" />
+			<feDisplacementMap in="SourceGraphic" in2="noise" scale="24" xChannelSelector="R" yChannelSelector="G" />
+		</filter>
+	</svg>
+	<?php
+});
 
 add_action('wp_head', function () {
 	?>
@@ -55,6 +70,11 @@ add_action('wp_footer', function () {
 					dot.style.transform = isDark ? 'translateX(32px)' : 'translateX(0)';
 				}
 				toggleBtn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+
+				// Keep browser-chrome theme-color in step with the toggle
+				document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+					m.setAttribute('content', isDark ? '#1B1B1D' : '#F5F5F5');
+				});
 			}
 			syncToggle();
 
@@ -384,7 +404,7 @@ function gjn_ticker_items_html($items)
 			$i++;
 			?>
 			<a href="<?php echo esc_url($item['url']); ?>"
-				class="whitespace-nowrap text-sm font-semibold text-white transition-colors hover:text-yellow-200 hover:underline">
+				class="whitespace-nowrap text-sm font-semibold text-white transition-colors hover:text-white hover:underline">
 				<?php echo esc_html($item['text']); ?>
 			</a>
 			
@@ -412,8 +432,8 @@ function gjn_news_ticker()
 		<div class="mx-auto flex max-w-7xl items-stretch">
 			<div class="relative z-10 flex shrink-0 items-center gap-2.5 bg-nothing-charcoal px-3.5 py-1.5 sm:px-4">
 				<span class="relative flex h-2.5 w-2.5">
-					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-400"></span>
+					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-nothing-red opacity-75"></span>
+					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-nothing-red"></span>
 				</span>
 				<span class="text-sm font-black uppercase tracking-widest font-dot">Breaking</span>
 				<span class="hidden text-xs font-semibold text-neutral-300 sm:inline">විශේෂ පුවත්</span>

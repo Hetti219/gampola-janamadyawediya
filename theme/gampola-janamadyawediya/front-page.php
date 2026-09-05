@@ -56,15 +56,12 @@ function gjn_hero_posts() {
 }
 
 /**
- * Accent classes for a category badge, by slug. Unknown categories get
- * the neutral white-on-dark badge used on the featured card.
+ * Accent classes for a category badge. Nothing OS 5.0 keeps badges
+ * monochrome — every category gets the same white-on-dark badge used
+ * on the featured card.
  */
 function gjn_badge_classes( $slug ) {
-	$map = array(
-		'sports'   => 'bg-blue-500/15 text-blue-200 ring-1 ring-blue-400/25',
-		'business' => 'bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/25',
-	);
-	return isset( $map[ $slug ] ) ? $map[ $slug ] : 'bg-white/15 text-white backdrop-blur font-dot';
+	return 'bg-white/15 text-white backdrop-blur font-dot';
 }
 
 /**
@@ -178,7 +175,7 @@ $hero_posts = gjn_hero_posts();
 								<?php echo get_the_post_thumbnail( $p, 'gjn-card', array( 'class' => 'h-full w-full object-cover transition-transform duration-700 group-hover:scale-105' ) ); ?>
 							</div>
 						<?php else: ?>
-							<div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900"></div>
+							<div class="absolute inset-0 bg-gradient-to-br from-nothing-charcoal to-neutral-900"></div>
 							<?php gjn_watermark( '-bottom-4 -right-4 h-32 w-32 opacity-10' ); ?>
 						<?php endif; ?>
 						
@@ -195,7 +192,7 @@ $hero_posts = gjn_hero_posts();
 							</div>
 							
 							<!-- Glassmorphism title block -->
-							<div class="mt-auto rounded-xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-white/20">
+							<div class="mt-auto rounded-xl bg-white/10 p-4 gjn-liquid-glass ring-1 ring-white/20 transition-colors duration-300 group-hover:bg-white/20">
 								<h3 class="text-balance text-sm font-extrabold leading-snug sm:text-base">
 									<a href="<?php echo esc_url( get_permalink( $p ) ); ?>" class="text-white before:absolute before:inset-0"><?php echo esc_html( get_the_title( $p ) ); ?></a>
 								</h3>

@@ -43,20 +43,11 @@ function gjn_enqueue_assets() {
 		);
 	}
 
-	// Google Fonts: Plus Jakarta Sans (Latin UI) + Noto Sans Sinhala.
-	// Noto loads 400-900 so the UI's font-black headlines render properly.
-	wp_enqueue_style(
-		'gjn-google-fonts',
-		get_stylesheet_directory_uri() . '/assets/css/fonts.css',
-		array(),
-		wp_get_theme()->get( 'Version' )
-	);
-
-	// Child theme stylesheet — loaded after parent + fonts.
+	// Child theme stylesheet — loaded after parent.
 	wp_enqueue_style(
 		'gampola-janamadyawediya',
 		get_stylesheet_uri(),
-		array( $parent, 'gjn-google-fonts' ),
+		array( $parent ),
 		wp_get_theme()->get( 'Version' )
 	);
 

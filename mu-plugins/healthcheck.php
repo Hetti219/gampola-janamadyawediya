@@ -9,20 +9,12 @@
  *              Excluded from caching via the $skip_cache map in nginx.
  */
 
-add_action( 'init', 'ncg_healthcheck_rewrite' );
-
-function ncg_healthcheck_rewrite() {
-	add_rewrite_rule( '^healthz/?$', 'index.php?ncg_healthz=1', 'top' );
-}
-
-add_filter( 'query_vars', 'ncg_healthcheck_query_vars' );
-
-function ncg_healthcheck_query_vars( $vars ) {
-	$vars[] = 'ncg_healthz';
-	return $vars;
-}
-
-if ( isset( $_SERVER['REQUEST_URI'] ) && ( $_SERVER['REQUEST_URI'] === '/healthz' || $_SERVER['REQUEST_URI'] === '/healthz/' ) ) {
+// mu-plugins load early in wp-settings.php, before the main query, so this
+// check can answer directly — no rewrite rules, query vars, or a flushed-
+// rules option needed. nginx routes /healthz to index.php (see
+// nginx/prod/wordpress.conf and nginx/local/local.conf's try_files), and
+// REQUEST_URI is preserved through the internal redirect.
+if ( isset( $_SERVER['REQUEST_URI'] ) && in_array( $_SERVER['REQUEST_URI'], array( '/healthz', '/healthz/' ), true ) ) {
 	// Prevent any caching of the healthcheck.
 	header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0' );
 	header( 'X-Accel-Expires: 0' );
@@ -31,22 +23,4 @@ if ( isset( $_SERVER['REQUEST_URI'] ) && ( $_SERVER['REQUEST_URI'] === '/healthz
 	status_header( 200 );
 	echo 'OK';
 	exit;
-}
-
-
-
-/**
- * Flush rewrite rules on activation.
- *
- * Since mu-plugins don't have activate/deactivate hooks, this runs once
- * and sets a flag so it doesn't repeat on every page load.
- */
-add_action( 'init', 'ncg_healthcheck_maybe_flush_rules', 99 );
-
-function ncg_healthcheck_maybe_flush_rules() {
-	if ( get_option( 'ncg_healthcheck_flushed' ) ) {
-		return;
-	}
-	flush_rewrite_rules( false );
-	update_option( 'ncg_healthcheck_flushed', '1', true );
 }

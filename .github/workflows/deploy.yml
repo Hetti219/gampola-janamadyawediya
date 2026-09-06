@@ -19,9 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: PHP syntax check (theme + mu-plugins)
+      - name: PHP syntax check (theme + mu-plugins + tests)
         run: |
-          find theme mu-plugins -name '*.php' -print0 | xargs -0 -n1 php -l
+          find theme mu-plugins tests -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Unit smoke tests
+        run: php tests/run.php
 
       - name: Validate compose files
         run: |

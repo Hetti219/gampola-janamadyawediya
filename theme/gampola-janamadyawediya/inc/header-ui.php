@@ -57,40 +57,52 @@ add_action('wp_head', function () {
 add_action('wp_footer', function () {
 	?>
 	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			var toggleBtn = document.getElementById('theme-toggle');
-			var label = document.getElementById('theme-toggle-label');
-			var dot = document.getElementById('theme-toggle-dot');
-			if (!toggleBtn) return;
+		(function() {
+			function initThemeToggle() {
+				var toggleBtn = document.getElementById('theme-toggle');
+				var label = document.getElementById('theme-toggle-label');
+				var dot = document.getElementById('theme-toggle-dot');
+				if (!toggleBtn) return;
 
-			// Set initial visual state
-			function syncToggle() {
-				var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-				if (dot) {
-					dot.style.transform = isDark ? 'translateX(32px)' : 'translateX(0)';
-				}
-				toggleBtn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+				// Set initial visual state
+				function syncToggle() {
+					var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+					if (dot) {
+						dot.style.transform = isDark ? 'translateX(32px)' : 'translateX(0)';
+					}
+					toggleBtn.setAttribute('aria-checked', isDark ? 'true' : 'false');
 
-				// Keep browser-chrome theme-color in step with the toggle
-				document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
-					m.setAttribute('content', isDark ? '#1B1B1D' : '#F5F5F5');
-				});
-			}
-			syncToggle();
-
-			toggleBtn.addEventListener('click', function() {
-				var root = document.documentElement;
-				var isDark = root.getAttribute('data-theme') === 'dark';
-				if (isDark) {
-					root.removeAttribute('data-theme');
-					localStorage.setItem('gjn-theme', 'light');
-				} else {
-					root.setAttribute('data-theme', 'dark');
-					localStorage.setItem('gjn-theme', 'dark');
+					// Keep browser-chrome theme-color in step with the toggle
+					document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+						m.setAttribute('content', isDark ? '#1B1B1D' : '#F5F5F5');
+					});
 				}
 				syncToggle();
-			});
-		});
+
+				toggleBtn.addEventListener('click', function() {
+					var root = document.documentElement;
+					var isDark = root.getAttribute('data-theme') === 'dark';
+					if (isDark) {
+						root.removeAttribute('data-theme');
+						localStorage.setItem('gjn-theme', 'light');
+					} else {
+						root.setAttribute('data-theme', 'dark');
+						localStorage.setItem('gjn-theme', 'dark');
+					}
+					syncToggle();
+				});
+			}
+
+			// This inline script can end up executing after DOMContentLoaded
+			// has already fired (deferred by an optimizer, injected later).
+			// A bare addEventListener would then never bind, leaving the
+			// toggle dead — so check readyState instead.
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', initThemeToggle);
+			} else {
+				initThemeToggle();
+			}
+		})();
 	</script>
 	<?php
 });
@@ -160,14 +172,15 @@ function gjn_social_links()
 
 /**
  * Headlines for the news ticker: posts marked with the breaking news flag.
+ *
+ * Delegates to gjn_get_breaking_posts() (breaking-news-manager.php), whose
+ * 5-minute transient is the single cache for this data. A second, longer-
+ * lived cache here used to go stale: the cron expiry only invalidated the
+ * manager's key, so expired breaking posts stayed in the ticker for up to
+ * an hour. One cache, one invalidation path.
  */
 function gjn_ticker_items()
 {
-	$items = get_transient( 'gjn_ticker_items_cache' );
-	if ( false !== $items ) {
-		return $items;
-	}
-
 	$items = array();
 
 	if ( function_exists( 'gjn_get_breaking_posts' ) ) {
@@ -179,8 +192,6 @@ function gjn_ticker_items()
 			);
 		}
 	}
-
-	set_transient( 'gjn_ticker_items_cache', $items, HOUR_IN_SECONDS );
 
 	return $items;
 }

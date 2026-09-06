@@ -592,9 +592,11 @@ function gjn_inject_json_ld() {
 	}
 }
 
-// Clear the ticker cache when a post is created or updated
+// Clear the breaking-news cache when a post is created or updated, so the
+// ticker reflects the change immediately. gjn_ticker_items() reads this same
+// cache through gjn_get_breaking_posts() — there is no separate ticker cache.
 add_action( 'save_post', function() {
-	delete_transient( 'gjn_ticker_items_cache' );
+	delete_transient( 'gjn_breaking_posts_cache' );
 } );
 
 /* ───────────────────────────────────────────────────────────

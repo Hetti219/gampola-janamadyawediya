@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initUiScripts() {
 	// 1. Drag-to-scroll for Primary Navigation
 	const slider = document.querySelector('.nav-primary');
 	if (slider) {
@@ -12,17 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			startX = e.pageX - slider.offsetLeft;
 			scrollLeft = slider.scrollLeft;
 		});
-		
+
 		slider.addEventListener('mouseleave', () => {
 			isDown = false;
 			slider.classList.remove('cursor-grabbing');
 		});
-		
+
 		slider.addEventListener('mouseup', () => {
 			isDown = false;
 			slider.classList.remove('cursor-grabbing');
 		});
-		
+
 		slider.addEventListener('mousemove', (e) => {
 			if (!isDown) return;
 			e.preventDefault();
@@ -63,4 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
-});
+}
+
+// Bind on DOMContentLoaded, unless the script itself is executed after the
+// event has already fired (possible when an optimizer defers it) — then
+// initialize immediately.
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initUiScripts);
+} else {
+	initUiScripts();
+}

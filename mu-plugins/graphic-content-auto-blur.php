@@ -130,7 +130,55 @@ add_action( 'before_delete_post', 'ncg_delete_blurred_file' );
  * unrecognizable. Returns the URL of the blurred file, or false on
  * failure.
  */
+/**
+ * Parse a PHP memory_limit ini value into bytes. -1 (unlimited) and empty
+ * values return -1. Mirrors wp_convert_hr_to_bytes() so this stays testable
+ * outside a full WordPress load.
+ *
+ * @param string|null $value Ini value to parse, or null to read memory_limit.
+ */
+function ncg_memory_limit_bytes( $value = null ) {
+	$val = trim( (string) ( null === $value ? ini_get( 'memory_limit' ) : $value ) );
+	if ( '' === $val || '-1' === $val ) {
+		return -1;
+	}
+
+	$num  = (int) $val;
+	$unit = strtolower( substr( $val, -1 ) );
+	switch ( $unit ) {
+		case 'g':
+			$num *= 1024;
+		case 'm':
+			$num *= 1024;
+		case 'k':
+			$num *= 1024;
+	}
+	return $num;
+}
+
 function ncg_generate_blurred_image( $source_path, $post_id ) {
+	// GD holds ~4 bytes per decoded pixel, so a 48 MP phone photo alone can
+	// exceed the 256M PHP limit — and a fatal OOM would take the whole save
+	// request down with it. Bail gracefully instead.
+	$size = @getimagesize( $source_path );
+	if ( $size && ! empty( $size[0] ) && ! empty( $size[1] ) ) {
+		$limit    = ncg_memory_limit_bytes();
+		$needed   = (int) $size[0] * (int) $size[1] * 4;
+		$headroom = ( $limit > 0 ) ? $limit - memory_get_usage( true ) : $needed;
+		if ( $needed > $headroom ) {
+			error_log( sprintf(
+				'[ncg-autoblur] Skipping blur for post %d: %dx%d source needs ~%d MB but only ~%d MB memory is available (memory_limit=%s).',
+				$post_id,
+				$size[0],
+				$size[1],
+				(int) ( $needed / 1048576 ),
+				(int) ( $headroom / 1048576 ),
+				(string) ini_get( 'memory_limit' )
+			) );
+			return false;
+		}
+	}
+
 	$mime = mime_content_type( $source_path );
 
 	switch ( $mime ) {

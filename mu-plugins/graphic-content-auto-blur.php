@@ -130,39 +130,13 @@ add_action( 'before_delete_post', 'ncg_delete_blurred_file' );
  * unrecognizable. Returns the URL of the blurred file, or false on
  * failure.
  */
-/**
- * Parse a PHP memory_limit ini value into bytes. -1 (unlimited) and empty
- * values return -1. Mirrors wp_convert_hr_to_bytes() so this stays testable
- * outside a full WordPress load.
- *
- * @param string|null $value Ini value to parse, or null to read memory_limit.
- */
-function ncg_memory_limit_bytes( $value = null ) {
-	$val = trim( (string) ( null === $value ? ini_get( 'memory_limit' ) : $value ) );
-	if ( '' === $val || '-1' === $val ) {
-		return -1;
-	}
-
-	$num  = (int) $val;
-	$unit = strtolower( substr( $val, -1 ) );
-	switch ( $unit ) {
-		case 'g':
-			$num *= 1024;
-		case 'm':
-			$num *= 1024;
-		case 'k':
-			$num *= 1024;
-	}
-	return $num;
-}
-
 function ncg_generate_blurred_image( $source_path, $post_id ) {
 	// GD holds ~4 bytes per decoded pixel, so a 48 MP phone photo alone can
 	// exceed the 256M PHP limit — and a fatal OOM would take the whole save
 	// request down with it. Bail gracefully instead.
 	$size = @getimagesize( $source_path );
 	if ( $size && ! empty( $size[0] ) && ! empty( $size[1] ) ) {
-		$limit    = ncg_memory_limit_bytes();
+		$limit    = wp_convert_hr_to_bytes( (string) ini_get( 'memory_limit' ) );
 		$needed   = (int) $size[0] * (int) $size[1] * 4;
 		$headroom = ( $limit > 0 ) ? $limit - memory_get_usage( true ) : $needed;
 		if ( $needed > $headroom ) {
@@ -249,14 +223,14 @@ function ncg_should_use_blurred_og() {
 		return $cache;
 	}
 
+	$cache = false;
+
 	if ( ! is_single() ) {
-		$cache = false;
 		return $cache;
 	}
 
 	$post_id = get_the_ID();
 	if ( ! has_term( 'graphic-content', 'content_flag', $post_id ) ) {
-		$cache = false;
 		return $cache;
 	}
 
@@ -264,12 +238,14 @@ function ncg_should_use_blurred_og() {
 	$has_rankmath = get_post_meta( $post_id, 'rank_math_facebook_image', true );
 	$has_yoast    = get_post_meta( $post_id, '_yoast_wpseo_opengraph-image', true );
 	if ( $has_rankmath || $has_yoast ) {
-		$cache = false;
 		return $cache;
 	}
 
 	$blurred_url = get_post_meta( $post_id, '_ncg_blurred_og_image', true );
-	$cache = $blurred_url ? $blurred_url : false;
+	if ( $blurred_url ) {
+		$cache = $blurred_url;
+	}
+
 	return $cache;
 }
 

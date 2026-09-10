@@ -8,3 +8,4 @@ nginx/certs/
 *.log
 
 /docs
+/.claude

@@ -31,13 +31,17 @@ healthy() {
     [ "$(docker inspect --format '{{.State.Health.Status}}' "$c" 2>/dev/null)" = "healthy" ] || return 1
   done
 }
-ok=0
-for _ in $(seq 1 12); do
-  if healthy; then ok=1; break; fi
-  sleep 10
-done
 
-if [ "$ok" -ne 1 ]; then
+# Poll until every container reports healthy, up to 2 minutes.
+wait_healthy() {
+  for _ in $(seq 1 12); do
+    healthy && return 0
+    sleep 10
+  done
+  return 1
+}
+
+if ! wait_healthy; then
   echo "!! Health check FAILED — rolling back to $PREV_SHA"
   git reset --hard "$PREV_SHA"
   rm -f docker-compose.override.yml
@@ -45,13 +49,7 @@ if [ "$ok" -ne 1 ]; then
   docker exec news_nginx nginx -s reload || true
 
   echo "== Validating rollback health =="
-  rollback_ok=0
-  for _ in $(seq 1 12); do
-    if healthy; then rollback_ok=1; break; fi
-    sleep 10
-  done
-  
-  if [ "$rollback_ok" -ne 1 ]; then
+  if ! wait_healthy; then
     echo "CRITICAL: Rollback failed health check! The site is DOWN."
     exit 1
   fi

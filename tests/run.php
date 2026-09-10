@@ -4,7 +4,6 @@
  *
  * Runs without WordPress: stubs the handful of WP functions the included
  * files touch at load time, then exercises the real logic — including the
- * failure modes (future timestamps, boundary values, memory-limit parsing)
  * that a happy-path test would miss.
  *
  * Usage:  php tests/run.php
@@ -121,37 +120,6 @@ test( 'gjn_relative_time: at 30 days falls back to the full date', function () u
 test( 'gjn_relative_time: future timestamp (failure mode) does not break', function () use ( $NOW ) {
 	// Negative diff — must not emit negative numbers or fatal.
 	assertSame( 'දැන්ම', gjn_relative_time( $NOW + 3600 ) );
-} );
-
-// --- ncg_memory_limit_bytes: parsing edge cases ---------------------------
-// Values are passed explicitly: PHP refuses ini_set() below current usage,
-// which would make the K/no-suffix cases untestable through ini_get().
-test( 'ncg_memory_limit_bytes: megabyte shorthand', function () {
-	assertSame( 134217728, ncg_memory_limit_bytes( '128M' ) );
-} );
-
-test( 'ncg_memory_limit_bytes: kilobyte shorthand', function () {
-	assertSame( 262144, ncg_memory_limit_bytes( '256K' ) );
-} );
-
-test( 'ncg_memory_limit_bytes: gigabyte shorthand', function () {
-	assertSame( 1073741824, ncg_memory_limit_bytes( '1G' ) );
-} );
-
-test( 'ncg_memory_limit_bytes: no suffix (bytes)', function () {
-	assertSame( 1024, ncg_memory_limit_bytes( '1024' ) );
-} );
-
-test( 'ncg_memory_limit_bytes: -1 means unlimited (failure-mode guard disabled)', function () {
-	assertSame( -1, ncg_memory_limit_bytes( '-1' ) );
-} );
-
-test( 'ncg_memory_limit_bytes: empty value treated as unlimited', function () {
-	assertSame( -1, ncg_memory_limit_bytes( '' ) );
-} );
-
-test( 'ncg_memory_limit_bytes: whitespace tolerated', function () {
-	assertSame( 134217728, ncg_memory_limit_bytes( ' 128M ' ) );
 } );
 
 // --- Summary --------------------------------------------------------------

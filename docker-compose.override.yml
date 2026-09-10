@@ -21,6 +21,10 @@ services:
 
   wordpress:
     environment:
+      # NOTE: Compose replaces an env var wholesale; it does not merge the
+      # string. The five constants below are duplicated verbatim from
+      # docker-compose.yml and MUST be kept in sync with it — adding a
+      # constant to one file and not the other silently drops it locally.
       WORDPRESS_CONFIG_EXTRA: |
         define('WP_REDIS_HOST', 'redis');
         define('WP_MEMORY_LIMIT', '256M');

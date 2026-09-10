@@ -23,15 +23,13 @@ function ncg_cache_send_headers() {
 
 	// Logged-in users and comment authors: no caching at all.
 	if ( is_user_logged_in() || ncg_has_comment_author_cookie() ) {
-		header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
-		header( 'X-Accel-Expires: 0', true );
+		ncg_send_no_store();
 		return;
 	}
 
 	// Post preview: never cache.
 	if ( is_preview() ) {
-		header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
-		header( 'X-Accel-Expires: 0', true );
+		ncg_send_no_store();
 		return;
 	}
 
@@ -54,8 +52,7 @@ function ncg_cache_send_headers() {
 		$browser = 60;
 	} elseif ( is_search() ) {
 		// Search results are not cached.
-		header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
-		header( 'X-Accel-Expires: 0', true );
+		ncg_send_no_store();
 		return;
 	} elseif ( is_feed() ) {
 		$origin  = 60;
@@ -75,6 +72,14 @@ function ncg_cache_send_headers() {
 		),
 		true
 	);
+}
+
+/**
+ * Emit the no-store header pair shared by every uncacheable page type.
+ */
+function ncg_send_no_store() {
+	header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
+	header( 'X-Accel-Expires: 0', true );
 }
 
 /**

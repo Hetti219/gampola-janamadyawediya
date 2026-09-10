@@ -26,11 +26,13 @@ if ( is_admin() ) {
 	add_action( 'set_object_terms',      'ncg_cf_purge_on_terms',         99, 4 );
 
 	// --- Comment hooks (priority 99) ---
-	// Guard: only fire if comments are enabled on the post (the child theme never
-	// renders comments; these hooks are a safety net for GeneratePress default).
-	add_action( 'comment_post',          'ncg_cf_purge_on_comment',       99, 3 );
-	add_action( 'wp_set_comment_status', 'ncg_cf_purge_on_comment_status', 99, 2 );
-	add_action( 'edit_comment',          'ncg_cf_purge_on_comment_edit',  99, 2 );
+	// All three pass the comment ID as their first argument, so one callback
+	// serves them all. Guard: only fire if comments are enabled on the post (the
+	// child theme never renders comments; these hooks are a safety net for
+	// GeneratePress default).
+	add_action( 'comment_post',          'ncg_cf_purge_on_comment_change', 99, 1 );
+	add_action( 'wp_set_comment_status', 'ncg_cf_purge_on_comment_change', 99, 1 );
+	add_action( 'edit_comment',          'ncg_cf_purge_on_comment_change', 99, 1 );
 }
 
 /**
@@ -86,29 +88,13 @@ function ncg_cf_purge_on_terms( $object_id, $terms, $tt_ids, $taxonomy ) {
 }
 
 /**
- * Purge on new comment (only if comments are open on the post).
+ * Purge when a comment is posted, edited, or changes status.
+ *
+ * Serves comment_post, wp_set_comment_status, and edit_comment — all three
+ * pass the comment ID first, and all three need the same "is this post still
+ * showing comments?" check.
  */
-function ncg_cf_purge_on_comment( $comment_id, $approved, $commentdata ) {
-	$post_id = isset( $commentdata['comment_post_ID'] ) ? (int) $commentdata['comment_post_ID'] : 0;
-	if ( $post_id && comments_open( $post_id ) ) {
-		ncg_cf_purge_post_urls( $post_id );
-	}
-}
-
-/**
- * Purge on comment status change (approve/unapprove/spam/trash).
- */
-function ncg_cf_purge_on_comment_status( $comment_id, $status ) {
-	$comment = get_comment( $comment_id );
-	if ( $comment && comments_open( $comment->comment_post_ID ) ) {
-		ncg_cf_purge_post_urls( $comment->comment_post_ID );
-	}
-}
-
-/**
- * Purge on comment edit.
- */
-function ncg_cf_purge_on_comment_edit( $comment_id, $data ) {
+function ncg_cf_purge_on_comment_change( $comment_id ) {
 	$comment = get_comment( $comment_id );
 	if ( $comment && comments_open( $comment->comment_post_ID ) ) {
 		ncg_cf_purge_post_urls( $comment->comment_post_ID );

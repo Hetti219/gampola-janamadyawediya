@@ -50,6 +50,16 @@ function gjn_sinhala_date( $timestamp, $with_day = true ) {
 	$month = (int) wp_date( 'n', $timestamp ) - 1;
 	$year  = wp_date( 'Y', $timestamp );
 
+	// wp_date() returns false when it cannot use the timestamp, which casts to
+	// 0 here and leaves $month at -1 — an undefined index below. Assert so the
+	// bad input surfaces in development and CI (zend.assertions is on there),
+	// then clamp so a production page still renders a date instead of dying.
+	assert( $day >= 0 && $day <= 6 );
+	assert( $month >= 0 && $month <= 11 );
+
+	$day   = max( 0, min( 6, $day ) );
+	$month = max( 0, min( 11, $month ) );
+
 	if ( $with_day ) {
 		return sprintf( '%s, %d %s %s', $days[ $day ], $date, $months[ $month ], $year );
 	}

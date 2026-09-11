@@ -8,4 +8,5 @@ nginx/certs/
 *.log
 
 /docs
-/.claude
+/.claude/vendor/
+composer.phar

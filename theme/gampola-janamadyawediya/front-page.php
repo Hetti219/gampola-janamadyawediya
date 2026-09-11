@@ -19,7 +19,12 @@ get_header();
    ─────────────────────────────────────────────────────────── */
 
 /**
- * Up to 3 hero posts: featured first, then the next two.
+ * Up to 10 posts for the front page, newest first.
+ *
+ * The sticky post leads when there is one; otherwise the recent list is
+ * returned as-is. The template below slices this: index 0 is the featured
+ * card, 1-4 the visual grid, 5-9 the quick feed, so the 10 here and the
+ * offsets there have to move together.
  */
 function gjn_hero_posts() {
 	$featured = null;

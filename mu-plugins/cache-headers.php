@@ -60,6 +60,13 @@ function ncg_cache_send_headers() {
 		$browser = 60;
 	}
 
+	// Every branch above sets a positive TTL, and it has to stay that way: a
+	// zero or negative one emits `X-Accel-Expires: 0`, which tells nginx to
+	// skip fastcgi_cache entirely — silently turning caching off for that page
+	// type instead of following the plan's TTL table. PHPStan checks this
+	// statically (the values are all literals, so a runtime assert here would
+	// be a check that can never fail).
+
 	// X-Accel-Expires overrides the nginx fastcgi_cache_valid per-request.
 	header( sprintf( 'X-Accel-Expires: %d', $origin ), true );
 

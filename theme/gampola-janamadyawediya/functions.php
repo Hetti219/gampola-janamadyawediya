@@ -429,31 +429,33 @@ function gjn_inject_fallback_seo() {
 		echo '<meta property="og:site_name" content="' . esc_attr( $site_name ) . '" />' . "\n";
 		echo '<meta property="og:description" content="' . esc_attr( $desc ) . '" />' . "\n";
 	} elseif ( is_single() ) {
-		// Output a basic excerpt-based description for posts
-		global $post;
-		if ( $post ) {
-			$excerpt = wp_trim_words( $post->post_content, 25, '' );
-			$excerpt = wp_strip_all_tags( $excerpt );
-			if ( ! empty( $excerpt ) ) {
-				echo '<meta name="description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
-				echo '<meta property="og:description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
-			}
+		// Output a basic excerpt-based description for posts.
+		$post = get_post();
+		if ( ! $post ) {
+			return;
+		}
 
-			echo '<meta property="og:type" content="article" />' . "\n";
-			echo '<meta property="og:title" content="' . esc_attr( get_the_title() ) . '" />' . "\n";
-			echo '<meta property="og:url" content="' . esc_url( get_permalink() ) . '" />' . "\n";
-			echo '<meta property="og:site_name" content="' . esc_attr( $site_name ) . '" />' . "\n";
-			echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+		$excerpt = gjn_post_excerpt( $post );
+		if ( '' !== $excerpt ) {
+			echo '<meta name="description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
+			echo '<meta property="og:description" content="' . esc_attr( $excerpt ) . '" />' . "\n";
+		}
 
-			if ( has_post_thumbnail() ) {
-				// Use gjn-discover (1200x675) for Facebook/Twitter previews
-				$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'gjn-discover' );
-				if ( $image ) {
-					echo '<meta property="og:image" content="' . esc_url( $image[0] ) . '" />' . "\n";
-					echo '<meta property="og:image:width" content="' . esc_attr( $image[1] ) . '" />' . "\n";
-					echo '<meta property="og:image:height" content="' . esc_attr( $image[2] ) . '" />' . "\n";
-				}
-			}
+		echo '<meta property="og:type" content="article" />' . "\n";
+		echo '<meta property="og:title" content="' . esc_attr( get_the_title() ) . '" />' . "\n";
+		echo '<meta property="og:url" content="' . esc_url( get_permalink() ) . '" />' . "\n";
+		echo '<meta property="og:site_name" content="' . esc_attr( $site_name ) . '" />' . "\n";
+		echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+
+		// wp_get_attachment_image_src() returns false when the size is missing.
+		$image = has_post_thumbnail()
+			? wp_get_attachment_image_src( get_post_thumbnail_id(), 'gjn-discover' )
+			: false;
+		if ( $image ) {
+			// Use gjn-discover (1200x675) for Facebook/Twitter previews
+			echo '<meta property="og:image" content="' . esc_url( $image[0] ) . '" />' . "\n";
+			echo '<meta property="og:image:width" content="' . esc_attr( (string) $image[1] ) . '" />' . "\n";
+			echo '<meta property="og:image:height" content="' . esc_attr( (string) $image[2] ) . '" />' . "\n";
 		}
 	}
 }
@@ -468,128 +470,171 @@ function gjn_inject_json_ld() {
 		return;
 	}
 
+	if ( is_front_page() || is_home() ) {
+		gjn_print_json_ld( gjn_json_ld_site() );
+	}
+
+	if ( is_single() ) {
+		$article = gjn_json_ld_article();
+		if ( ! empty( $article ) ) {
+			gjn_print_json_ld( $article );
+		}
+	}
+}
+
+/**
+ * Wrap a schema array in its script tag.
+ *
+ * Centralised so there is exactly one place that decides how schema reaches
+ * the page — wp_json_encode(), never raw interpolation.
+ */
+function gjn_print_json_ld( array $schema ) {
+	echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>' . "\n";
+}
+
+/**
+ * Plain-text excerpt for meta descriptions and schema, or '' when the post
+ * body has no usable words.
+ */
+function gjn_post_excerpt( $post ) {
+	if ( ! $post instanceof WP_Post ) {
+		return '';
+	}
+	return wp_strip_all_tags( wp_trim_words( $post->post_content, 25, '' ) );
+}
+
+/**
+ * NewsMediaOrganization + WebSite graph for the front page.
+ *
+ * @return array Schema ready for gjn_print_json_ld().
+ */
+function gjn_json_ld_site() {
 	$site_name = get_bloginfo( 'name' );
 	$site_url  = home_url( '/' );
 	$logo_url  = get_stylesheet_directory_uri() . '/assets/img/logo.jpeg';
 
-	// Organization & WebSite Schema for Front Page
-	if ( is_front_page() || is_home() ) {
-		$schema = array(
-			'@context' => 'https://schema.org',
-			'@graph'   => array(
-				array(
-					'@type'             => 'NewsMediaOrganization',
-					'@id'               => $site_url . '#organization',
-					'name'              => $site_name,
-					'url'               => $site_url,
-					'logo'              => array(
-						'@type' => 'ImageObject',
-						'@id'   => $site_url . '#logo',
-						'url'   => $logo_url,
-					),
-					'sameAs'            => array(
-						'https://www.facebook.com/share/1CUjL7b6Fu/', // Main social link
-					),
-					'ethicsPolicy'      => $site_url . 'about/',
-					'correctionsPolicy' => $site_url . 'contact/',
+	return array(
+		'@context' => 'https://schema.org',
+		'@graph'   => array(
+			array(
+				'@type'             => 'NewsMediaOrganization',
+				'@id'               => $site_url . '#organization',
+				'name'              => $site_name,
+				'url'               => $site_url,
+				'logo'              => array(
+					'@type' => 'ImageObject',
+					'@id'   => $site_url . '#logo',
+					'url'   => $logo_url,
 				),
-				array(
-					'@type' => 'WebSite',
-					'@id'   => $site_url . '#website',
-					'url'   => $site_url,
-					'name'  => $site_name,
-					'publisher' => array(
-						'@id' => $site_url . '#organization'
+				'sameAs'            => array(
+					'https://www.facebook.com/share/1CUjL7b6Fu/', // Main social link
+				),
+				'ethicsPolicy'      => $site_url . 'about/',
+				'correctionsPolicy' => $site_url . 'contact/',
+			),
+			array(
+				'@type'           => 'WebSite',
+				'@id'             => $site_url . '#website',
+				'url'             => $site_url,
+				'name'            => $site_name,
+				'publisher'       => array(
+					'@id' => $site_url . '#organization',
+				),
+				'potentialAction' => array(
+					array(
+						'@type'       => 'SearchAction',
+						'target'      => array(
+							'@type'       => 'EntryPoint',
+							'urlTemplate' => $site_url . '?s={search_term_string}',
+						),
+						'query-input' => 'required name=search_term_string',
 					),
-					'potentialAction' => array(
-						array(
-							'@type'       => 'SearchAction',
-							'target'      => array(
-								'@type' => 'EntryPoint',
-								'urlTemplate' => $site_url . '?s={search_term_string}'
-							),
-							'query-input' => 'required name=search_term_string'
-						)
-					)
-				)
-			)
-		);
-		echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>' . "\n";
+				),
+			),
+		),
+	);
+}
+
+/**
+ * NewsArticle schema for the current single post.
+ *
+ * @return array Schema, or an empty array when there is no post to describe.
+ */
+function gjn_json_ld_article() {
+	// get_post() falls back to the post in the main loop when called without
+	// an argument — same object the old `global $post` import reached, without
+	// leaking the global into this scope.
+	$post = get_post();
+	if ( ! $post instanceof WP_Post ) {
+		return array();
 	}
 
-	// Article Schema for Single Posts
-	if ( is_single() ) {
-		global $post;
-		
-		$article_schema = array(
-			'@context' => 'https://schema.org',
-			'@type'    => 'NewsArticle',
-			'mainEntityOfPage' => array(
-				'@type' => 'WebPage',
-				'@id'   => get_permalink(),
-			),
-			'headline' => get_the_title(),
-			'url'      => get_permalink(),
-			'isAccessibleForFree' => true,
-			'datePublished' => get_the_date( 'c' ),
-		);
+	$site_name = get_bloginfo( 'name' );
+	$logo_url  = get_stylesheet_directory_uri() . '/assets/img/logo.jpeg';
 
-		// dateModified only when actually modified
-		if ( get_the_modified_date( 'c' ) !== get_the_date( 'c' ) ) {
-			$article_schema['dateModified'] = get_the_modified_date( 'c' );
-		}
+	$schema = array(
+		'@context'            => 'https://schema.org',
+		'@type'               => 'NewsArticle',
+		'mainEntityOfPage'    => array(
+			'@type' => 'WebPage',
+			'@id'   => get_permalink(),
+		),
+		'headline'            => get_the_title(),
+		'url'                 => get_permalink(),
+		'isAccessibleForFree' => true,
+		'datePublished'       => get_the_date( 'c' ),
+	);
 
-		// Description (excerpt)
-		$excerpt = wp_trim_words( $post->post_content, 25, '' );
-		$excerpt = wp_strip_all_tags( $excerpt );
-		if ( ! empty( $excerpt ) ) {
-			$article_schema['description'] = $excerpt;
-		}
+	// dateModified only when actually modified
+	if ( get_the_modified_date( 'c' ) !== get_the_date( 'c' ) ) {
+		$schema['dateModified'] = get_the_modified_date( 'c' );
+	}
 
-		// Category (articleSection)
-		$categories = get_the_category();
-		if ( ! empty( $categories ) ) {
-			$article_schema['articleSection'] = $categories[0]->name;
-		}
+	$excerpt = gjn_post_excerpt( $post );
+	if ( '' !== $excerpt ) {
+		$schema['description'] = $excerpt;
+	}
 
-		// Author with sameAs
-		$author_id = get_the_author_meta( 'ID' );
-		$author_url = get_the_author_meta( 'user_url' );
-		$author_data = array(
+	$categories = get_the_category();
+	if ( ! empty( $categories ) ) {
+		$schema['articleSection'] = $categories[0]->name;
+	}
+
+	$schema['author'] = array(
+		array(
 			'@type' => 'Person',
 			'name'  => get_the_author(),
-			'url'   => get_author_posts_url( $author_id ),
-		);
-		if ( ! empty( $author_url ) ) {
-			$author_data['sameAs'] = array( $author_url );
-		}
-		$article_schema['author'] = array( $author_data );
-
-		// Publisher
-		$article_schema['publisher'] = array(
-			'@type' => 'NewsMediaOrganization',
-			'name'  => $site_name,
-			'logo'  => array(
-				'@type' => 'ImageObject',
-				'url'   => $logo_url,
-			)
-		);
-
-		// Image with width and height
-		if ( has_post_thumbnail() ) {
-			$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'gjn-discover' );
-			if ( $image ) {
-				$article_schema['image'] = array(
-					'@type'  => 'ImageObject',
-					'url'    => $image[0],
-					'width'  => $image[1],
-					'height' => $image[2],
-				);
-			}
-		}
-
-		echo '<script type="application/ld+json">' . wp_json_encode( $article_schema ) . '</script>' . "\n";
+			'url'   => get_author_posts_url( (int) get_the_author_meta( 'ID' ) ),
+		),
+	);
+	$author_url = get_the_author_meta( 'user_url' );
+	if ( ! empty( $author_url ) ) {
+		$schema['author'][0]['sameAs'] = array( $author_url );
 	}
+
+	$schema['publisher'] = array(
+		'@type' => 'NewsMediaOrganization',
+		'name'  => $site_name,
+		'logo'  => array(
+			'@type' => 'ImageObject',
+			'url'   => $logo_url,
+		),
+	);
+
+	// wp_get_attachment_image_src() returns false when the size is missing.
+	$image = has_post_thumbnail()
+		? wp_get_attachment_image_src( get_post_thumbnail_id(), 'gjn-discover' )
+		: false;
+	if ( $image ) {
+		$schema['image'] = array(
+			'@type'  => 'ImageObject',
+			'url'    => $image[0],
+			'width'  => (int) $image[1],
+			'height' => (int) $image[2],
+		);
+	}
+
+	return $schema;
 }
 
 // Clear the breaking-news cache when a post is created or updated, so the

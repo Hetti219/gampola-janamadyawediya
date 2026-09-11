@@ -1,0 +1,54 @@
+name: Code analysis
+
+# The "daily analysis" half of the Power of 10: the same checks that gate a pull
+# request also run on a schedule. A daily run catches rot that arrives with no
+# diff at all — a dependency advisory, a runner image bump, a check that quietly
+# stopped running.
+#
+# Defined once here and called from pr.yml and deploy.yml, so the three can
+# never drift into checking different things.
+on:
+  schedule:
+    # 03:17 UTC, daily. Off the hour so it is not queued behind every other
+    # scheduled job on GitHub's shared runners.
+    - cron: '17 3 * * *'
+  workflow_call:
+  workflow_dispatch: # runnable from the Actions tab on demand
+
+permissions:
+  contents: read
+
+jobs:
+  analyse:
+    name: Lint, test & static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # The version production runs (wordpress:php8.5-fpm-alpine), so a
+          # clean lint here means a clean deploy there.
+          php-version: '8.5'
+          coverage: none
+
+      - name: PHP syntax check (theme + mu-plugins + tests)
+        run: |
+          find theme mu-plugins tests -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Unit smoke tests
+        # The live site compiles asserts out (php/assertions.ini), so this is
+        # the one place the invariants in the codebase are actually evaluated.
+        run: php -d zend.assertions=1 -d assert.exception=1 tests/run.php
+
+      - name: Install analysis tooling
+        run: composer install --no-interaction --no-progress
+
+      - name: Static analysis (PHPStan)
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+      - name: Validate compose files
+        run: |
+          cp .env.example .env   # CI has no .env; placeholders are enough for -q
+          docker compose config -q

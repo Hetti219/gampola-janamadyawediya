@@ -99,7 +99,17 @@ function ncg_autoblur_on_terms_set( $object_id, $terms, $tt_ids, $taxonomy ) {
 	if ( 'content_flag' !== $taxonomy || 'post' !== get_post_type( $object_id ) ) {
 		return;
 	}
-	ncg_autoblur_on_save( $object_id, get_post( $object_id ) );
+
+	// get_post_type() reads the same cache get_post() does, so this normally
+	// cannot be null — but the whole point of this plugin is that the gated
+	// image never escapes, and a null dereference here would abort the save
+	// request before the blur is written.
+	$post = get_post( $object_id );
+	if ( ! $post ) {
+		return;
+	}
+
+	ncg_autoblur_on_save( $object_id, $post );
 }
 
 /**
@@ -124,90 +134,193 @@ function ncg_delete_blurred_file( $post_id ) {
 add_action( 'before_delete_post', 'ncg_delete_blurred_file' );
 
 /**
- * Generate a heavily blurred copy of the source image.
- *
- * Applies Gaussian blur many times via GD to ensure the image is
- * unrecognizable. Returns the URL of the blurred file, or false on
- * failure.
+ * Gaussian blur passes applied to the copy. The bound is fixed by design:
+ * enough passes to make the image unrecognizable, cheap enough to run inside
+ * a post save.
  */
-function ncg_generate_blurred_image( $source_path, $post_id ) {
-	// GD holds ~4 bytes per decoded pixel, so a 48 MP phone photo alone can
-	// exceed the 256M PHP limit — and a fatal OOM would take the whole save
-	// request down with it. Bail gracefully instead.
+const NCG_BLUR_PASSES = 40;
+
+/** Copies are downscaled to at most this many pixels wide before blurring. */
+const NCG_BLUR_MAX_WIDTH = 600;
+
+/**
+ * Whether the source image can be decoded inside the remaining PHP memory.
+ *
+ * GD holds ~4 bytes per decoded pixel, so a 48 MP phone photo alone can
+ * exceed the 256M PHP limit — and a fatal OOM would take the whole save
+ * request down with it. Bail gracefully instead.
+ */
+function ncg_blur_fits_memory( $source_path, $post_id ) {
 	$size = @getimagesize( $source_path );
-	if ( $size && ! empty( $size[0] ) && ! empty( $size[1] ) ) {
-		$limit    = wp_convert_hr_to_bytes( (string) ini_get( 'memory_limit' ) );
-		$needed   = (int) $size[0] * (int) $size[1] * 4;
-		$headroom = ( $limit > 0 ) ? $limit - memory_get_usage( true ) : $needed;
-		if ( $needed > $headroom ) {
-			error_log( sprintf(
-				'[ncg-autoblur] Skipping blur for post %d: %dx%d source needs ~%d MB but only ~%d MB memory is available (memory_limit=%s).',
-				$post_id,
-				$size[0],
-				$size[1],
-				(int) ( $needed / 1048576 ),
-				(int) ( $headroom / 1048576 ),
-				(string) ini_get( 'memory_limit' )
-			) );
+	if ( ! $size || empty( $size[0] ) || empty( $size[1] ) ) {
+		return true; // Unreadable dimensions: let the decode step decide.
+	}
+
+	$needed = (int) $size[0] * (int) $size[1] * 4;
+
+	// A memory_limit of -1 means unlimited; wp_convert_hr_to_bytes() returns
+	// 0 for "0" and the raw byte count otherwise.
+	$limit    = wp_convert_hr_to_bytes( (string) ini_get( 'memory_limit' ) );
+	$headroom = ( $limit > 0 ) ? $limit - memory_get_usage( true ) : $needed;
+
+	if ( $needed <= $headroom ) {
+		return true;
+	}
+
+	error_log( sprintf(
+		'[ncg-autoblur] Skipping blur for post %d: %dx%d source needs ~%d MB but only ~%d MB memory is available (memory_limit=%s).',
+		$post_id,
+		$size[0],
+		$size[1],
+		(int) ( $needed / 1048576 ),
+		(int) ( $headroom / 1048576 ),
+		(string) ini_get( 'memory_limit' )
+	) );
+
+	return false;
+}
+
+/**
+ * Decode an image file into a GD handle.
+ *
+ * @return GdImage|false False for an unsupported type or an unreadable file.
+ */
+function ncg_load_image( $source_path ) {
+	switch ( mime_content_type( $source_path ) ) {
+		case 'image/jpeg':
+			return @imagecreatefromjpeg( $source_path );
+		case 'image/png':
+			return @imagecreatefrompng( $source_path );
+		case 'image/webp':
+			return @imagecreatefromwebp( $source_path );
+		default:
+			return false;
+	}
+}
+
+/**
+ * Target dimensions for a downscaled copy.
+ *
+ * Pure arithmetic, kept separate from the GD calls so the degenerate cases
+ * are testable without the gd extension (see tests/run.php).
+ *
+ * Both dimensions are clamped to at least 1: a very wide, short image
+ * (banner, panorama, strip) rounds to zero rows, and imagecreatetruecolor()
+ * rejects a zero dimension with a ValueError that would take the whole save
+ * request down.
+ *
+ * @return array{0:int,1:int} [width, height], both >= 1.
+ */
+function ncg_scaled_dimensions( $w, $h ) {
+	$new_w = min( $w, NCG_BLUR_MAX_WIDTH );
+	$new_h = max( 1, (int) round( $h * $new_w / $w ) );
+
+	return array( max( 1, $new_w ), $new_h );
+}
+
+/**
+ * Downscale an image to NCG_BLUR_MAX_WIDTH wide, in place.
+ *
+ * Downscaling first is what makes the blur passes affordable and the result
+ * unrecognizable. On failure the original handle is returned unchanged —
+ * slower to blur, but still blurred, which is the property that matters.
+ *
+ * @return GdImage
+ */
+function ncg_downscale_image( $img ) {
+	$w = imagesx( $img );
+	$h = imagesy( $img );
+
+	if ( $w <= NCG_BLUR_MAX_WIDTH ) {
+		return $img;
+	}
+
+	list( $new_w, $new_h ) = ncg_scaled_dimensions( $w, $h );
+
+	$scaled = imagecreatetruecolor( $new_w, $new_h );
+	if ( false === $scaled ) {
+		return $img;
+	}
+
+	if ( ! imagecopyresampled( $scaled, $img, 0, 0, 0, 0, $new_w, $new_h, $w, $h ) ) {
+		imagedestroy( $scaled );
+		return $img;
+	}
+
+	imagedestroy( $img );
+
+	return $scaled;
+}
+
+/**
+ * Blur an image until it is unrecognizable, then pixelate on top.
+ *
+ * @return bool False if any pass failed — a partially-blurred image must
+ *              never be published as the censored social image, so callers
+ *              abort rather than save it.
+ */
+function ncg_blur_image( $img ) {
+	for ( $i = 0; $i < NCG_BLUR_PASSES; $i++ ) {
+		if ( ! imagefilter( $img, IMG_FILTER_GAUSSIAN_BLUR ) ) {
 			return false;
 		}
 	}
 
-	$mime = mime_content_type( $source_path );
+	return imagefilter( $img, IMG_FILTER_PIXELATE, 8, true );
+}
 
-	switch ( $mime ) {
-		case 'image/jpeg':
-			$img = @imagecreatefromjpeg( $source_path );
-			break;
-		case 'image/png':
-			$img = @imagecreatefrompng( $source_path );
-			break;
-		case 'image/webp':
-			$img = @imagecreatefromwebp( $source_path );
-			break;
-		default:
-			return false;
+/**
+ * Generate a heavily blurred copy of the source image.
+ *
+ * Returns the URL of the blurred file, or false on failure. Every step is
+ * checked: returning false is always safe here (the author keeps the real
+ * image on the site, the social image is simply not overridden), whereas
+ * publishing a half-blurred copy would defeat the plugin entirely.
+ */
+function ncg_generate_blurred_image( $source_path, $post_id ) {
+	if ( ! ncg_blur_fits_memory( $source_path, $post_id ) ) {
+		return false;
 	}
 
+	$img = ncg_load_image( $source_path );
 	if ( ! $img ) {
 		return false;
 	}
 
-	// Scale down first for performance and stronger blur effect, then blur.
-	$w = imagesx( $img );
-	$h = imagesy( $img );
+	$img = ncg_downscale_image( $img );
 
-	// Downscale to max 600px wide to speed up the blur passes.
-	$max_w = 600;
-	if ( $w > $max_w ) {
-		$ratio  = $max_w / $w;
-		$new_w  = $max_w;
-		$new_h  = (int) round( $h * $ratio );
-		$scaled = imagecreatetruecolor( $new_w, $new_h );
-		imagecopyresampled( $scaled, $img, 0, 0, 0, 0, $new_w, $new_h, $w, $h );
+	if ( ! ncg_blur_image( $img ) ) {
+		error_log( sprintf(
+			'[ncg-autoblur] GD blur failed for post %d — refusing to publish a partially-censored image.',
+			$post_id
+		) );
 		imagedestroy( $img );
-		$img = $scaled;
+		return false;
 	}
 
-	// Apply Gaussian blur aggressively (40 passes makes the image
-	// completely unrecognizable while still retaining general color).
-	for ( $i = 0; $i < 40; $i++ ) {
-		imagefilter( $img, IMG_FILTER_GAUSSIAN_BLUR );
+	$upload_dir = wp_upload_dir();
+	if ( ! empty( $upload_dir['error'] ) ) {
+		error_log( sprintf(
+			'[ncg-autoblur] Uploads directory unavailable for post %d: %s',
+			$post_id,
+			(string) $upload_dir['error']
+		) );
+		imagedestroy( $img );
+		return false;
 	}
-
-	// Pixelate on top of the blur for extra obscuring.
-	imagefilter( $img, IMG_FILTER_PIXELATE, 8, true );
 
 	// Save into the uploads directory alongside the original.
-	$upload_dir = wp_upload_dir();
-	$filename   = sprintf( 'ncg-blurred-%d.jpg', $post_id );
-	$dest_path  = trailingslashit( $upload_dir['basedir'] ) . $filename;
-	$dest_url   = trailingslashit( $upload_dir['baseurl'] ) . $filename;
+	$filename  = sprintf( 'ncg-blurred-%d.jpg', $post_id );
+	$dest_path = trailingslashit( $upload_dir['basedir'] ) . $filename;
 
 	$saved = imagejpeg( $img, $dest_path, 70 );
 	imagedestroy( $img );
 
-	return $saved ? $dest_url : false;
+	if ( ! $saved ) {
+		return false;
+	}
+
+	return trailingslashit( $upload_dir['baseurl'] ) . $filename;
 }
 
 /**
@@ -245,6 +358,11 @@ function ncg_should_use_blurred_og() {
 	if ( $blurred_url ) {
 		$cache = $blurred_url;
 	}
+
+	// This value is memoized for the rest of the request and read by five
+	// callbacks; a non-string leaking out would be printed straight into an
+	// og:image tag.
+	assert( false === $cache || is_string( $cache ) );
 
 	return $cache;
 }

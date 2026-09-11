@@ -56,6 +56,8 @@ services:
       - wordpress_data:/var/www/html
       - ./php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
       - ./php/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
+      # Compiles assert() out of the live site — see the file's own comments.
+      - ./php/assertions.ini:/usr/local/etc/php/conf.d/assertions.ini:ro
       - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
       - ./theme/gampola-janamadyawediya:/var/www/html/wp-content/themes/gampola-janamadyawediya:ro
       - ./ads.txt:/var/www/html/ads.txt:ro

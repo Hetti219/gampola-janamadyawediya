@@ -96,14 +96,72 @@ function ncg_cf_purge_on_terms( $object_id, $terms, $tt_ids, $taxonomy ) {
  */
 function ncg_cf_purge_on_comment_change( $comment_id ) {
 	$comment = get_comment( $comment_id );
-	if ( $comment && comments_open( $comment->comment_post_ID ) ) {
-		ncg_cf_purge_post_urls( $comment->comment_post_ID );
+	if ( ! $comment ) {
+		return;
+	}
+
+	// WP_Comment stores comment_post_ID as a string; comments_open() wants an int.
+	$post_id = (int) $comment->comment_post_ID;
+	if ( comments_open( $post_id ) ) {
+		ncg_cf_purge_post_urls( $post_id );
 	}
 }
 
 // ──────────────────────────────────────────────────────────
 //  Core purge logic
 // ──────────────────────────────────────────────────────────
+
+/**
+ * Cloudflare's purge_cache endpoint accepts at most 30 URLs per call.
+ *
+ * Used as the single bound for this file: it caps each taxonomy loop as it
+ * collects, and caps the finished list again. The final cap is the binding
+ * one (3 fixed URLs + up to 30 categories + 30 tags can exceed it), so the
+ * API limit holds no matter how the term counts add up.
+ */
+const NCG_CF_PURGE_MAX_URLS = 30;
+
+/**
+ * Collect the URLs whose cached copies go stale when $post_id changes.
+ *
+ * Every loop here is bounded by NCG_CF_PURGE_MAX_URLS, so a post with an
+ * unusual number of terms cannot grow the request body without limit.
+ *
+ * @return string[] URLs, deduplicated, at most NCG_CF_PURGE_MAX_URLS long.
+ */
+function ncg_cf_purge_urls_for_post( $post_id ) {
+	$urls = array();
+
+	// The post itself, the front page, and the main feed.
+	$permalink = get_permalink( $post_id );
+	if ( $permalink ) {
+		$urls[] = $permalink;
+	}
+	$urls[] = home_url( '/' );
+	$urls[] = get_feed_link();
+
+	// Category archive pages for this post's categories.
+	foreach ( array_slice( get_the_category( $post_id ), 0, NCG_CF_PURGE_MAX_URLS ) as $cat ) {
+		$urls[] = get_category_link( $cat->term_id );
+	}
+
+	// Tag archive pages. get_the_tags() returns false — not an empty array —
+	// when the post has no tags, and (array) false is array( false ), which
+	// would put a bogus term in the loop.
+	$tags = get_the_tags( $post_id );
+	if ( $tags ) {
+		foreach ( array_slice( $tags, 0, NCG_CF_PURGE_MAX_URLS ) as $tag ) {
+			$urls[] = get_tag_link( $tag->term_id );
+		}
+	}
+
+	// get_permalink() returns false on failure; get_*_link() return '' when the
+	// term is missing. Neither may reach the request body — and a non-string
+	// would make array_unique() below fatal — so the falsy returns go here.
+	$urls = array_filter( $urls );
+
+	return array_slice( array_unique( $urls ), 0, NCG_CF_PURGE_MAX_URLS );
+}
 
 /**
  * Debounce flag — prevents duplicate purge calls within the same request
@@ -116,42 +174,8 @@ function ncg_cf_purge_post_urls( $post_id ) {
 	}
 	$purged[ $post_id ] = true;
 
-	// Collect URLs to purge.
-	$urls = array();
-
-	// The post itself.
-	$permalink = get_permalink( $post_id );
-	if ( $permalink ) {
-		$urls[] = $permalink;
-	}
-
-	// Home / front page.
-	$urls[] = home_url( '/' );
-
-	// Main feed.
-	$urls[] = get_feed_link();
-
-	// Category archive pages for this post's categories.
-	$categories = get_the_category( $post_id );
-	if ( is_array( $categories ) ) {
-		foreach ( $categories as $cat ) {
-			$urls[] = get_category_link( $cat->term_id );
-		}
-	}
-
-	// Tag archive pages.
-	$tags = get_the_tags( $post_id );
-	if ( is_array( $tags ) ) {
-		foreach ( $tags as $tag ) {
-			$urls[] = get_tag_link( $tag->term_id );
-		}
-	}
-
-	// Deduplicate.
-	$urls = array_unique( array_filter( $urls ) );
-
-	// Cap at 30 URLs per API call (Cloudflare limit).
-	$urls = array_slice( $urls, 0, 30 );
+	$urls = ncg_cf_purge_urls_for_post( $post_id );
+	assert( count( $urls ) <= NCG_CF_PURGE_MAX_URLS );
 
 	ncg_cf_purge_urls( $urls );
 }

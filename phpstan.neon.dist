@@ -1,0 +1,44 @@
+# Static analysis for the theme + mu-plugins. Run with:
+#   composer install && vendor/bin/phpstan analyse
+#
+# WordPress core functions come from php-stubs/wordpress-stubs via
+# szepeviktor/phpstan-wordpress, so typos like get_permaliink() and
+# undefined variables fail here instead of on the live site.
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - mu-plugins
+        - theme
+        - tests
+    ignoreErrors:
+        # PHPStan bundles a stub that types imagecopyresampled() as always
+        # returning true, so it reads the documented `false` failure branch in
+        # ncg_downscale_image() as dead code. The PHP manual says it returns
+        # false on failure, and that branch is what keeps a failed resample
+        # from being published as the censored social image. The stub cannot
+        # be overridden from a stubFiles entry — native function signatures
+        # win — so the finding is ignored, pinned with `count` so that any
+        # *additional* always-false finding in this file still fails the build.
+        #   https://www.php.net/manual/en/function.imagecopyresampled.php
+        -
+            identifier: booleanNot.alwaysFalse
+            path: mu-plugins/graphic-content-auto-blur.php
+            count: 1
+
+        # phpstan-wordpress declares add_action()/add_filter() as all-optional
+        # (so `function_exists` checks type-check), which makes every real
+        # registration look like an over-supply of arguments. Nothing else in
+        # this codebase trips these two identifiers.
+        - '#^Function (add_action|add_filter) invoked with \d+ parameters, 0 required\.$#'
+        - '#^Call to function (add_action|add_filter)\(\) on a separate line has no effect\.$#'
+        # The stub for wp_nav_menu() types `container` as string only; passing
+        # false is WP's documented way to suppress the container.
+        - '~^Parameter #1 \$args of function wp_nav_menu expects~'
+
+    # Both the CI runner and the project's Docker images run PHP 8.5.
+    phpVersion:
+        min: 80500
+        max: 80599

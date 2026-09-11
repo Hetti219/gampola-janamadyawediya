@@ -89,18 +89,38 @@ function ncg_seed_content_flag_terms() {
 	);
 
 	foreach ( $defaults as $term ) {
-		if ( ! term_exists( $term['slug'], 'content_flag' ) ) {
-			wp_insert_term(
-				$term['name'],
-				'content_flag',
-				array(
-					'slug'        => $term['slug'],
-					'description' => $term['description'],
-				)
-			);
+		if ( term_exists( $term['slug'], 'content_flag' ) ) {
+			continue;
+		}
+
+		$result = wp_insert_term(
+			$term['name'],
+			'content_flag',
+			array(
+				'slug'        => $term['slug'],
+				'description' => $term['description'],
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			error_log( sprintf(
+				'[ncg-content-flags] Could not create the "%s" term: %s',
+				$term['slug'],
+				$result->get_error_message()
+			) );
 		}
 	}
 
-	// Mark as done so this never runs again.
+	// Only record success once every term is really there. The graphic-content
+	// gate and the blur plugin both match on these slugs, so setting the flag
+	// after a failed insert would disable the warning for every post, with no
+	// retry and no visible symptom. Leaving it unset retries on the next
+	// request; terms that did get created are skipped by term_exists() above.
+	foreach ( $defaults as $term ) {
+		if ( ! term_exists( $term['slug'], 'content_flag' ) ) {
+			return;
+		}
+	}
+
 	update_option( 'ncg_content_flags_seeded', '1', true );
 }

@@ -1,0 +1,7 @@
+{
+  "require-dev": {
+    "phpstan/phpstan": "^2.2",
+    "szepeviktor/phpstan-wordpress": "^2.0"
+  },
+  "config": { "platform": { "php": "8.5" } }
+}

@@ -7,6 +7,9 @@ nginx/certs/
 .DS_Store
 *.log
 
+# Throwaway certs written by tests/nginx-redirect.sh
+/.nginx-redirect-test/
+
 /docs
 
 # Composer: the toolchain is reinstalled from composer.lock in CI, never vendored.

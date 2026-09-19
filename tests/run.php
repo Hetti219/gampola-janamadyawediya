@@ -584,6 +584,57 @@ test( 'usage: a response without metadata does not warn', function () {
 	);
 } );
 
+// --- gjn_bt_error_detail / gjn_bt_is_retryable: 503 vs 429 vs 4xx ---------
+// A capacity spike and an exhausted quota need different responses. Getting
+// them confused means either giving up on a model that would have answered in
+// ten seconds, or hammering a quota that is gone until tomorrow.
+
+test( 'error_detail: a Google error body becomes one line', function () {
+	$body = json_encode(
+		array(
+			'error' => array(
+				'code'    => 503,
+				'message' => 'This model is currently experiencing high demand.',
+				'status'  => 'UNAVAILABLE',
+			),
+		)
+	);
+
+	// Pretty-printed JSON dumped raw buries the progress lines.
+	assertSame( 'This model is currently experiencing high demand.', gjn_bt_error_detail( $body ) );
+} );
+
+test( 'error_detail: a non-JSON body is collapsed, not dumped', function () {
+	$detail = gjn_bt_error_detail( "<html>\n  <body>502 Bad Gateway</body>\n</html>" );
+
+	assertSame( true, false === strpos( $detail, "\n" ), 'no newlines' );
+	assertSame( true, false !== strpos( $detail, '502 Bad Gateway' ) );
+} );
+
+test( 'is_retryable: a capacity spike is worth another go', function () {
+	assertSame( true, gjn_bt_is_retryable( new WP_Error( 'gjn_bt_unavailable', 'HTTP 503' ) ) );
+} );
+
+test( 'is_retryable: an exhausted quota rotates to the other model', function () {
+	assertSame( true, gjn_bt_is_retryable( new WP_Error( 'gjn_bt_quota', 'HTTP 429' ) ) );
+} );
+
+test( 'is_retryable: malformed model output gets one more model', function () {
+	assertSame( true, gjn_bt_is_retryable( new WP_Error( 'gjn_bt_count', 'Asked for 10, got 9.' ) ) );
+} );
+
+test( 'is_retryable: a rejected request is not retried', function () {
+	// A bad key or a malformed payload fails identically every time; retrying
+	// it spends quota to learn nothing.
+	assertSame( false, gjn_bt_is_retryable( new WP_Error( 'gjn_bt_request', 'HTTP 400' ) ) );
+} );
+
+test( 'is_retryable: a half-written batch is not retried in place', function () {
+	// gjn_bt_insert can fail *after* writing some of its drafts. Retrying here
+	// would duplicate those; the next run skips them via _gjn_source instead.
+	assertSame( false, gjn_bt_is_retryable( new WP_Error( 'gjn_bt_insert', 'Post 7: db error' ) ) );
+} );
+
 // --- Summary --------------------------------------------------------------
 $tally = &test_tally();
 echo "\n{$tally['count']} tests, " . count( $tally['failures'] ) . " failures.\n";

@@ -26,10 +26,14 @@
  * @package Gampola_Janamadyawediya
  */
 
-const GJN_BT_MODEL      = 'gemini-3.8-flash';
+// Tried in order and rotated on retry. Limits are metered per model per
+// project, so a second model is a second daily allowance.
+const GJN_BT_MODELS = array('gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash');
+
 const GJN_BT_BATCH      = 10;      // Articles per request. RPD is the binding
 // limit, so bigger batches mean fewer days.
-const GJN_BT_RPM        = 5;       // Free-tier requests/minute for this model.
+const GJN_BT_RPM        = 5;       // Free-tier requests/minute, per model.
+const GJN_BT_ATTEMPTS   = 4;       // Calls per batch before giving up on it.
 const GJN_BT_TIMEOUT    = 60;      // wp_remote_post defaults to 5s — far too
 // short for a 10-article generation.
 const GJN_BT_MAX_TOKENS = 65536;   // Ceiling for thinking + output together.
@@ -438,14 +442,58 @@ function gjn_bt_insert_draft(array $article, array $translation)
 }
 
 /**
+ * Wait out the per-minute budget before the next call.
+ *
+ * Kept on one shared clock rather than one per model. Alternating models
+ * could legally go twice as fast, but a run is bounded by how long
+ * generation takes, not by pacing, so the simpler rule costs nothing.
+ */
+function gjn_bt_pace()
+{
+	static $last = 0.0;
+
+	$pace = (int) ceil(60 / GJN_BT_RPM) + 1;
+	$wait = $pace - (microtime(true) - $last);
+
+	if ($last > 0 && $wait > 0) {
+		sleep((int) ceil($wait));
+	}
+
+	$last = microtime(true);
+}
+
+/**
+ * One line describing an error response.
+ *
+ * Google's error bodies are pretty-printed JSON. Dumping one per failed batch
+ * buries the progress lines that say whether the run is working at all.
+ *
+ * @param string $body Response body.
+ * @return string
+ */
+function gjn_bt_error_detail($body)
+{
+	$decoded = json_decode((string) $body, true);
+
+	if (isset($decoded['error']['message'])) {
+		return $decoded['error']['message'];
+	}
+
+	return trim(substr((string) preg_replace('/\s+/', ' ', (string) $body), 0, 200));
+}
+
+/**
  * One generateContent call.
  *
  * @param array  $articles Articles to translate.
  * @param string $api_key  Gemini API key.
+ * @param string $model    Model to call.
  * @return array{body:string,code:int}|WP_Error
  */
-function gjn_bt_generate(array $articles, $api_key)
+function gjn_bt_generate(array $articles, $api_key, $model)
 {
+	gjn_bt_pace();
+
 	$payload = array(
 		'system_instruction' => array(
 			'parts' => array(array('text' => gjn_bt_system_instruction())),
@@ -460,14 +508,14 @@ function gjn_bt_generate(array $articles, $api_key)
 			'responseMimeType' => 'application/json',
 			'responseSchema'   => gjn_bt_schema(count($articles)),
 			'maxOutputTokens'  => GJN_BT_MAX_TOKENS,
-			'thinkingConfig'   => gjn_bt_thinking_config(GJN_BT_MODEL),
+			'thinkingConfig'   => gjn_bt_thinking_config($model),
 		),
 	);
 
 	$response = wp_remote_post(
 		sprintf(
 			'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent',
-			GJN_BT_MODEL
+			$model
 		),
 		array(
 			'timeout' => GJN_BT_TIMEOUT,
@@ -495,25 +543,31 @@ function gjn_bt_generate(array $articles, $api_key)
  *
  * @param array  $articles Articles to translate.
  * @param string $api_key  Gemini API key.
- * @return array{written:int,usage:array}|WP_Error
+ * @param string $model    Model to call.
+ * @return array{written:int,usage:array,model:string}|WP_Error
  */
-function gjn_bt_run_batch(array $articles, $api_key)
+function gjn_bt_run_batch(array $articles, $api_key, $model)
 {
 	$articles = array_values($articles);
-	$response = gjn_bt_generate($articles, $api_key);
+	$response = gjn_bt_generate($articles, $api_key, $model);
 
 	if (is_wp_error($response)) {
 		return $response;
 	}
 
 	if (429 === $response['code']) {
-		return new WP_Error('gjn_bt_quota', 'HTTP 429 — quota exhausted.');
+		return new WP_Error('gjn_bt_quota', sprintf('[%s] HTTP 429 — quota exhausted for this model.', $model));
 	}
 
 	if (200 !== $response['code']) {
+		// 4xx is about the request — a bad key, a malformed payload — and
+		// retrying just burns quota. 5xx is Google's side, so it is worth
+		// another go, often on the other model.
+		$code = $response['code'] >= 500 ? 'gjn_bt_unavailable' : 'gjn_bt_request';
+
 		return new WP_Error(
-			'gjn_bt_http',
-			sprintf('HTTP %d: %s', $response['code'], substr($response['body'], 0, 300))
+			$code,
+			sprintf('[%s] HTTP %d: %s', $model, $response['code'], gjn_bt_error_detail($response['body']))
 		);
 	}
 
@@ -539,7 +593,74 @@ function gjn_bt_run_batch(array $articles, $api_key)
 	return array(
 		'written' => $written,
 		'usage'   => gjn_bt_usage($response['body']),
+		'model'   => $model,
 	);
+}
+
+/**
+ * Is this failure worth another attempt?
+ *
+ * Capacity and quota errors are transient by definition. Malformed output is
+ * worth one more go on the other model — that is what the rotation is for.
+ *
+ * Two are not. A rejected request will be rejected identically next time. And
+ * a database write failure may have written part of its batch already, so
+ * retrying it here would duplicate those drafts; the run is resumable, so
+ * leaving it for the next pass is both safer and simpler.
+ *
+ * @param WP_Error $error Failure from gjn_bt_run_batch().
+ * @return bool
+ */
+function gjn_bt_is_retryable($error)
+{
+	return ! in_array(
+		$error->get_error_code(),
+		array('gjn_bt_insert', 'gjn_bt_request'),
+		true
+	);
+}
+
+/**
+ * Translate one batch, rotating models and retrying transient failures.
+ *
+ * @param array  $articles    Articles to translate.
+ * @param string $api_key     Gemini API key.
+ * @param int    $model_index Model to start from, updated in place to
+ *                            whichever one last succeeded — so a model having
+ *                            a bad hour is not re-tried first on every batch.
+ * @return array{written:int,usage:array,model:string}|WP_Error
+ */
+function gjn_bt_run_batch_rotating(array $articles, $api_key, &$model_index)
+{
+	$models = GJN_BT_MODELS;
+	$count  = count($models);
+	$last   = null;
+
+	for ($attempt = 0; $attempt < GJN_BT_ATTEMPTS; $attempt++) {
+		$offset = ($model_index + $attempt) % $count;
+		$result = gjn_bt_run_batch($articles, $api_key, $models[$offset]);
+
+		if (! is_wp_error($result)) {
+			$model_index = $offset;
+			return $result;
+		}
+
+		$last = $result;
+
+		if (! gjn_bt_is_retryable($result)) {
+			return $result;
+		}
+
+		// 5s, 10s, 20s. A capacity spike that outlasts these is one the run
+		// cannot wait out; the next pass picks the batch up.
+		if ($attempt < GJN_BT_ATTEMPTS - 1) {
+			$pause = min(30, 5 * (2 ** $attempt));
+			printf("      %s — retrying in %ds\n", $result->get_error_message(), $pause);
+			sleep($pause);
+		}
+	}
+
+	return $last;
 }
 
 /**
@@ -619,7 +740,7 @@ function gjn_bt_main(array $argv)
 
 	printf(
 		"gjn backfill — %s\n  %d Sinhala posts pending, %d batch(es) of up to %d\n\n",
-		GJN_BT_MODEL,
+		implode(' → ', GJN_BT_MODELS),
 		count($pending),
 		count($batches),
 		GJN_BT_BATCH
@@ -630,23 +751,14 @@ function gjn_bt_main(array $argv)
 		return 0;
 	}
 
-	// 5 requests/minute means a request may not start within 12s of the last.
-	// Generous on purpose: a 429 mid-run costs the whole remaining day.
-	$pace      = (int) ceil(60 / GJN_BT_RPM) + 1;
-	$last_call = 0.0;
-	$failed    = 0;
-	$total     = count($batches);
+	$failed      = 0;
+	$total       = count($batches);
+	$model_index = 0;
 
 	foreach ($batches as $number => $batch) {
-		$wait = $pace - (microtime(true) - $last_call);
-		if ($last_call > 0 && $wait > 0) {
-			sleep((int) ceil($wait));
-		}
-		$started   = microtime(true);
-		$last_call = $started;
-
-		$result = gjn_bt_run_batch($batch, $api_key);
-		$label  = sprintf('[%2d/%d] %d article(s)', $number + 1, $total, count($batch));
+		$started = microtime(true);
+		$result  = gjn_bt_run_batch_rotating($batch, $api_key, $model_index);
+		$label   = sprintf('[%2d/%d] %d article(s)', $number + 1, $total, count($batch));
 
 		if (is_wp_error($result)) {
 			printf("%s  FAILED — %s\n", $label, $result->get_error_message());
@@ -661,13 +773,14 @@ function gjn_bt_main(array $argv)
 		}
 
 		printf(
-			"%s  %d draft(s) in %s / %s out (%s thinking) | %ds\n",
+			"%s  %d draft(s) in %s / %s out (%s thinking) | %ds  [%s]\n",
 			$label,
 			$result['written'],
 			number_format($result['usage']['prompt']),
 			number_format($result['usage']['output']),
 			number_format($result['usage']['thinking']),
-			(int) (microtime(true) - $started)
+			(int) (microtime(true) - $started),
+			$result['model']
 		);
 	}
 

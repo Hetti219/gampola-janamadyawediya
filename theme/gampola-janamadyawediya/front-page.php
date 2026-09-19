@@ -155,7 +155,7 @@ $hero_posts = gjn_hero_posts();
 						<?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_excerpt( $featured ) ), 40 ) ); ?>
 					</p>
 					<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
-						<span class="border-b-2 border-white/30 pb-0.5 transition group-hover:border-white">සම්පූර්ණ පුවත කියවන්න</span>
+						<span class="border-b-2 border-white/30 pb-0.5 transition group-hover:border-white"><?php echo esc_html( gjn_l10n( 'සම්පූර්ණ පුවත කියවන්න', 'Read full story' ) ); ?></span>
 						<svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
 						</svg>
@@ -221,7 +221,7 @@ $hero_posts = gjn_hero_posts();
 							<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
 						</svg>
 					</span>
-					<h2 class="text-lg font-black text-nothing-charcoal dark:text-neutral-100">තවත් පුවත්</h2>
+					<h2 class="text-lg font-black text-nothing-charcoal dark:text-neutral-100"><?php echo esc_html( gjn_l10n( 'තවත් පුවත්', 'More news' ) ); ?></h2>
 				</div>
 				
 				<div class="flex flex-col gap-5">
@@ -272,8 +272,8 @@ function gjn_render_hero_fallback() {
 						<path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
 					</svg>
 				</div>
-				<h2 class="text-2xl font-black text-white sm:text-3xl">තවමත් පුවත් පළ වී නොමැත</h2>
-				<p class="max-w-md text-sm text-neutral-400 sm:text-base">පුවත් ලැබෙන විට මෙහි පළ වේ. කරුණාකර පසුව නැවත පැමිණෙන්න.</p>
+				<h2 class="text-2xl font-black text-white sm:text-3xl"><?php echo esc_html( gjn_l10n( 'තවමත් පුවත් පළ වී නොමැත', 'No news published yet' ) ); ?></h2>
+				<p class="max-w-md text-sm text-neutral-400 sm:text-base"><?php echo esc_html( gjn_l10n( 'පුවත් ලැබෙන විට මෙහි පළ වේ. කරුණාකර පසුව නැවත පැමිණෙන්න.', 'Stories appear here as they are published. Please check back later.' ) ); ?></p>
 			</div>
 		</article>
 	</div>

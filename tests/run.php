@@ -144,6 +144,11 @@ require __DIR__ . '/../mu-plugins/graphic-content-auto-blur.php';
 require __DIR__ . '/../mu-plugins/cloudflare-purge.php';
 require __DIR__ . '/../mu-plugins/content-flag-taxonomy.php';
 
+// The backfill script runs on include unless told otherwise — it would boot
+// WordPress and start spending API quota.
+define( 'GJN_BT_LIB_ONLY', true );
+require __DIR__ . '/../scripts/backfill-translations.php';
+
 // --- Tiny assertion harness -----------------------------------------------
 /**
  * Mutable tally, handed out by reference so test() and the summary share one
@@ -349,6 +354,234 @@ test( 'seed: an already-flagged site makes no further term queries', function ()
 	ncg_seed_content_flag_terms();
 
 	assertSame( array(), $GLOBALS['gjn_terms'] );
+} );
+
+// --- gjn_bt_parse_response: shapes that must never reach wp_insert_post ---
+// A batch is written only when it is provably complete. Every one of these
+// returns an error instead, because a half-written batch leaves duplicate
+// drafts behind that no re-run can tell apart from real ones.
+
+/** Wrap model output the way the generateContent API wraps it. */
+function gjn_bt_envelope( $text, $finish = 'STOP' ) {
+	return json_encode(
+		array(
+			'candidates' => array(
+				array(
+					'content'      => array( 'parts' => array( array( 'text' => $text ) ) ),
+					'finishReason' => $finish,
+				),
+			),
+		)
+	);
+}
+
+/** One translation object, in English and comfortably over the length floor. */
+function gjn_bt_item( $index ) {
+	return array(
+		'index'   => $index,
+		'title'   => 'Article ' . $index,
+		'content' => str_repeat( 'English words describing the event. ', 40 ),
+		'excerpt' => 'A summary.',
+	);
+}
+
+test( 'parse: a complete batch comes back keyed by index', function () {
+	$by_index = gjn_bt_parse_response(
+		gjn_bt_envelope( json_encode( array( gjn_bt_item( 0 ), gjn_bt_item( 1 ) ) ) ),
+		2
+	);
+
+	assertSame( array( 0, 1 ), array_keys( $by_index ) );
+	assertSame( 'Article 1', $by_index[1]['title'] );
+} );
+
+test( 'parse: a short batch is rejected', function () {
+	// The model returned 1 of the 2 articles asked for. Writing it and moving
+	// on would silently lose the other one.
+	$result = gjn_bt_parse_response(
+		gjn_bt_envelope( json_encode( array( gjn_bt_item( 0 ) ) ) ),
+		2
+	);
+
+	assertSame( 'gjn_bt_count', $result->get_error_code() );
+} );
+
+test( 'parse: a duplicated index is rejected', function () {
+	// Two objects both claiming article 0 means one article was translated
+	// twice and another not at all.
+	$result = gjn_bt_parse_response(
+		gjn_bt_envelope( json_encode( array( gjn_bt_item( 0 ), gjn_bt_item( 0 ) ) ) ),
+		2
+	);
+
+	assertSame( 'gjn_bt_shape', $result->get_error_code() );
+} );
+
+test( 'parse: a gap in the indexes is rejected', function () {
+	// Right count, wrong slots — article 1 has no translation.
+	$result = gjn_bt_parse_response(
+		gjn_bt_envelope( json_encode( array( gjn_bt_item( 0 ), gjn_bt_item( 2 ) ) ) ),
+		2
+	);
+
+	assertSame( 'gjn_bt_shape', $result->get_error_code() );
+} );
+
+test( 'parse: an empty title is rejected', function () {
+	$item             = gjn_bt_item( 0 );
+	$item['title']    = '';
+	$other            = gjn_bt_item( 1 );
+	$result           = gjn_bt_parse_response( gjn_bt_envelope( json_encode( array( $item, $other ) ) ), 2 );
+
+	assertSame( 'gjn_bt_shape', $result->get_error_code() );
+} );
+
+test( 'parse: an empty excerpt is allowed', function () {
+	// WordPress derives an excerpt from the body, so a thin one is not data
+	// loss — and failing the batch would cost a request from a 20/day budget.
+	$item            = gjn_bt_item( 0 );
+	$item['excerpt'] = '';
+	$by_index        = gjn_bt_parse_response(
+		gjn_bt_envelope( json_encode( array( $item, gjn_bt_item( 1 ) ) ) ),
+		2
+	);
+
+	assertSame( '', $by_index[0]['excerpt'] );
+} );
+
+test( 'parse: an untranslated article is rejected', function () {
+	// The model echoed the Sinhala original back. This passes every structural
+	// check, so without the script check the site fills with 154 drafts that
+	// are not in English at all.
+	$item            = gjn_bt_item( 0 );
+	$item['content'] = str_repeat( 'ගම්පොළ ප්‍රදේශයේ පුවත් වාර්තා ', 20 );
+	$result          = gjn_bt_parse_response(
+		gjn_bt_envelope( json_encode( array( $item, gjn_bt_item( 1 ) ) ) ),
+		2
+	);
+
+	assertSame( 'gjn_bt_untranslated', $result->get_error_code() );
+} );
+
+test( 'parse: MAX_TOKENS truncation names the reason', function () {
+	// The JSON is cut off mid-array. Reporting the finish reason says why,
+	// where "invalid JSON" would send you looking in the wrong place.
+	$result = gjn_bt_parse_response( gjn_bt_envelope( '[{"index":0,"ti', 'MAX_TOKENS' ), 2 );
+
+	assertSame( 'gjn_bt_finish', $result->get_error_code() );
+} );
+
+test( 'parse: an API error envelope is surfaced', function () {
+	$result = gjn_bt_parse_response(
+		json_encode( array( 'error' => array( 'message' => 'API key not valid' ) ) ),
+		1
+	);
+
+	assertSame( 'gjn_bt_api', $result->get_error_code() );
+	assertSame( true, false !== strpos( $result->get_error_message(), 'API key not valid' ) );
+} );
+
+test( 'parse: a non-JSON body is surfaced, not fatal', function () {
+	// A Cloudflare or proxy error page arrives here, not a Gemini response.
+	$result = gjn_bt_parse_response( '<html><body>502 Bad Gateway</body></html>', 1 );
+
+	assertSame( 'gjn_bt_envelope', $result->get_error_code() );
+} );
+
+test( 'parse: thinking parts are not spliced into the JSON', function () {
+	// Gemini 3 returns reasoning alongside the answer. Concatenating both
+	// corrupts the JSON and costs the whole batch a request.
+	$body = json_encode(
+		array(
+			'candidates' => array(
+				array(
+					'content'      => array(
+						'parts' => array(
+							array( 'text' => 'Let me consider the names…', 'thought' => true ),
+							array( 'text' => json_encode( array( gjn_bt_item( 0 ) ) ) ),
+						),
+					),
+					'finishReason' => 'STOP',
+				),
+			),
+		)
+	);
+
+	$by_index = gjn_bt_parse_response( $body, 1 );
+
+	assertSame( 'Article 0', $by_index[0]['title'] );
+} );
+
+// --- gjn_bt_prompt / schema / model knobs ---------------------------------
+test( 'prompt: articles carry the same indexes the schema expects back', function () {
+	$prompt = gjn_bt_prompt(
+		array(
+			array(
+				'id'      => 7,
+				'title'   => 'පළමු',
+				'content' => 'body one',
+			),
+			array(
+				'id'      => 9,
+				'title'   => 'දෙවන',
+				'content' => 'body two',
+			),
+		)
+	);
+
+	// The index in the prompt is what the model echoes back as `index`, and
+	// that is what maps a translation onto a post. An off-by-one here
+	// publishes the wrong translation against the wrong post.
+	foreach ( array( 'index="0"', 'index="1"', 'පළමු', 'දෙවන', 'all 2 articles' ) as $needle ) {
+		assertSame( true, false !== strpos( $prompt, $needle ), $needle );
+	}
+} );
+
+test( 'schema: maxItems follows the batch size', function () {
+	// Google documents no default cap on array length, so the cap has to be
+	// pinned — and it has to match the batch, or a short batch is legal.
+	assertSame( 10, gjn_bt_schema( 10 )['maxItems'] );
+	assertSame( 5, gjn_bt_schema( 5 )['maxItems'] );
+} );
+
+test( 'thinking: Gemini 3 is turned down, Gemini 2.5 is left alone', function () {
+	// "minimal" is not accepted on Gemini 3; sending it fails the request.
+	assertSame( array( 'thinkingLevel' => 'low' ), gjn_bt_thinking_config( 'gemini-3.8-flash' ) );
+	assertSame( array(), gjn_bt_thinking_config( 'gemini-2.5-flash-lite' ) );
+} );
+
+test( 'is_translated: a short body is not judged', function () {
+	// Below the floor the ratio is noise; the editor sees the draft anyway.
+	assertSame( true, gjn_bt_is_translated( 'ගම්පොළ' ) );
+} );
+
+test( 'usage: token counts are read off the response', function () {
+	$usage = gjn_bt_usage(
+		json_encode(
+			array(
+				'usageMetadata' => array(
+					'promptTokenCount'     => 28411,
+					'candidatesTokenCount' => 31204,
+					'thoughtsTokenCount'   => 1208,
+				),
+			)
+		)
+	);
+
+	assertSame( 28411, $usage['prompt'] );
+	assertSame( 31204, $usage['output'] );
+	assertSame( 1208, $usage['thinking'] );
+} );
+
+test( 'usage: a response without metadata does not warn', function () {
+	assertSame(
+		array(
+			'prompt'   => 0,
+			'output'   => 0,
+			'thinking' => 0,
+		),
+		gjn_bt_usage( '<html>502</html>' )
+	);
 } );
 
 // --- Summary --------------------------------------------------------------

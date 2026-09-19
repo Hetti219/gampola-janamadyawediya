@@ -50,6 +50,15 @@ function is_admin() {
 	return false;
 }
 
+// Polylang is a production-only plugin and ships no stubs. Defining it here
+// lets the tests drive gjn_is_english() both ways; 'si' is the default so
+// every Sinhala assertion keeps exercising the Sinhala path.
+$GLOBALS['gjn_lang'] = 'si';
+
+function pll_current_language( $field = '' ) {
+	return $GLOBALS['gjn_lang'];
+}
+
 function add_action() {}
 function add_filter() {}
 
@@ -189,6 +198,24 @@ function assertSame( $expected, $actual, $label = 'value' ) {
 	}
 }
 
+/**
+ * Runs $callback with the current language switched, and puts it back even if
+ * an assertion throws — otherwise one failed English test would leak 'en' into
+ * every Sinhala test after it and bury the real failure.
+ *
+ * @param string   $lang     'si' or 'en'.
+ * @param callable $callback Assertions to run under that language.
+ */
+function with_language( $lang, $callback ) {
+	$previous            = $GLOBALS['gjn_lang'];
+	$GLOBALS['gjn_lang'] = $lang;
+	try {
+		$callback();
+	} finally {
+		$GLOBALS['gjn_lang'] = $previous;
+	}
+}
+
 // --- gjn_sinhala_date -----------------------------------------------------
 // 2026-09-06 is a Sunday; anchors are computed backwards from it.
 test( 'gjn_sinhala_date: full form with weekday', function () {
@@ -244,6 +271,84 @@ test( 'gjn_relative_time: at 30 days falls back to the full date', function () u
 test( 'gjn_relative_time: future timestamp (failure mode) does not break', function () use ( $NOW ) {
 	// Negative diff — must not emit negative numbers or fatal.
 	assertSame( 'දැන්ම', gjn_relative_time( $NOW + 3600 ) );
+} );
+
+// --- English edition: gjn_is_english, gjn_l10n and the /en/ branches -------
+// Everything above ran with $GLOBALS['gjn_lang'] = 'si'. These flip it, which
+// is the closest this harness gets to requesting /en/.
+
+test( 'gjn_is_english: false on the Sinhala site, true on /en/', function () {
+	assertSame( false, gjn_is_english() );
+
+	with_language( 'en', function () {
+		assertSame( true, gjn_is_english() );
+	} );
+
+	assertSame( false, gjn_is_english(), 'restored after with_language' );
+} );
+
+test( 'gjn_l10n: serves the half matching the current edition', function () {
+	assertSame( 'තවත් පුවත්', gjn_l10n( 'තවත් පුවත්', 'More news' ) );
+
+	with_language( 'en', function () {
+		assertSame( 'More news', gjn_l10n( 'තවත් පුවත්', 'More news' ) );
+	} );
+} );
+
+test( 'gjn_sinhala_date: English form on /en/', function () {
+	with_language( 'en', function () {
+		assertSame( 'Sunday, 16 August 2026', gjn_sinhala_date( strtotime( '2026-08-16 00:00:00 UTC' ) ) );
+		assertSame( '16 August 2026', gjn_sinhala_date( strtotime( '2026-08-16 00:00:00 UTC' ), false ) );
+	} );
+} );
+
+test( 'gjn_relative_time: English form on /en/', function () use ( $NOW ) {
+	with_language( 'en', function () use ( $NOW ) {
+		assertSame( 'Just now', gjn_relative_time( $NOW - 59 ) );
+		assertSame( '1 min ago', gjn_relative_time( $NOW - 60 ) );
+		assertSame( '5 mins ago', gjn_relative_time( $NOW - 5 * 60 ) );
+		assertSame( '2 hours ago', gjn_relative_time( $NOW - 90 * 60 ) );
+		assertSame( '2 days ago', gjn_relative_time( $NOW - 2 * DAY_IN_SECONDS ) );
+	} );
+} );
+
+test( 'gjn_relative_time: English singular never reads "1 hours"', function () use ( $NOW ) {
+	with_language( 'en', function () use ( $NOW ) {
+		assertSame( '1 hour ago', gjn_relative_time( $NOW - HOUR_IN_SECONDS ) );
+		assertSame( '1 day ago', gjn_relative_time( $NOW - DAY_IN_SECONDS ) );
+	} );
+} );
+
+test( 'gjn_relative_time: English keeps the Sinhala 30-day cutoff', function () use ( $NOW ) {
+	with_language( 'en', function () use ( $NOW ) {
+		// Still a day count at 29 days — human_time_diff() would have said
+		// "4 weeks" here and disagreed with the Sinhala edition.
+		assertSame( '29 days ago', gjn_relative_time( $NOW - ( 29 * DAY_IN_SECONDS + 3600 ) ) );
+		assertSame(
+			gjn_sinhala_date( $NOW - 30 * DAY_IN_SECONDS, false ),
+			gjn_relative_time( $NOW - 30 * DAY_IN_SECONDS )
+		);
+	} );
+} );
+
+// The requirement this whole change exists to satisfy, asserted directly:
+// nothing on /en/ may render a Sinhala codepoint.
+test( 'English edition: no Sinhala codepoints reach /en/', function () use ( $NOW ) {
+	with_language( 'en', function () use ( $NOW ) {
+		$samples = array(
+			gjn_sinhala_date( $NOW ),
+			gjn_sinhala_date( $NOW, false ),
+			gjn_relative_time( $NOW - 59 ),
+			gjn_relative_time( $NOW - 5 * 60 ),
+			gjn_relative_time( $NOW - 90 * 60 ),
+			gjn_relative_time( $NOW - 2 * DAY_IN_SECONDS ),
+			gjn_relative_time( $NOW - 40 * DAY_IN_SECONDS ),
+		);
+
+		foreach ( $samples as $sample ) {
+			assertSame( 0, preg_match( '/[\x{0D80}-\x{0DFF}]/u', $sample ), 'Sinhala in: ' . $sample );
+		}
+	} );
 } );
 
 // --- ncg_scaled_dimensions: the degenerate shapes ------------------------

@@ -1,6 +1,11 @@
 <?php
 /**
- * Sinhala date & time helpers.
+ * Language, date & time helpers.
+ *
+ * The site is Sinhala-first with English translations under /en/, so every
+ * language-specific string in the theme routes through gjn_l10n(). The date
+ * helpers below are the biggest consumer: Sinhala needs its own weekday and
+ * month tables, English does not.
  *
  * Plain-PHP implementations — no intl extension dependency
  * (intl is not bundled in the wordpress:php8.5-fpm-alpine image).
@@ -13,6 +18,35 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * True while rendering the English edition.
+ *
+ * English is the only translation that exists, so this one check drives every
+ * chrome string in the theme. Polylang is already loaded by the time templates
+ * run — gjn_language_attributes() in functions.php depends on the same call at
+ * an earlier point.
+ *
+ * @return bool
+ */
+function gjn_is_english() {
+	return function_exists( 'pll_current_language' ) && 'en' === pll_current_language( 'slug' );
+}
+
+/**
+ * Picks between the Sinhala and English wording of a UI string.
+ *
+ * Both halves are written at the call site rather than registered as a
+ * Polylang string, so the pair reads together in the template and an
+ * untranslated string-translation table cannot quietly serve Sinhala on /en/.
+ *
+ * @param string $si Sinhala text — used on / and whenever Polylang is absent.
+ * @param string $en English text — used on /en/.
+ * @return string
+ */
+function gjn_l10n( $si, $en ) {
+	return gjn_is_english() ? $en : $si;
+}
+
+/**
  * Full Sinhala date, e.g. "ඉරිදා, 16 අගෝස්තු 2026".
  *
  * @param int  $timestamp Unix timestamp.
@@ -20,6 +54,12 @@ defined( 'ABSPATH' ) || exit;
  * @return string
  */
 function gjn_sinhala_date( $timestamp, $with_day = true ) {
+	// English needs no table of its own — the site locale already carries the
+	// month and weekday names, so wp_date() formats them directly.
+	if ( gjn_is_english() ) {
+		return wp_date( $with_day ? 'l, j F Y' : 'j F Y', $timestamp );
+	}
+
 	$days = array(
 		'ඉරිදා',
 		'සඳුදා',
@@ -75,6 +115,31 @@ function gjn_sinhala_date( $timestamp, $with_day = true ) {
  */
 function gjn_relative_time( $timestamp ) {
 	$diff = current_time( 'timestamp' ) - $timestamp;
+
+	// The English ladder mirrors the Sinhala one threshold for threshold, so
+	// a story reads as the same age in both editions. It is not built on
+	// human_time_diff(): that measures against time() rather than the
+	// current_time() clock $diff uses, and it switches to weeks and months
+	// past seven days, which would disagree with the Sinhala wording.
+	if ( gjn_is_english() ) {
+		if ( $diff < 60 ) {
+			return 'Just now';
+		}
+
+		$units = array(
+			array( HOUR_IN_SECONDS, MINUTE_IN_SECONDS, 'min' ),
+			array( DAY_IN_SECONDS, HOUR_IN_SECONDS, 'hour' ),
+			array( 30 * DAY_IN_SECONDS, DAY_IN_SECONDS, 'day' ),
+		);
+		foreach ( $units as $unit ) {
+			if ( $diff < $unit[0] ) {
+				$count = max( 1, (int) round( $diff / $unit[1] ) );
+				return sprintf( '%d %s%s ago', $count, $unit[2], 1 === $count ? '' : 's' );
+			}
+		}
+
+		return gjn_sinhala_date( $timestamp, false );
+	}
 
 	if ( $diff < 60 ) {
 		return 'දැන්ම';

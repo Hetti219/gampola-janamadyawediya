@@ -295,7 +295,7 @@ function gjn_site_header()
 							d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
 					</svg>
 					<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
-						<input type="text" name="s" placeholder="පුවත් සොයන්න…"
+						<input type="text" name="s" placeholder="<?php echo esc_attr( gjn_l10n( 'පුවත් සොයන්න…', 'Search news…' ) ); ?>"
 							class="w-44 rounded-full border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-nothing-elevated dark:text-neutral-100 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-nothing-charcoal dark:focus:border-neutral-400 focus:bg-white dark:focus:bg-nothing-elevated focus:ring-2 focus:ring-nothing-charcoal/10 dark:focus:ring-white/10">
 					</form>
 				</div>
@@ -311,7 +311,7 @@ function gjn_site_header()
 						d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
 				</svg>
 				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
-					<input type="text" name="s" placeholder="පුවත් සොයන්න…"
+					<input type="text" name="s" placeholder="<?php echo esc_attr( gjn_l10n( 'පුවත් සොයන්න…', 'Search news…' ) ); ?>"
 						class="w-full rounded-full border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-nothing-elevated dark:text-neutral-100 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-nothing-charcoal dark:focus:border-neutral-400 focus:ring-2 focus:ring-nothing-charcoal/10 dark:focus:ring-white/10">
 				</form>
 			</div>
@@ -348,7 +348,7 @@ add_filter(
 function gjn_nav_fallback()
 {
 	$links = array(
-		'මුල් පිටුව'       => home_url('/'),
+		gjn_l10n( 'මුල් පිටුව', 'Home' ) => home_url('/'),
 	);
 
 	$categories = get_categories( array(
@@ -447,7 +447,7 @@ function gjn_news_ticker()
 					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-nothing-red"></span>
 				</span>
 				<span class="text-sm font-black uppercase tracking-widest font-dot">Breaking</span>
-				<span class="hidden text-xs font-semibold text-neutral-300 sm:inline">විශේෂ පුවත්</span>
+				<span class="hidden text-xs font-semibold text-neutral-300 sm:inline"><?php echo esc_html( gjn_l10n( 'විශේෂ පුවත්', 'Special news' ) ); ?></span>
 			</div>
 
 			<div class="relative flex flex-1 items-center overflow-hidden group">

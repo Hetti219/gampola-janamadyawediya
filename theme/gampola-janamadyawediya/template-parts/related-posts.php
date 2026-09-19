@@ -52,14 +52,14 @@ if ( empty( $related ) ) {
 }
 ?>
 
-<section class="gjn-related-posts" aria-label="තවත් පුවත්">
+<section class="gjn-related-posts" aria-label="<?php echo esc_attr( gjn_l10n( 'තවත් පුවත්', 'More news' ) ); ?>">
 	<div class="gjn-related-header">
 		<span class="gjn-related-icon">
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
 			</svg>
 		</span>
-		<h2 class="gjn-related-title">තවත් පුවත් — ඔබට වැදගත් විය හැකි</h2>
+		<h2 class="gjn-related-title"><?php echo esc_html( gjn_l10n( 'තවත් පුවත් — ඔබට වැදගත් විය හැකි', 'More news — you might find these interesting' ) ); ?></h2>
 	</div>
 
 	<div class="gjn-related-grid">

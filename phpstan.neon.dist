@@ -13,7 +13,22 @@ parameters:
         - mu-plugins
         - theme
         - tests
+        - scripts
     ignoreErrors:
+        # Polylang stores the language links scripts/backfill-translations.php
+        # writes. It is a plugin on the server, not a dependency of this repo,
+        # and ships no stubs — so its pll_* functions are unresolvable here.
+        # Named individually so a typo in some *other* pll_ call still fails.
+        - '#^Function pll_(get_post_language|set_post_language|save_post_translations|get_post_translations|languages_list) not found\.$#'
+
+        # The backfill script runs *inside* the WordPress container, where
+        # /var/www/html/wp-load.php is the WordPress install. PHPStan analyses
+        # from the host, where that path means nothing.
+        -
+            identifier: requireOnce.fileNotFound
+            path: scripts/backfill-translations.php
+            count: 1
+
         # PHPStan bundles a stub that types imagecopyresampled() as always
         # returning true, so it reads the documented `false` failure branch in
         # ncg_downscale_image() as dead code. The PHP manual says it returns

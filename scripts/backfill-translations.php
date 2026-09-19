@@ -26,7 +26,7 @@
  * @package Gampola_Janamadyawediya
  */
 
-const GJN_BT_MODEL      = 'gemini-3.7-flash';
+const GJN_BT_MODEL      = 'gemini-3.8-flash';
 const GJN_BT_BATCH      = 10;      // Articles per request. RPD is the binding
 // limit, so bigger batches mean fewer days.
 const GJN_BT_RPM        = 5;       // Free-tier requests/minute for this model.

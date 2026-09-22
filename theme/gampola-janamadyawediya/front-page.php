@@ -1,10 +1,14 @@
 <?php
 /**
- * Front page — hero news grid.
+ * Front page — three descending tiers.
  *
- * Left: featured card (sticky post if one exists, otherwise the latest
- * post). Right: the two next-most-recent posts. If no posts exist at all,
- * a static fallback hero keeps the page looking like a news site.
+ * Tier 1 is the lead story on its own, full width. Tier 2 splits 2:1 — a
+ * wide second lead over two halves, beside the quick-feed column. Tier 3 is
+ * that quick feed. Each tier is visibly smaller than the one above it; that
+ * descent is the whole point of the page, so keep the sizes unequal.
+ *
+ * If no posts exist at all, a static fallback hero keeps the page looking
+ * like a news site.
  *
  * @package Gampola_Janamadyawediya
  * @since   3.0.0
@@ -23,8 +27,8 @@ get_header();
  *
  * The sticky post leads when there is one; otherwise the recent list is
  * returned as-is. The template below slices this: index 0 is the featured
- * card, 1-4 the visual grid, 5-9 the quick feed, so the 10 here and the
- * offsets there have to move together.
+ * card, 1 the wide second lead, 2-3 the two halves, 4-9 the quick feed, so
+ * the 10 here and the offsets there have to move together.
  */
 function gjn_hero_posts() {
 	$featured = null;
@@ -116,14 +120,12 @@ $hero_posts = gjn_hero_posts();
 		<?php gjn_render_hero_fallback(); ?>
 	<?php else : ?>
 
-		<!-- 1. HERO SECTION -->
-		<div class="mb-8 grid gap-4 lg:grid-cols-3 lg:gap-6">
-			<?php
-			$featured     = $hero_posts[0];
-			$featured_cat = gjn_first_category( $featured );
-			?>
-			<!-- Featured Post (2/3 width) -->
-			<article class="relative flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-nothing-charcoal via-neutral-800 to-neutral-900 p-6 text-white ring-1 ring-white/10 transition-shadow duration-300 hover:shadow-2xl sm:p-8 lg:col-span-2 lg:min-h-[34rem]">
+		<!-- 1. LEAD STORY — the one story the page leads with, nothing beside it -->
+		<?php
+		$featured     = $hero_posts[0];
+		$featured_cat = gjn_first_category( $featured );
+		?>
+		<article class="relative mb-6 flex min-h-[26rem] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-nothing-charcoal via-neutral-800 to-neutral-900 p-6 text-white ring-1 ring-white/10 transition-shadow duration-300 hover:shadow-2xl sm:p-8 lg:min-h-[34rem]">
 				
 				<?php if ( has_post_thumbnail( $featured ) ) : ?>
 					<div class="absolute inset-0">

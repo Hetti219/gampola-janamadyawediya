@@ -4,7 +4,9 @@
  *
  * Displays a 3-card grid of related stories below each single post.
  * Sourced by: shared tags (primary) → same category (fallback).
- * Excludes the current post. Uses the same card language as front-page.php.
+ * Excludes the current post. A post with no thumbnail gets no image block —
+ * the grid stretches every card to the tallest, so the text just starts
+ * higher. Same rule the front-page feed uses.
  *
  * @package Gampola_Janamadyawediya
  */
@@ -54,11 +56,6 @@ if ( empty( $related ) ) {
 
 <section class="gjn-related-posts" aria-label="<?php echo esc_attr( gjn_l10n( 'තවත් පුවත්', 'More news' ) ); ?>">
 	<div class="gjn-related-header">
-		<span class="gjn-related-icon">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
-			</svg>
-		</span>
 		<h2 class="gjn-related-title"><?php echo esc_html( gjn_l10n( 'තවත් පුවත් — ඔබට වැදගත් විය හැකි', 'More news — you might find these interesting' ) ); ?></h2>
 	</div>
 
@@ -69,22 +66,14 @@ if ( empty( $related ) ) {
 		?>
 		<article class="gjn-related-card group">
 			<a href="<?php echo esc_url( get_permalink( $rp->ID ) ); ?>" class="gjn-related-card-link">
-				<div class="gjn-related-card-img">
-					<?php if ( has_post_thumbnail( $rp->ID ) ) : ?>
+				<?php if ( has_post_thumbnail( $rp->ID ) ) : ?>
+					<div class="gjn-related-card-img">
 						<?php echo get_the_post_thumbnail( $rp->ID, 'gjn-card', array(
 							'class'   => 'gjn-related-card-thumb',
 							'loading' => 'lazy',
 						) ); ?>
-					<?php else : ?>
-						<div class="gjn-related-card-placeholder">
-							<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
-								<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-								<circle cx="8.5" cy="8.5" r="1.5"/>
-								<polyline points="21 15 16 10 5 21"/>
-							</svg>
-						</div>
-					<?php endif; ?>
-				</div>
+					</div>
+				<?php endif; ?>
 
 				<div class="gjn-related-card-body">
 					<?php if ( $rp_cat ) : ?>

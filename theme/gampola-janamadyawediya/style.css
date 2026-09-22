@@ -64,8 +64,18 @@
 	--gjn-spacing-md: 1rem;
 	--gjn-spacing-lg: 2rem;
 	--gjn-spacing-xl: 4rem;
+	/* Radius ladder — each step is one level of nesting inside the last.
+	   Pick by what the surface *is*, never by how big it looks today:
+	     radius    → page sheets and panels that hold a whole view
+	     radius-md → cards sitting inside one of those sheets
+	     radius-sm → thumbnails and controls inside a card
+	     radius-xs → markers and hairline details
+	     radius-pill → interactive pills (orthogonal axis, not a nest level) */
 	--gjn-radius: 16px;
+	--gjn-radius-md: 12px;
 	--gjn-radius-sm: 8px;
+	--gjn-radius-xs: 4px;
+	--gjn-radius-pill: 999px;
 
 	/* Motion */
 	--gjn-transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -199,7 +209,7 @@ textarea:focus {
 	display: inline-block;
 	border: 1px solid var(--gjn-text-main);
 	color: var(--gjn-text-main);
-	border-radius: 999px;
+	border-radius: var(--gjn-radius-pill);
 	padding: 8px 18px;
 	font-family: var(--gjn-font-heading);
 	font-size: 0.85rem;
@@ -592,7 +602,7 @@ body button.button:hover {
 	font-weight: 700;
 	letter-spacing: 0.03em;
 	padding: 4px 14px;
-	border-radius: 999px;
+	border-radius: var(--gjn-radius-pill);
 	margin-bottom: 10px;
 	transition: var(--gjn-transition);
 }
@@ -652,7 +662,7 @@ body button.button:hover {
 	height: 12px;
 	background: var(--gjn-text-main);
 	margin-right: 10px;
-	border-radius: 2px;
+	border-radius: var(--gjn-radius-xs);
 }
 
 .sidebar .widget ul {
@@ -897,7 +907,7 @@ body button.button:hover {
 	.separate-containers .comments-area,
 	.separate-containers .page-header {
 		padding: 20px;
-		border-radius: 10px;
+		border-radius: var(--gjn-radius);
 	}
 
 	.single .entry-title {
@@ -953,7 +963,7 @@ body button.button:hover {
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.45rem 0.875rem;
-	border-radius: 9999px;
+	border-radius: var(--gjn-radius-pill);
 	font-size: 0.8rem;
 	font-weight: 600;
 	font-family: var(--gjn-font-heading);
@@ -1004,22 +1014,7 @@ body button.button:hover {
 }
 
 .gjn-related-header {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
 	margin-bottom: 1.25rem;
-}
-
-.gjn-related-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2rem;
-	height: 2rem;
-	border-radius: 0.5rem;
-	background: var(--gjn-bg-body);
-	color: var(--gjn-text-main);
-	flex-shrink: 0;
 }
 
 .gjn-related-title {
@@ -1040,7 +1035,7 @@ body button.button:hover {
 /* Individual card */
 .gjn-related-card {
 	background: var(--gjn-bg-surface);
-	border-radius: 12px;
+	border-radius: var(--gjn-radius-md);
 	overflow: hidden;
 	box-shadow: var(--gjn-shadow-sm);
 	border: 1px solid var(--gjn-border);
@@ -1077,16 +1072,6 @@ body button.button:hover {
 
 .gjn-related-card:hover .gjn-related-card-thumb {
 	transform: scale(1.05);
-}
-
-.gjn-related-card-placeholder {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(135deg, var(--gjn-bg-body), var(--gjn-bg-surface));
-	color: var(--gjn-text-muted);
 }
 
 /* Text body */

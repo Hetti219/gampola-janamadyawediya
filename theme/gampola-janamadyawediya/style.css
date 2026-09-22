@@ -1014,22 +1014,7 @@ body button.button:hover {
 }
 
 .gjn-related-header {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
 	margin-bottom: 1.25rem;
-}
-
-.gjn-related-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2rem;
-	height: 2rem;
-	border-radius: 0.5rem;
-	background: var(--gjn-bg-body);
-	color: var(--gjn-text-main);
-	flex-shrink: 0;
 }
 
 .gjn-related-title {
@@ -1087,16 +1072,6 @@ body button.button:hover {
 
 .gjn-related-card:hover .gjn-related-card-thumb {
 	transform: scale(1.05);
-}
-
-.gjn-related-card-placeholder {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(135deg, var(--gjn-bg-body), var(--gjn-bg-surface));
-	color: var(--gjn-text-muted);
 }
 
 /* Text body */

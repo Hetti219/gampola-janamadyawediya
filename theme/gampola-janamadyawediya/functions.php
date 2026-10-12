@@ -533,6 +533,21 @@ function gjn_inject_monetag_tag() {
 }
 
 /**
+ * 9.6 Monetag vignette tag (zone 12013652)
+ *
+ * Same wiring as 9.5 — front end only, loads async. Reproduce the vendor tag
+ * verbatim, for the same reason: it is obfuscated on purpose, and a
+ * reformatted copy is one Monetag update away from diverging from the real
+ * one.
+ */
+add_action( 'wp_head', 'gjn_inject_monetag_vignette', 10 );
+function gjn_inject_monetag_vignette() {
+	?>
+	<script>(function(s){s.dataset.zone='12013652',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+	<?php
+}
+
+/**
  * Wrap a schema array in its script tag.
  *
  * Centralised so there is exactly one place that decides how schema reaches

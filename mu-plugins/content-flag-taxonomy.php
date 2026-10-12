@@ -4,7 +4,7 @@
  * Description: Registers the "content_flag" custom taxonomy for marking posts
  *              with content-sensitivity flags (e.g., Graphic Content, Sensitive
  *              Topic). Keeps content warnings separate from editorial
- *              categories so the nav menu stays clean and AdSense-safe.
+ *              categories so the nav menu stays clean and ad-network-safe.
  *
  *              Terms created on first run:
  *              - "Graphic Content" (slug: graphic-content)

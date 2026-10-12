@@ -2,7 +2,7 @@
 
 Self-hosted WordPress on a VPS you control, fronted by Cloudflare, built for:
 a solo non-technical operator publishing from phone or laptop, occasional
-graphic/sensitive news content behind a warning gate, AdSense monetization,
+graphic/sensitive news content behind a warning gate, ad monetization,
 and Sinhala-language content.
 
 Read this top to bottom once before running anything. It's ordered as an
@@ -14,11 +14,11 @@ actual runbook.
 
 | Decision | Choice | Why |
 |---|---|---|
-| Domain | `.com` | Instant registration, no paperwork, globally trusted by AdSense/search engines. Add a `.lk` later and redirect it if the operation formalizes into a registered business. |
+| Domain | `.com` | Instant registration, no paperwork, globally trusted by search engines. Add a `.lk` later and redirect it if the operation formalizes into a registered business. |
 | Hosting | Self-managed VPS + Docker | Cheapest ongoing cost (~$5-12/mo total), matches your existing Linux/Docker background, full control over the content-warning gate and image pipeline that managed hosts won't let you customize. |
 | Video | Self-hosted on the VPS | Full control, no dependency on another platform's rules. Costs more in storage/bandwidth — planned for below. |
 | CMS | WordPress (self-hosted, not WordPress.com) | Non-technical operator can publish from the mobile app or the web dashboard; you maintain the server so he never touches infrastructure. |
-| Monetization | Google AdSense via Site Kit plugin | Required (paywall was ruled out). Note: pages in the "graphic content" category will get **restricted ad serving** under Google's Shocking Content policy — expect little/no ad revenue on those specific articles. Revenue is carried by the general content, not the graphic posts. |
+| Monetization | Monetag | Required (paywall was ruled out). Note: pages in the "graphic content" category will get **restricted ad serving** under ad-network content policies — expect little/no ad revenue on those specific articles. Revenue is carried by the general content, not the graphic posts. |
 
 ---
 
@@ -160,11 +160,9 @@ start free and only pay for this once the site is proven out.
 ### 4.2 Essential plugins
 Install these from the WordPress plugin directory:
 
-- **Site Kit by Google** — connects Search Console, Analytics, and AdSense
-  (with Auto ads, which places ads automatically without manual ad-zone
-  coding). This is your AdSense integration path.
+- **Site Kit by Google** — connects Search Console and Analytics.
 - **Rank Math** or **Yoast SEO** — sitemap generation (needed for
-  Google/AdSense to index your content), and per-post custom social-share
+  Google to index your content), and per-post custom social-share
   image (needed for the blurred-teaser workflow, see 4.4).
 - **Redis Object Cache** — activate it once installed; it auto-connects to
   the `redis` container via the config already set in `docker-compose.yml`.
@@ -181,11 +179,11 @@ Install these from the WordPress plugin directory:
   Cloudflare dashboard → My Profile → API Tokens), and enable Automatic
   Cache Management.
 
-### 4.3 Legal pages (required before applying for AdSense)
+### 4.3 Legal pages
 Create these as regular Pages: **About**, **Contact**, **Privacy Policy**,
-**Terms of Use**. AdSense reviewers check for these. A free WordPress
-privacy-policy generator plugin (built into WP core under Settings →
-Privacy) covers the baseline.
+**Terms of Use**. Ad networks and search engines check for these. A free
+WordPress privacy-policy generator plugin (built into WP core under
+Settings → Privacy) covers the baseline.
 
 ### 4.4 Taxonomy: categories, tags, and content flags
 
@@ -285,21 +283,24 @@ subset of posts that actually need it — not a mirror of everything.
 
 ---
 
-## 5. Applying for AdSense
+## 5. Monetization
 
-1. Publish at least 15-20 original articles first — Google checks for
-   real content before approving.
-2. Confirm the legal pages (4.3) are live and linked in the site footer/menu.
-3. In Site Kit, connect AdSense and follow its application flow.
-4. Once approved, enable **Auto ads** — Google places ad units automatically,
-   no manual placement needed.
-5. Expect a review period of days to a few weeks. Approval isn't guaranteed
-   on the first attempt — if rejected, Google states the reason; fix it and
-   reapply.
+Monetag, wired into the theme directly rather than through a plugin. The tags
+live in `theme/gampola-janamadyawediya/functions.php` §9.4–9.6: a verification
+meta tag plus two zone scripts (an in-page tag and a vignette).
+
+The service worker is `sw.js` in the repo root. It must be reachable at the
+**domain root** — a service worker's scope is capped at its own directory —
+so nginx serves it via `alias` rather than out of the docroot (see
+`docker-compose.yml` and `nginx/prod/wordpress.conf`). The docroot is a
+read-only volume, which is why it can't simply be dropped in there.
+
+To add a zone: paste the vendor tag verbatim into a new function in §9, same
+shape as 9.5. Don't reformat or minify it.
 
 Remember: articles with the Graphic Content flag will likely show fewer
-or no ads due to Google's Shocking Content policy. That's expected, not a
-bug — don't spend time trying to "fix" it.
+or no ads, since ad networks restrict serving on that kind of content.
+That's expected, not a bug — don't spend time trying to "fix" it.
 
 ---
 

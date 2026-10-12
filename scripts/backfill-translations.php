@@ -4,11 +4,10 @@
  * Backfill English translations of existing Sinhala posts, via the Gemini API.
  *
  * One-off, not a pipeline. The site publishes in Sinhala for a Sinhala
- * readership; AdSense will not review Sinhala content, so the existing corpus
- * is translated into English to give the reviewer something in a supported
- * language to look at. Nothing here publishes: every translation is saved as
- * a DRAFT, and a human reads it before it goes live. That human review is both
- * the quality gate and the reason this is not "scaled content abuse".
+ * readership; this backfills English translations of the existing corpus so
+ * the archive also serves English-language readers. Nothing here publishes:
+ * every translation is saved as a DRAFT, and a human reads it before it goes
+ * live. That human review is the quality gate.
  *
  * Run inside the WordPress container — there is no WP-CLI in this stack:
  *

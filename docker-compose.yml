@@ -15,8 +15,6 @@ services:
       # Nginx serves the theme's static files (CSS, images) directly, so it
       # needs the same theme bind mount the WordPress container has.
       - ./theme/gampola-janamadyawediya:/var/www/html/wp-content/themes/gampola-janamadyawediya:ro
-      #AdSense ads.txt file
-      - ./ads.txt:/var/www/html/ads.txt:ro
       # Monetag service worker. Must be reachable at the domain root — a
       # service worker's scope is capped at its own directory, and Monetag
       # needs the whole domain.
@@ -24,8 +22,7 @@ services:
       # Mounted under /etc/nginx and aliased into place by the vhost rather
       # than dropped straight into /var/www/html. That path is the read-only
       # wordpress_data volume, so runc cannot create a bind-mount target
-      # inside it and the container refuses to start. (ads.txt gets away with
-      # it only because the file already exists in the volume.)
+      # inside it and the container refuses to start.
       - ./sw.js:/etc/nginx/sw.js:ro
     
     depends_on:
@@ -75,7 +72,6 @@ services:
       - ./php/assertions.ini:/usr/local/etc/php/conf.d/assertions.ini:ro
       - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
       - ./theme/gampola-janamadyawediya:/var/www/html/wp-content/themes/gampola-janamadyawediya:ro
-      - ./ads.txt:/var/www/html/ads.txt:ro
     depends_on:
       mariadb:
         condition: service_healthy

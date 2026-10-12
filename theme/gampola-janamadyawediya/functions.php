@@ -514,6 +514,25 @@ function gjn_inject_monetag_verification() {
 }
 
 /**
+ * 9.5 Monetag ad tag (zone 12013222)
+ *
+ * Front end only: wp_head never fires in wp-admin, so the dashboard is
+ * untouched without needing a guard here.
+ *
+ * Unlike the verification meta tag above, this one is live ad code. The tag
+ * appends its own <script> element, and dynamically-inserted scripts load
+ * async, so it does not block parsing.
+ *
+ * Reproduce the vendor tag verbatim — do not reformat or minify it.
+ */
+add_action( 'wp_head', 'gjn_inject_monetag_tag', 10 );
+function gjn_inject_monetag_tag() {
+	?>
+	<script>(function(s){s.dataset.zone='12013222',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+	<?php
+}
+
+/**
  * Wrap a schema array in its script tag.
  *
  * Centralised so there is exactly one place that decides how schema reaches

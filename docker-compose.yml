@@ -17,6 +17,10 @@ services:
       - ./theme/gampola-janamadyawediya:/var/www/html/wp-content/themes/gampola-janamadyawediya:ro
       #AdSense ads.txt file
       - ./ads.txt:/var/www/html/ads.txt:ro
+      # Monetag service worker. Must live at the web root: a service worker's
+      # scope is capped at its own directory, and Monetag needs the whole
+      # domain. nginx serves it directly — PHP never sees this request.
+      - ./sw.js:/var/www/html/sw.js:ro
     
     depends_on:
       wordpress:

@@ -501,6 +501,19 @@ function gjn_inject_json_ld() {
 }
 
 /**
+ * 9.4 Monetag site verification
+ *
+ * Output on every page, not just the front page — Monetag verifies the domain
+ * by crawling it, and a tag that only exists on one URL is the usual reason
+ * verification fails. Leave it in place for as long as the domain is
+ * registered with them.
+ */
+add_action( 'wp_head', 'gjn_inject_monetag_verification', 2 );
+function gjn_inject_monetag_verification() {
+	echo '<meta name="monetag" content="eac395dc99f7bf4c4e1941f66794c9a5" />' . "\n";
+}
+
+/**
  * Wrap a schema array in its script tag.
  *
  * Centralised so there is exactly one place that decides how schema reaches

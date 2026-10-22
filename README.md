@@ -261,8 +261,7 @@ website behind a warning" treatment:
 > `sessionStorage`). They won't be re-prompted if they reload the page or
 > navigate back to it. Closing and reopening the browser resets the gate.
 >
-> **Gate language:** The gate text follows the site language — Sinhala
-> when WordPress is set to සිංහල, English otherwise. Developers can
+> **Gate text:** Sinhala, matching the rest of the site. Developers can
 > override individual strings via the `ncg_gate_texts` filter.
 
 For sensitive-topic posts (no graphic imagery but difficult subject

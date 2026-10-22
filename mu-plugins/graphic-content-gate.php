@@ -7,9 +7,7 @@
  *              reader's choice per post for the browser session so they
  *              are not re-prompted on reload or back-navigation.
  *
- * The gate text follows the site language: Sinhala when WordPress is set
- * to සිංහල (locale si_LK), English otherwise. Override via the
- * `ncg_gate_texts` filter.
+ * The gate text is Sinhala. Override via the `ncg_gate_texts` filter.
  *
  * To use: when publishing a post with graphic images/video, tick the
  * "Graphic Content" flag in the Content Flags panel (the content_flag
@@ -85,27 +83,17 @@ add_action(
 );
 
 /**
- * Gate texts, localized by site language.
- *
- * WordPress returns locale `si_LK` when the site language is Sinhala.
- * Anything else falls back to English. The `ncg_gate_texts` filter lets
- * an operator or developer override individual strings without editing
- * this file. The `body` string may contain simple HTML such as `<br>`.
+ * Gate texts. The site is Sinhala-only, so there is no locale switch.
+ * The `ncg_gate_texts` filter lets an operator or developer override
+ * individual strings without editing this file. The `body` string may
+ * contain simple HTML such as `<br>`.
  */
 function ncg_gate_texts() {
 	$texts = array(
-		'heading' => 'Sensitive content warning',
-		'body'    => 'This article contains graphic images or video related to a news event.<br>Viewer discretion is advised.',
-		'button'  => 'I understand, show me the content',
+		'heading' => 'සංවේදී අන්තර්ගත අනතුරු ඇඟවීම',
+		'body'    => 'මෙම ලිපියෙහි පුවත් සිදුවීමකට අදාළ රූප හෝ වීඩියෝ අඩංගු වේ.<br>බැලීමේදී සැලකිලිමත් වන්න.',
+		'button'  => 'මට වැටහුණා — අන්තර්ගතය පෙන්වන්න',
 	);
-
-	if ( in_array( get_locale(), array( 'si', 'si_LK' ), true ) ) {
-		$texts = array(
-			'heading' => 'සංවේදී අන්තර්ගත අනතුරු ඇඟවීම',
-			'body'    => 'මෙම ලිපියෙහි පුවත් සිදුවීමකට අදාළ රූප හෝ වීඩියෝ අඩංගු වේ.<br>බැලීමේදී සැලකිලිමත් වන්න.',
-			'button'  => 'මට වැටහුණා — අන්තර්ගතය පෙන්වන්න',
-		);
-	}
 
 	return apply_filters( 'ncg_gate_texts', $texts );
 }

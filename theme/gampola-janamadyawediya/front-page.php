@@ -156,7 +156,7 @@ $hero_posts = gjn_hero_posts();
 					<?php echo esc_html( wp_trim_words( wp_strip_all_tags( get_the_excerpt( $featured ) ), 40 ) ); ?>
 				</p>
 				<a href="<?php echo esc_url( get_permalink( $featured ) ); ?>" class="group mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-white">
-					<span class="border-b-2 border-white/30 pb-0.5 transition group-hover:border-white"><?php echo esc_html( gjn_l10n( 'සම්පූර්ණ පුවත කියවන්න', 'Read full story' ) ); ?></span>
+					<span class="border-b-2 border-white/30 pb-0.5 transition group-hover:border-white"><?php echo esc_html( 'සම්පූර්ණ පුවත කියවන්න' ); ?></span>
 					<svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
 					</svg>
@@ -260,7 +260,7 @@ $hero_posts = gjn_hero_posts();
 			<!-- Right Column: Quick Feed -->
 			<div class="lg:col-span-1 rounded-2xl bg-white dark:bg-nothing-surface p-6 shadow-sm ring-1 ring-neutral-200 dark:ring-nothing-elevated lg:p-8 transition-colors duration-300">
 				<div class="mb-6 border-b border-neutral-100 dark:border-nothing-elevated pb-4">
-					<h2 class="text-lg font-black text-nothing-charcoal dark:text-neutral-100"><?php echo esc_html( gjn_l10n( 'තවත් පුවත්', 'More news' ) ); ?></h2>
+					<h2 class="text-lg font-black text-nothing-charcoal dark:text-neutral-100"><?php echo esc_html( 'තවත් පුවත්' ); ?></h2>
 				</div>
 
 				<div class="flex flex-col gap-5">
@@ -309,8 +309,8 @@ function gjn_render_hero_fallback() {
 		<article class="relative flex min-h-[26rem] flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 p-6 text-center text-white ring-1 ring-white/10 sm:p-8 lg:min-h-[34rem]">
 			<?php gjn_watermark( 'h-48 w-48 opacity-[0.05] sm:h-64 sm:w-64 absolute' ); ?>
 			<div class="relative z-10 flex flex-col items-center gap-4">
-				<h2 class="text-2xl font-black text-white sm:text-3xl"><?php echo esc_html( gjn_l10n( 'තවමත් පුවත් පළ වී නැත', 'No news published yet' ) ); ?></h2>
-				<p class="max-w-md text-sm text-neutral-400 sm:text-base"><?php echo esc_html( gjn_l10n( 'පුවත් ලැබෙන විට මෙහි පළ වේ. කරුණාකර පසුව නැවත පැමිණෙන්න.', 'Stories appear here as they are published. Please check back later.' ) ); ?></p>
+				<h2 class="text-2xl font-black text-white sm:text-3xl"><?php echo esc_html( 'තවමත් පුවත් පළ වී නැත' ); ?></h2>
+				<p class="max-w-md text-sm text-neutral-400 sm:text-base"><?php echo esc_html( 'පුවත් ලැබෙන විට මෙහි පළ වේ. කරුණාකර පසුව නැවත පැමිණෙන්න.' ); ?></p>
 			</div>
 		</article>
 	</div>

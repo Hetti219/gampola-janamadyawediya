@@ -54,9 +54,9 @@ if ( empty( $related ) ) {
 }
 ?>
 
-<section class="gjn-related-posts" aria-label="<?php echo esc_attr( gjn_l10n( 'තවත් පුවත්', 'More news' ) ); ?>">
+<section class="gjn-related-posts" aria-label="<?php echo esc_attr( 'තවත් පුවත්' ); ?>">
 	<div class="gjn-related-header">
-		<h2 class="gjn-related-title"><?php echo esc_html( gjn_l10n( 'තවත් පුවත් — ඔබට වැදගත් විය හැකි', 'More news — you might find these interesting' ) ); ?></h2>
+		<h2 class="gjn-related-title"><?php echo esc_html( 'තවත් පුවත් — ඔබට වැදගත් විය හැකි' ); ?></h2>
 	</div>
 
 	<div class="gjn-related-grid">

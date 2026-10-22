@@ -100,42 +100,14 @@ function gjn_nothing_generate_settings( $settings ) {
 
 /* ───────────────────────────────────────────────────────────
    1c. SITE LANGUAGE
-   Content is Sinhala-first, but WordPress itself runs in en_US, so
-   GeneratePress prints lang="en-US". Pin the lang attribute to si-LK,
-   letting Polylang's explicit en/ta versions override.
+   WordPress itself runs in en_US, so GeneratePress prints lang="en-US".
+   Pin the lang attribute to si-LK.
    ─────────────────────────────────────────────────────────── */
 add_filter( 'language_attributes', 'gjn_language_attributes' );
 
 function gjn_language_attributes( $attributes ) {
-	$lang = 'si-LK';
-	if ( function_exists( 'pll_current_language' ) ) {
-		$current = pll_current_language( 'slug' );
-		if ( 'en' === $current ) {
-			$lang = 'en-US';
-		} elseif ( 'ta' === $current ) {
-			$lang = 'ta-LK';
-		}
-	}
-	return preg_replace( '/lang="[^"]*"/', 'lang="' . $lang . '"', $attributes );
+	return preg_replace( '/lang="[^"]*"/', 'lang="si-LK"', $attributes );
 }
-
-/**
- * The tagline is a single site-wide option, so without this the English
- * homepage title reads "ගම්පොල ජනමාධ්‍යවේදියා - <Sinhala tagline>".
- *
- * Deliberately not applied in wp-admin: Settings > General would otherwise
- * display the English text and saving it would overwrite the Sinhala option.
- */
-add_filter( 'option_blogdescription', 'gjn_english_tagline' );
-
-function gjn_english_tagline( $tagline ) {
-	if ( is_admin() || ! gjn_is_english() ) {
-		return $tagline;
-	}
-	return 'Responsible, trustworthy, people-centred journalism.';
-}
-
-
 
 /* ───────────────────────────────────────────────────────────
    2. THEME SETUP
@@ -225,7 +197,7 @@ function gjn_custom_latest_news_sidebar() {
 	}
 	?>
 	<aside class="widget gjn-latest-news-widget">
-		<h2 class="widget-title"><?php echo esc_html( gjn_l10n( 'නවතම පුවත්', 'Latest news' ) ); ?></h2>
+		<h2 class="widget-title"><?php echo esc_html( 'නවතම පුවත්' ); ?></h2>
 		<div class="gjn-latest-news-list">
 			<?php foreach ( $recent as $item ) : ?>
 				<a href="<?php echo esc_url( get_permalink( $item->ID ) ); ?>" class="gjn-latest-news-item">
@@ -327,7 +299,7 @@ function gjn_reading_time() {
 		'<circle cx="12" cy="12" r="10"/>' .
 		'<polyline points="12 6 12 12 16 14"/>' .
 		'</svg>' .
-		esc_html( gjn_l10n( 'විනාඩි %dක කියවීමක්', '%d min read' ) ) .
+		esc_html( 'විනාඩි %dක කියවීමක්' ) .
 		'</span>',
 		$minutes
 	);
@@ -439,7 +411,7 @@ function gjn_inject_fallback_seo() {
 	$site_name = get_bloginfo( 'name' );
 
 	if ( is_front_page() || is_home() ) {
-		$desc = gjn_is_english() ? 'Responsible, trustworthy, people-centred journalism.' : 'අපගේ මෙහෙවර වන්නේ වගකීම් සහිත, විශ්වසනීය, ජනතා කේන්ද්රීය මාධ්යකරණයයි.';
+		$desc = 'අපගේ මෙහෙවර වන්නේ වගකීම් සහිත, විශ්වසනීය, ජනතා කේන්ද්රීය මාධ්යකරණයයි.';
 		echo '<meta name="description" content="' . esc_attr( $desc ) . '" />' . "\n";
 		echo '<meta property="og:type" content="website" />' . "\n";
 		echo '<meta property="og:title" content="' . esc_attr( $site_name ) . '" />' . "\n";

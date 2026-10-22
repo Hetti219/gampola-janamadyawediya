@@ -17,7 +17,7 @@ $share_title = rawurlencode( get_the_title() . ' — ' . get_bloginfo( 'name' ) 
 $share_text  = $share_title . '%0A' . $share_url;
 ?>
 
-<div class="gjn-share-row" aria-label="<?php echo esc_attr( gjn_l10n( 'බෙදාගන්න', 'Share' ) ); ?>">
+<div class="gjn-share-row" aria-label="<?php echo esc_attr( 'බෙදාගන්න' ); ?>">
 	<a href="https://wa.me/?text=<?php echo $share_text; ?>"
 	   target="_blank"
 	   rel="noopener noreferrer"

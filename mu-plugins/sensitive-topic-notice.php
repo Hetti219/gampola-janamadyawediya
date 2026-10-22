@@ -12,9 +12,8 @@
  *              or other sensitive subjects that don't contain graphic imagery
  *              but still warrant a content notice.
  *
- *              The notice text follows the site language: Sinhala when
- *              WordPress is set to සිංහල, English otherwise. Override via
- *              the `ncg_sensitive_notice_texts` filter.
+ *              The notice text is Sinhala. Override via the
+ *              `ncg_sensitive_notice_texts` filter.
  *
  * @package Gampola_Janamadyawediya
  * @since   1.0.0
@@ -38,22 +37,15 @@ function ncg_is_sensitive_post() {
 }
 
 /**
- * Notice texts, localized by site language.
+ * Notice texts. The site is Sinhala-only, so there is no locale switch.
+ * The `ncg_sensitive_notice_texts` filter remains as an override hook.
  */
 function ncg_sensitive_notice_texts() {
 	$texts = array(
-		'heading' => 'Content notice',
-		'body'    => 'This article discusses sensitive topics that some readers may find distressing.',
-		'dismiss' => 'Dismiss',
+		'heading' => 'අන්තර්ගත දැනුම්දීම',
+		'body'    => 'මෙම ලිපියේ සමහර පාඨකයින්ට අපහසුතාවයක් ඇති කළ හැකි සංවේදී මාතෘකා සාකච්ඡා කෙරේ.',
+		'dismiss' => 'වසන්න',
 	);
-
-	if ( in_array( get_locale(), array( 'si', 'si_LK' ), true ) ) {
-		$texts = array(
-			'heading' => 'අන්තර්ගත දැනුම්දීම',
-			'body'    => 'මෙම ලිපියේ සමහර පාඨකයින්ට අපහසුතාවයක් ඇති කළ හැකි සංවේදී මාතෘකා සාකච්ඡා කෙරේ.',
-			'dismiss' => 'වසන්න',
-		);
-	}
 
 	return apply_filters( 'ncg_sensitive_notice_texts', $texts );
 }

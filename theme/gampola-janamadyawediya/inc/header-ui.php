@@ -74,7 +74,7 @@ add_action('wp_footer', function () {
 
 					// Keep browser-chrome theme-color in step with the toggle
 					document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
-						m.setAttribute('content', isDark ? '#1B1B1D' : '#F5F5F5');
+						m.setAttribute('content', isDark ? '#000831' : '#ebd999');
 					});
 				}
 				syncToggle();
@@ -210,24 +210,24 @@ function gjn_top_bar()
 		'whatsapp' => '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>',
 	);
 	?>
-	<div class="bg-nothing-charcoal text-neutral-400">
+	<div class="bg-wada-indigo text-wada-seashell/60">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 text-xs sm:px-6 sm:text-sm">
 			<div class="flex shrink-0 items-center gap-2">
-				<svg class="hidden h-4 w-4 shrink-0 text-neutral-500 sm:block" fill="none" viewBox="0 0 24 24"
+				<svg class="hidden h-4 w-4 shrink-0 text-wada-seashell/40 sm:block" fill="none" viewBox="0 0 24 24"
 					stroke-width="1.8" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round"
 						d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
 				</svg>
 				<span
-					class="whitespace-nowrap font-medium text-neutral-200"><?php echo esc_html(gjn_sinhala_date(current_time('timestamp'))); ?></span>
+					class="whitespace-nowrap font-medium text-wada-seashell"><?php echo esc_html(gjn_sinhala_date(current_time('timestamp'))); ?></span>
 			</div>
 
 			<?php $gjn_description = get_bloginfo('description'); ?>
 			<?php if ($gjn_description) : ?>
-			<p class="hidden items-center gap-2.5 text-center font-medium text-neutral-400 md:flex">
-				<span class="h-1 w-1 shrink-0 rounded-full bg-neutral-500"></span>
+			<p class="hidden items-center gap-2.5 text-center font-medium text-wada-seashell/60 md:flex">
+				<span class="h-1 w-1 shrink-0 rounded-full bg-wada-seashell/40"></span>
 				<?php echo esc_html($gjn_description); ?>
-				<span class="h-1 w-1 shrink-0 rounded-full bg-neutral-500"></span>
+				<span class="h-1 w-1 shrink-0 rounded-full bg-wada-seashell/40"></span>
 			</p>
 			<?php endif; ?>
 
@@ -244,7 +244,7 @@ function gjn_top_bar()
 						} ?>
 						<a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener"
 							aria-label="<?php echo esc_attr(ucfirst($network)); ?>"
-							class="text-neutral-400 transition hover:text-white">
+							class="text-wada-seashell/60 transition hover:text-wada-seashell">
 							<svg class="h-4 w-4" fill="currentColor"
 								viewBox="0 0 24 24"><?php echo $social_icons[$network]; // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG markup. ?></svg>
 						</a>
@@ -263,7 +263,7 @@ function gjn_top_bar()
 function gjn_site_header()
 {
 	?>
-	<header class="border-b border-neutral-200 dark:border-nothing-elevated bg-white dark:bg-nothing-surface transition-colors duration-300">
+	<header class="border-b border-wada-slate/10 dark:border-wada-seashell/10 bg-wada-yellow dark:bg-wada-violet transition-colors duration-300">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
 			<a href="<?php echo esc_url(home_url('/')); ?>" class="flex min-w-0 items-center gap-3">
 				<span class="h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-lg shadow-black/20 ring-1 ring-black/10">
@@ -271,32 +271,32 @@ function gjn_site_header()
 						class="h-full w-full object-cover">
 				</span>
 				<span class="min-w-0">
-					<span class="block truncate text-xl font-black leading-tight text-nothing-charcoal dark:text-neutral-100 sm:text-2xl"><?php echo esc_html(get_bloginfo('name')); ?></span>
-					<span class="block text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500 dark:text-neutral-400 font-dot">Gampola Janamadyawediya</span>
+					<span class="block truncate text-xl font-black leading-tight text-wada-slate dark:text-wada-seashell sm:text-2xl"><?php echo esc_html(get_bloginfo('name')); ?></span>
+					<span class="block text-[10px] font-bold uppercase tracking-[0.3em] text-wada-slate/50 dark:text-wada-seashell/60 font-dot">Gampola Janamadyawediya</span>
 				</span>
 			</a>
 
 			<div class="flex items-center gap-3">
 				<!-- Nothing-style pill toggle with icons -->
 				<button id="theme-toggle" role="switch" aria-checked="false" aria-label="Toggle Dark Mode"
-					class="relative flex h-8 w-16 items-center rounded-full border border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-nothing-elevated transition-all duration-300 hover:border-neutral-400 dark:hover:border-neutral-500 cursor-pointer select-none">
-					<div class="flex w-full justify-between px-1 text-neutral-500 dark:text-neutral-400">
+					class="relative flex h-8 w-16 items-center rounded-full border border-wada-slate/20 dark:border-wada-seashell/20 bg-wada-buff dark:bg-wada-violet-up transition-all duration-300 hover:border-wada-slate/40 dark:hover:border-wada-seashell/30 cursor-pointer select-none">
+					<div class="flex w-full justify-between px-1 text-wada-slate/50 dark:text-wada-seashell/60">
 						<!-- Sun icon -->
 						<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
 						<!-- Moon icon -->
 						<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
 					</div>
-					<span id="theme-toggle-dot" class="absolute left-1 h-6 w-6 rounded-full bg-nothing-charcoal dark:bg-white transition-transform duration-300" style="transform: translateX(0)"></span>
+					<span id="theme-toggle-dot" class="absolute left-1 h-6 w-6 rounded-full bg-wada-slate dark:bg-wada-seashell transition-transform duration-300" style="transform: translateX(0)"></span>
 				</button>
 				<div class="relative hidden shrink-0 md:block">
-					<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+					<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-wada-slate/40"
 						fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round"
 							d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
 					</svg>
 					<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
 						<input type="text" name="s" placeholder="<?php echo esc_attr( 'පුවත් සොයන්න…' ); ?>"
-							class="w-44 rounded-full border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-nothing-elevated dark:text-neutral-100 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-nothing-charcoal dark:focus:border-neutral-400 focus:bg-white dark:focus:bg-nothing-elevated focus:ring-2 focus:ring-nothing-charcoal/10 dark:focus:ring-white/10">
+							class="w-44 rounded-full border border-wada-slate/20 dark:border-wada-seashell/20 bg-wada-buff dark:bg-wada-violet-up dark:text-wada-seashell !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:w-56 focus:border-wada-slate dark:focus:border-wada-seashell/60 focus:bg-wada-yellow dark:focus:bg-wada-violet-up focus:ring-2 focus:ring-wada-slate/10 dark:focus:ring-wada-seashell/10">
 					</form>
 				</div>
 			</div>
@@ -305,7 +305,7 @@ function gjn_site_header()
 		<!-- Mobile Search (Full Width) -->
 		<div class="border-t border-neutral-100 dark:border-nothing-elevated bg-neutral-50/50 dark:bg-nothing-elevated/50 px-4 py-3 md:hidden">
 			<div class="relative mx-auto max-w-md">
-				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-wada-slate/40"
 					fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round"
 						d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />

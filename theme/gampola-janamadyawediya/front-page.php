@@ -70,7 +70,7 @@ function gjn_hero_posts() {
  * on the featured card.
  */
 function gjn_badge_classes( $slug ) {
-	return 'bg-white/15 text-white hover:text-white backdrop-blur font-dot';
+	return 'bg-wada-seashell/15 text-wada-seashell hover:text-wada-seashell backdrop-blur font-dot';
 }
 
 /**

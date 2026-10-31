@@ -303,7 +303,7 @@ function gjn_site_header()
 		</div>
 
 		<!-- Mobile Search (Full Width) -->
-		<div class="border-t border-neutral-100 dark:border-nothing-elevated bg-neutral-50/50 dark:bg-nothing-elevated/50 px-4 py-3 md:hidden">
+		<div class="border-t border-wada-slate/5 dark:border-wada-seashell/10 bg-wada-buff/50 dark:bg-wada-violet-up/50 px-4 py-3 md:hidden">
 			<div class="relative mx-auto max-w-md">
 				<svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-wada-slate/40"
 					fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -312,7 +312,7 @@ function gjn_site_header()
 				</svg>
 				<form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
 					<input type="text" name="s" placeholder="<?php echo esc_attr( 'පුවත් සොයන්න…' ); ?>"
-						class="w-full rounded-full border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-nothing-elevated dark:text-neutral-100 !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-nothing-charcoal dark:focus:border-neutral-400 focus:ring-2 focus:ring-nothing-charcoal/10 dark:focus:ring-white/10">
+						class="w-full rounded-full border border-wada-slate/20 dark:border-wada-seashell/20 bg-wada-yellow dark:bg-wada-violet-up dark:text-wada-seashell !py-2 !pl-10 !pr-4 text-sm outline-none transition-all focus:border-wada-slate dark:focus:border-wada-seashell/60 focus:ring-2 focus:ring-wada-slate/10 dark:focus:ring-wada-seashell/10">
 				</form>
 			</div>
 		</div>
@@ -333,7 +333,7 @@ add_filter(
 		if (!empty($args->theme_location) && 'primary' === $args->theme_location) {
 			$atts['class'] = trim(
 				($atts['class'] ?? '') .
-				' whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-neutral-100 hover:text-nothing-charcoal dark:hover:bg-nothing-elevated dark:hover:text-neutral-100'
+				' whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-wada-buff hover:text-wada-slate dark:hover:bg-wada-violet-up dark:hover:text-wada-seashell'
 			);
 		}
 		return $atts;
@@ -364,12 +364,12 @@ function gjn_nav_fallback()
 		}
 	}
 
-	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">';
+	echo '<ul class="nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-wada-slate/70 dark:text-wada-seashell/70">';
 	$first = true;
 	foreach ($links as $label => $url) {
 		$active = $first ? ' current-menu-item' : '';
 		echo '<li class="menu-item' . esc_attr($active) . '">';
-		echo '<a href="' . esc_url($url) . '" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-neutral-100 hover:text-nothing-charcoal dark:hover:bg-nothing-elevated dark:hover:text-neutral-100">' . esc_html($label) . '</a>';
+		echo '<a href="' . esc_url($url) . '" class="whitespace-nowrap rounded-full px-4 py-2 transition hover:bg-wada-buff hover:text-wada-slate dark:hover:bg-wada-violet-up dark:hover:text-wada-seashell">' . esc_html($label) . '</a>';
 		echo '</li>';
 		$first = false;
 	}
@@ -379,14 +379,14 @@ function gjn_nav_fallback()
 function gjn_navigation()
 {
 	?>
-	<nav class="gjn-nav sticky top-0 z-40 border-b border-neutral-200 dark:border-nothing-elevated bg-white/90 dark:bg-nothing-surface/90 backdrop-blur-xl transition-colors duration-300">
+	<nav class="gjn-nav sticky top-0 z-40 border-b border-wada-slate/10 dark:border-wada-seashell/10 bg-wada-yellow/90 dark:bg-wada-violet/90 backdrop-blur-xl transition-colors duration-300">
 		<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
 			<?php
 			wp_nav_menu(
 				array(
 					'theme_location' => 'primary',
 					'container' => false,
-					'menu_class' => 'nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300',
+					'menu_class' => 'nav-primary no-scrollbar flex items-center gap-1 overflow-x-auto py-3 text-sm font-semibold text-wada-slate/70 dark:text-wada-seashell/70',
 					'depth' => 1,
 					'fallback_cb' => 'gjn_nav_fallback',
 				)
@@ -439,22 +439,22 @@ function gjn_news_ticker()
 		return;
 	}
 	?>
-	<div class="ticker bg-nothing-red text-white">
+	<div class="ticker bg-wada-red text-wada-seashell">
 		<div class="mx-auto flex max-w-7xl items-stretch">
-			<div class="relative z-10 flex shrink-0 items-center gap-2.5 bg-nothing-charcoal px-3.5 py-1.5 sm:px-4">
+			<div class="relative z-10 flex shrink-0 items-center gap-2.5 bg-wada-indigo px-3.5 py-1.5 sm:px-4">
 				<span class="relative flex h-2.5 w-2.5">
-					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-nothing-red opacity-75"></span>
-					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-nothing-red"></span>
+					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-wada-red opacity-75"></span>
+					<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-wada-red"></span>
 				</span>
 				<span class="text-sm font-black uppercase tracking-widest font-dot">Breaking</span>
-				<span class="hidden text-xs font-semibold text-neutral-300 sm:inline"><?php echo esc_html( 'විශේෂ පුවත්' ); ?></span>
+				<span class="hidden text-xs font-semibold text-wada-seashell/60 sm:inline"><?php echo esc_html( 'විශේෂ පුවත්' ); ?></span>
 			</div>
 
 			<div class="relative flex flex-1 items-center overflow-hidden group">
 				<div class="animate-marquee flex w-max items-center">
 					<?php echo gjn_ticker_items_html($items); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
-				<button aria-label="Pause ticker" class="gjn-ticker-toggle absolute right-0 z-20 flex h-full items-center justify-center bg-gradient-to-l from-nothing-red via-nothing-red px-3 text-white/70 transition hover:text-white sm:px-4">
+				<button aria-label="Pause ticker" class="gjn-ticker-toggle absolute right-0 z-20 flex h-full items-center justify-center bg-gradient-to-l from-wada-red via-wada-red px-3 text-wada-seashell/70 transition hover:text-wada-seashell sm:px-4">
 					<svg class="h-4 w-4 pause-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
 					<svg class="h-4 w-4 play-icon hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
 				</button>

@@ -60,35 +60,35 @@ function gjn_enqueue_assets() {
    accent, #636363 top bar, #55555e buttons) as inline CSS on every page.
    The child stylesheet masks most of it, but Gutenberg blocks using GP
    global-colour classes (.has-accent-color, …) would still render blue.
-   These filters pin the palette to the Nothing OS colours at the source,
+   These filters pin the palette to the Wada theme colours at the source,
    on every environment, without writing to the database.
    ─────────────────────────────────────────────────────────── */
-add_filter( 'option_generate_settings', 'gjn_nothing_generate_settings' );
-add_filter( 'default_option_generate_settings', 'gjn_nothing_generate_settings' );
+add_filter( 'option_generate_settings', 'gjn_wada_generate_settings' );
+add_filter( 'default_option_generate_settings', 'gjn_wada_generate_settings' );
 
 // GeneratePress bakes its dynamic CSS into the generate_dynamic_css_output
 // option on Customizer saves. Skip that cache so the CSS is generated fresh
 // per request and the palette filter above always applies.
 add_filter( 'generate_dynamic_css_skip_cache', '__return_true' );
 
-function gjn_nothing_generate_settings( $settings ) {
+function gjn_wada_generate_settings( $settings ) {
 	$palette = array(
-		'top_bar_background_color'           => '#1B1B1D',
-		'top_bar_text_color'                 => '#F5F5F5',
-		'top_bar_link_color'                 => '#F5F5F5',
-		'top_bar_link_color_hover'           => '#A1A1A6',
-		'form_button_background_color'       => '#1B1B1D',
-		'form_button_background_color_hover' => '#2E2E30',
-		'form_button_text_color'             => '#F5F5F5',
-		'form_button_text_color_hover'       => '#F5F5F5',
+		'top_bar_background_color'           => '#000831',
+		'top_bar_text_color'                 => '#ffcfc4',
+		'top_bar_link_color'                 => '#ffcfc4',
+		'top_bar_link_color_hover'           => '#ff5200',
+		'form_button_background_color'       => '#0f261f',
+		'form_button_background_color_hover' => '#1a3d32',
+		'form_button_text_color'             => '#f5f5b8',
+		'form_button_text_color_hover'       => '#f5f5b8',
 		'global_colors'                      => array(
-			array( 'name' => __( 'Contrast', 'generatepress' ),   'slug' => 'contrast',   'color' => '#1B1B1D' ),
-			array( 'name' => __( 'Contrast 2', 'generatepress' ), 'slug' => 'contrast-2', 'color' => '#404040' ),
-			array( 'name' => __( 'Contrast 3', 'generatepress' ), 'slug' => 'contrast-3', 'color' => '#A1A1A6' ),
-			array( 'name' => __( 'Base', 'generatepress' ),       'slug' => 'base',       'color' => '#F5F5F5' ),
-			array( 'name' => __( 'Base 2', 'generatepress' ),     'slug' => 'base-2',     'color' => '#F5F5F5' ),
-			array( 'name' => __( 'Base 3', 'generatepress' ),     'slug' => 'base-3',     'color' => '#FFFFFF' ),
-			array( 'name' => __( 'Accent', 'generatepress' ),     'slug' => 'accent',     'color' => '#1B1B1D' ),
+			array( 'name' => __( 'Contrast', 'generatepress' ),   'slug' => 'contrast',   'color' => '#0f261f' ),
+			array( 'name' => __( 'Contrast 2', 'generatepress' ), 'slug' => 'contrast-2', 'color' => '#1e4a3a' ),
+			array( 'name' => __( 'Contrast 3', 'generatepress' ), 'slug' => 'contrast-3', 'color' => '#2d5e4b' ),
+			array( 'name' => __( 'Base', 'generatepress' ),       'slug' => 'base',       'color' => '#ebd999' ),
+			array( 'name' => __( 'Base 2', 'generatepress' ),     'slug' => 'base-2',     'color' => '#ebd999' ),
+			array( 'name' => __( 'Base 3', 'generatepress' ),     'slug' => 'base-3',     'color' => '#f5f5b8' ),
+			array( 'name' => __( 'Accent', 'generatepress' ),     'slug' => 'accent',     'color' => '#008aa1' ),
 		),
 	);
 
@@ -394,8 +394,8 @@ function gjn_inject_favicon() {
 	}
 	// Browser-chrome colour per theme; the toggle script in header-ui.php
 	// updates these when the visitor switches theme manually.
-	echo '<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F5" />' . "\n";
-	echo '<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1B1B1D" />' . "\n";
+	echo '<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ebd999" />' . "\n";
+	echo '<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000831" />' . "\n";
 }
 
 /**

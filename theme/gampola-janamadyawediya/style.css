@@ -1,7 +1,7 @@
 /*
  Theme Name:   Gampola Janamadyawediya
  Theme URI:    https://gampolajanamadyawediya.com
- Description:  Nothing OS 5.0-inspired monochrome news theme for a Sinhala-language local journalism site.
+ Description:  Wada palette news theme for a Sinhala-language local journalism site.
  Author:       Sathikashervinhettiarachchi
  Author URI:   https://hetti219.github.io
  Template:     generatepress
@@ -90,6 +90,10 @@
 	--gjn-bg-body: #000831;
 	--gjn-bg-surface: #06004f;
 	--gjn-bg-surface-lucent: rgba(6, 0, 79, 0.65);
+
+	/* Wada Dark accents */
+	--gjn-accent-primary: #f20000;
+	--gjn-accent-secondary: #ff5200;
 
 	--gjn-text-main: #ffcfc4;
 	--gjn-text-muted: #ffcfc4aa;
@@ -791,10 +795,10 @@ body button.button:hover {
 	font-family: var(--gjn-font-heading);
 	font-size: 1.1rem;
 	font-weight: 700;
-	color: #ffffff;
+	color: var(--gjn-text-on-dark);
 	display: inline-block;
 	padding-bottom: 6px;
-	border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+	border-bottom: 2px solid var(--gjn-border-on-dark);
 	margin: 0 0 12px;
 }
 
@@ -810,7 +814,7 @@ body button.button:hover {
 	font-family: var(--gjn-font-heading);
 	font-size: 0.8rem;
 	font-weight: 700;
-	color: #ffffff;
+	color: var(--gjn-text-on-dark);
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	margin: 0 0 12px;
@@ -867,8 +871,8 @@ body button.button:hover {
 }
 
 .footer-widgets .widget .widget-title {
-	color: #ffffff;
-	border-left: 4px solid rgba(255, 255, 255, 0.35);
+	color: var(--gjn-text-on-dark);
+	border-left: 4px solid var(--gjn-border-on-dark);
 	padding-left: 12px;
 }
 

@@ -45,13 +45,22 @@ module.exports = {
         ],
       },
       colors: {
-        // Nothing OS 5.0 signature palette
-        'nothing': {
-          red:       '#D71921',
-          'red-dim': '#B8151B',
-          charcoal:  '#1B1B1D',
-          surface:   '#242426',
-          elevated:  '#2E2E30',
+        // Wada palette
+        'wada': {
+          // Dark mode
+          indigo:    '#000831',   // Background
+          violet:    '#06004f',   // Surface / Cards
+          'violet-up': '#0e0066', // Elevated surface (hover)
+          red:       '#f20000',   // Primary accent
+          orange:    '#ff5200',   // Secondary accent
+          seashell:  '#ffcfc4',   // Typography / Icons
+
+          // Light mode
+          buff:      '#ebd999',   // Background
+          yellow:    '#f5f5b8',   // Surface / Cards
+          blue:      '#008aa1',   // Primary accent
+          english:   '#de4500',   // Secondary accent
+          slate:     '#0f261f',   // Typography / Icons
         },
       },
     },

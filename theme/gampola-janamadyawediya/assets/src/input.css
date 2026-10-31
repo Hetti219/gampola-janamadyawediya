@@ -15,10 +15,10 @@
    ─────────────────────────────────────────────────────────── */
 @layer base {
 	::selection {
-		@apply bg-nothing-charcoal text-white;
+		@apply bg-wada-slate text-wada-yellow;
 	}
 	[data-theme="dark"] ::selection {
-		@apply bg-neutral-200 text-nothing-charcoal;
+		@apply bg-wada-seashell text-wada-indigo;
 	}
 }
 
@@ -26,19 +26,19 @@
    Primary nav — monochrome pill on the active item
    ─────────────────────────────────────────────────────────── */
 .nav-primary li[class*="current-menu-"] > a {
-	@apply rounded-full bg-nothing-charcoal text-white shadow-md shadow-nothing-charcoal/20;
+	@apply rounded-full bg-wada-slate text-wada-yellow shadow-md shadow-wada-slate/20;
 }
 
 [data-theme="dark"] .nav-primary li[class*="current-menu-"] > a {
-	@apply bg-white text-nothing-charcoal shadow-white/10;
+	@apply bg-wada-seashell text-wada-indigo shadow-wada-seashell/10;
 }
 
 .nav-primary li[class*="current-menu-"] > a:hover {
-	@apply bg-neutral-800 text-white;
+	@apply bg-wada-slate/80 text-wada-yellow;
 }
 
 [data-theme="dark"] .nav-primary li[class*="current-menu-"] > a:hover {
-	@apply bg-neutral-200 text-nothing-charcoal;
+	@apply bg-wada-seashell/80 text-wada-indigo;
 }
 
 /* Modern slanted separators for nav items */
@@ -50,11 +50,11 @@
 }
 .nav-primary li:not(:last-child)::after {
 	content: '';
-	@apply block w-px h-3.5 bg-neutral-300 shrink-0;
+	@apply block w-px h-3.5 bg-wada-slate/20 shrink-0;
 	transform: skewX(-24deg);
 }
 [data-theme="dark"] .nav-primary li:not(:last-child)::after {
-	@apply bg-neutral-600;
+	@apply bg-wada-seashell/20;
 }
 
 /* ───────────────────────────────────────────────────────────

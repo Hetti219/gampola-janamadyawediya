@@ -1,7 +1,7 @@
 /*
  Theme Name:   Gampola Janamadyawediya
  Theme URI:    https://gampolajanamadyawediya.com
- Description:  Nothing OS 5.0-inspired monochrome news theme for a Sinhala-language local journalism site.
+ Description:  Wada palette news theme for a Sinhala-language local journalism site.
  Author:       Sathikashervinhettiarachchi
  Author URI:   https://hetti219.github.io
  Template:     generatepress
@@ -18,39 +18,43 @@
    1. DESIGN TOKENS (VARIABLES)
    ─────────────────────────────────────────────────────────── */
 :root {
-	/* Brand: Nothing OS Red (used only for breaking news) */
-	--gjn-red: #D71921;
-	--gjn-red-hover: #B8151B;
-	--gjn-red-soft: rgba(215, 25, 33, 0.1);
+	/* Brand: Wada Primary Accent (breaking news / highlights) */
+	--gjn-red: #f20000;
+	--gjn-red-hover: #cc0000;
+	--gjn-red-soft: rgba(242, 0, 0, 0.1);
 
-	/* Interactive states — monochrome (Nothing OS 5.0) */
-	--gjn-btn-bg: #1B1B1D;
-	--gjn-btn-hover: #2E2E30;
-	--gjn-btn-text: #F5F5F5;
-	--gjn-focus-ring: rgba(27, 27, 29, 0.12);
+	/* Wada accents */
+	--gjn-accent-primary: #008aa1;
+	--gjn-accent-secondary: #de4500;
 
-	/* Footer — always dark, in both themes */
-	--gjn-ink: #1B1B1D;
-	--gjn-ink-soft: #242426;
-	--gjn-ink-deep: #161617;
-	--gjn-text-on-dark: #F5F5F5;
-	--gjn-text-on-dark-muted: #A1A1A6;
-	--gjn-border-on-dark: rgba(255, 255, 255, 0.15);
+	/* Interactive states — Wada Light */
+	--gjn-btn-bg: #0f261f;
+	--gjn-btn-hover: #1a3d32;
+	--gjn-btn-text: #f5f5b8;
+	--gjn-focus-ring: rgba(15, 38, 31, 0.12);
 
-	/* Light mode (Default) */
-	--gjn-bg-body: #F5F5F5;
-	--gjn-bg-surface: #FFFFFF;
-	--gjn-bg-surface-lucent: rgba(255, 255, 255, 0.65);
+	/* Footer — always dark (Wada Dark palette) */
+	--gjn-ink: #000831;
+	--gjn-ink-soft: #06004f;
+	--gjn-ink-deep: #000520;
+	--gjn-text-on-dark: #ffcfc4;
+	--gjn-text-on-dark-muted: #ffcfc4aa;
+	--gjn-border-on-dark: rgba(255, 207, 196, 0.15);
 
-	--gjn-text-main: #1B1B1D;
-	--gjn-text-muted: #404040;
+	/* Light mode (Default — Wada Earthy, Organic) */
+	--gjn-bg-body: #ebd999;
+	--gjn-bg-surface: #f5f5b8;
+	--gjn-bg-surface-lucent: rgba(245, 245, 184, 0.65);
+
+	--gjn-text-main: #0f261f;
+	--gjn-text-muted: #1e4a3a;
 
 	/* Borders & depth */
-	--gjn-border: rgba(0, 0, 0, 0.08);
-	--gjn-border-strong: rgba(0, 0, 0, 0.15);
-	--gjn-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-	--gjn-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
-	--gjn-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
+	--gjn-border: rgba(15, 38, 31, 0.10);
+	--gjn-border-strong: rgba(15, 38, 31, 0.20);
+	--gjn-shadow-sm: 0 2px 8px rgba(15, 38, 31, 0.06);
+	--gjn-shadow-md: 0 4px 14px rgba(15, 38, 31, 0.10);
+	--gjn-shadow-hover: 0 12px 32px rgba(15, 38, 31, 0.14);
 
 	/* Typography */
 	--gjn-font-heading: 'Geist Sans', 'Noto Sans Sinhala', system-ui, -apple-system, sans-serif;
@@ -82,23 +86,28 @@
 }
 
 [data-theme="dark"] {
-	--gjn-bg-body: #1B1B1D;
-	--gjn-bg-surface: #242426;
-	--gjn-bg-surface-lucent: rgba(36, 36, 38, 0.65);
+	/* Wada Dark Mode (High Depth, Low Saturation) */
+	--gjn-bg-body: #000831;
+	--gjn-bg-surface: #06004f;
+	--gjn-bg-surface-lucent: rgba(6, 0, 79, 0.65);
 
-	--gjn-text-main: #F5F5F5;
-	--gjn-text-muted: #A1A1A6;
+	/* Wada Dark accents */
+	--gjn-accent-primary: #f20000;
+	--gjn-accent-secondary: #ff5200;
 
-	--gjn-btn-bg: #F5F5F5;
-	--gjn-btn-hover: #E5E5E5;
-	--gjn-btn-text: #1B1B1D;
-	--gjn-focus-ring: rgba(245, 245, 245, 0.18);
+	--gjn-text-main: #ffcfc4;
+	--gjn-text-muted: #ffcfc4aa;
 
-	--gjn-border: rgba(255, 255, 255, 0.08);
-	--gjn-border-strong: rgba(255, 255, 255, 0.15);
-	--gjn-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-	--gjn-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.3);
-	--gjn-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.4);
+	--gjn-btn-bg: #ffcfc4;
+	--gjn-btn-hover: #ffe0d7;
+	--gjn-btn-text: #000831;
+	--gjn-focus-ring: rgba(255, 207, 196, 0.18);
+
+	--gjn-border: rgba(255, 207, 196, 0.08);
+	--gjn-border-strong: rgba(255, 207, 196, 0.15);
+	--gjn-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+	--gjn-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
+	--gjn-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -786,10 +795,10 @@ body button.button:hover {
 	font-family: var(--gjn-font-heading);
 	font-size: 1.1rem;
 	font-weight: 700;
-	color: #ffffff;
+	color: var(--gjn-text-on-dark);
 	display: inline-block;
 	padding-bottom: 6px;
-	border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+	border-bottom: 2px solid var(--gjn-border-on-dark);
 	margin: 0 0 12px;
 }
 
@@ -805,7 +814,7 @@ body button.button:hover {
 	font-family: var(--gjn-font-heading);
 	font-size: 0.8rem;
 	font-weight: 700;
-	color: #ffffff;
+	color: var(--gjn-text-on-dark);
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	margin: 0 0 12px;
@@ -862,8 +871,8 @@ body button.button:hover {
 }
 
 .footer-widgets .widget .widget-title {
-	color: #ffffff;
-	border-left: 4px solid rgba(255, 255, 255, 0.35);
+	color: var(--gjn-text-on-dark);
+	border-left: 4px solid var(--gjn-border-on-dark);
 	padding-left: 12px;
 }
 
